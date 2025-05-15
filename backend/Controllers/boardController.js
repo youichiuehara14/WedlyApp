@@ -7,26 +7,10 @@ const Board = require('../Models/boards');
 
 const createNewBoard = async (req, res) => {
   try {
-    const {
-      name,
-      owner,
-      members,
-      totalBudget,
-      totalSpent,
-      totalRemaining,
-      weddingDate,
-    } = req.body;
+    const { name, owner, members, totalBudget, weddingDate } = req.body;
 
     // Check if all fields are provided
-    if (
-      !name ||
-      !owner ||
-      !members ||
-      !totalBudget ||
-      !totalSpent ||
-      !totalRemaining ||
-      !weddingDate
-    ) {
+    if (!name || !owner || !members || !totalBudget || !weddingDate) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
@@ -48,8 +32,6 @@ const createNewBoard = async (req, res) => {
       owner,
       members,
       totalBudget,
-      totalSpent,
-      totalRemaining,
       weddingDate,
       createdAt: new Date(),
     });

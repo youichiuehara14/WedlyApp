@@ -1,5 +1,23 @@
 const Vendor = require('../Models/vendors');
 const Board = require('../Models/boards');
+const Task = require('../Models/tasks');
+
+//////////////////////////////////////////////////////
+// Helper Function to compute the total cost of all tasks during creation, update, and delete
+// Make sure that totals are always up to date
+//////////////////////////////////////////////////////
+
+const updateBoardBudget = async (boardId) => {
+  const tasks = await Task.find({ board: boardId });
+  const totalSpent = tasks.reduce((sum, task) => sum + (task.cost || 0), 0);
+
+  const board = await Board.findById(boardId);
+  if (!board) throw new Error('Board not found while updating budget');
+
+  board.totalSpent = totalSpent;
+  board.totalRemaining = board.totalBudget - totalSpent;
+  await board.save();
+};
 
 //////////////////////////////////////////////////////
 // Create a Vendor
@@ -100,7 +118,24 @@ const updateVendor = async (req, res) => {
       return res.status(404).json({ message: 'Vendor not found' });
     }
 
-    // Get the full board details separately (not populated in the vendor)
+    // Update all tasks using this vendor to sync cost and category
+    const tasksUsingVendor = await Task.find({ vendor: vendorId });
+
+    if (tasksUsingVendor.length > 0) {
+      await Task.updateMany(
+        { vendor: vendorId },
+        {
+          category: updatedVendor.category,
+          cost: updatedVendor.cost,
+          updatedAt: Date.now(),
+        }
+      );
+
+      // Recalculate board budget after cost update
+      await updateBoardBudget(updatedVendor.board);
+    }
+
+    // Get the updated board details
     const board = await Board.findById(updatedVendor.board);
 
     res.status(200).json({
@@ -108,7 +143,7 @@ const updateVendor = async (req, res) => {
       board,
       vendor: {
         ...updatedVendor.toObject(),
-        board: updatedVendor.board, // only ObjectId here
+        board: updatedVendor.board,
       },
     });
   } catch (error) {
@@ -124,15 +159,39 @@ const updateVendor = async (req, res) => {
 const deleteVendor = async (req, res) => {
   try {
     const { vendorId } = req.params;
-    const deletedVendor = await Vendor.findByIdAndDelete(vendorId);
 
-    if (!deletedVendor) {
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
       return res.status(404).json({ message: 'Vendor not found' });
     }
 
-    res
-      .status(200)
-      .json({ message: 'Vendor deleted successfully', vendor: deletedVendor });
+    const boardId = vendor.board;
+
+    // Find tasks using this vendor
+    const tasksUsingVendor = await Task.find({ vendor: vendorId });
+
+    if (tasksUsingVendor.length > 0) {
+      // Unlink vendor from tasks
+      await Task.updateMany(
+        { vendor: vendorId },
+        {
+          $unset: {
+            vendor: '',
+            category: '',
+            cost: '',
+          },
+          updatedAt: Date.now(),
+        }
+      );
+
+      // Recalculate the board budget
+      await updateBoardBudget(boardId);
+    }
+
+    // Finally, delete the vendor
+    await Vendor.findByIdAndDelete(vendorId);
+
+    res.status(200).json({ message: 'Vendor deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });

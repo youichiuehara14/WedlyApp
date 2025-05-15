@@ -25,7 +25,6 @@ const taskSchema = new mongoose.Schema({
   },
   dueDate: { type: Date },
   position: { type: Number }, // for drag and drop
-  budget: { type: Number, required: true },
   vendor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Vendors',

@@ -3,6 +3,23 @@ const Board = require('../Models/boards');
 const Task = require('../Models/tasks');
 
 //////////////////////////////////////////////////////
+// Helper Function to compute the total cost of all tasks during creation, update, and delete
+// Make sure that totals are always up to date
+//////////////////////////////////////////////////////
+
+const updateBoardBudget = async (boardId) => {
+  const tasks = await Task.find({ board: boardId });
+  const totalSpent = tasks.reduce((sum, task) => sum + (task.cost || 0), 0);
+
+  const board = await Board.findById(boardId);
+  if (!board) throw new Error('Board not found while updating budget');
+
+  board.totalSpent = totalSpent;
+  board.totalRemaining = board.totalBudget - totalSpent;
+  await board.save();
+};
+
+//////////////////////////////////////////////////////
 // Create a task (autofill category and cost)
 //////////////////////////////////////////////////////
 
@@ -17,7 +34,6 @@ const createTask = async (req, res) => {
       status,
       priority,
       position,
-      budget,
       vendor: vendorId,
     } = req.body;
 
@@ -43,14 +59,15 @@ const createTask = async (req, res) => {
       status,
       priority,
       position,
-      budget,
       vendor: vendorId,
       category,
       cost,
       createdAt: new Date(),
     });
 
-    await newTask.save();
+    await newTask.save(); // Save the new task to the database
+
+    await updateBoardBudget(boardId); // Update the board's budget after task creation
 
     res.status(201).json({
       message: 'Task created successfully',
@@ -107,7 +124,6 @@ const updateTask = async (req, res) => {
       status,
       priority,
       position,
-      budget,
       vendor: vendorId,
     } = req.body;
 
@@ -130,7 +146,6 @@ const updateTask = async (req, res) => {
         status,
         priority,
         position,
-        budget,
         vendor: vendorId,
         category,
         cost,
@@ -140,6 +155,10 @@ const updateTask = async (req, res) => {
     )
       .populate('vendor', 'name')
       .populate('board', 'title');
+
+    // Update the board's budget after task update
+    await updateBoardBudget(updatedTask.board._id);
+
     if (!updatedTask) {
       return res.status(404).json({ message: 'Task not found' });
     }
@@ -164,6 +183,10 @@ const deleteTask = async (req, res) => {
     if (!deletedTask) {
       return res.status(404).json({ message: 'Task not found' });
     }
+
+    // Update the board's budget after task deletion
+    await updateBoardBudget(deletedTask.board);
+
     res.status(200).json({ message: 'Task deleted successfully' });
   } catch (error) {
     console.error('Delete Task Error:', error);
