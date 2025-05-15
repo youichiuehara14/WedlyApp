@@ -1,18 +1,39 @@
-import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
+import { ContextProvider } from './Context';
+import { Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+
+import Login from './pages/Login';
+import HomePage from './pages/HomePage'; // This is your layout
+import LandingPage from './pages/LandingPage';
+import ForgotPassword from './pages/ForgotPassword';
+import ChangePassword from './pages/ChangePassword';
+import Register from './pages/Register';
+import VendorPage from './pages/VendorPage';
+import Tasks from './pages/Tasks';
+import AccountPage from './pages/AccountPage';
+import OverviewPage from './pages/OverviewPage';
 
 function App() {
   return (
-    <div className="flex flex-col h-screen">
-      <Navbar />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 overflow-auto p-6">
-          <h1>Write Your Page Content Here</h1>
-          {/* Page Content / Page Routing belongs here*/}
-        </main>
-      </div>
-    </div>
+    <ContextProvider>
+      <Toaster position="top-center" toastOptions={{ duration: 5000 }} />
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* Main Application Layout */}
+        <Route path="/home" element={<HomePage />}>
+          <Route path="overview" element={<OverviewPage />} />
+          <Route path="tasks" element={<Tasks />} />
+          <Route path="vendor" element={<VendorPage />} />
+          <Route path="account" element={<AccountPage />} />
+          <Route path="change-password" element={<ChangePassword />} />
+        </Route>
+      </Routes>
+    </ContextProvider>
   );
 }
 
