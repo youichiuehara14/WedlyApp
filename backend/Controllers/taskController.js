@@ -102,7 +102,10 @@ const getTasksByBoard = async (req, res) => {
       return res.status(404).json({ message: 'No tasks found for this board' });
     }
 
-    res.status(200).json(tasks);
+    res.status(200).json({
+      taskCount: tasks.length,
+      tasks,
+    });
   } catch (error) {
     console.error('Get Tasks Error:', error);
     res.status(500).json({ message: error.message });

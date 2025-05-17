@@ -70,7 +70,7 @@ const getBoardByUser = async (req, res) => {
     }
 
     // Return the boards
-    res.status(200).json(boards);
+    res.status(200).json({ boardsLength: boards.length, boards: boards });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });

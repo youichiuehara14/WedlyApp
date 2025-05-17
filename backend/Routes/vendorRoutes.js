@@ -1,16 +1,16 @@
 const express = require('express');
 const {
   createVendor,
-  getVendorByBoard,
+  getVendorListPerUser,
   updateVendor,
   deleteVendor,
-} = require('../controllers/vendorController');
+} = require('../Controllers/vendorController');
 
 const router = express.Router();
 const authenticateUser = require('../Middlewares/authenticateUser');
 
 router.post('/create-vendor', authenticateUser, createVendor);
-router.get('/:boardId', authenticateUser, getVendorByBoard);
+router.get('/vendorsPerUser', authenticateUser, getVendorListPerUser);
 router.put('/update-vendor/:vendorId', authenticateUser, updateVendor);
 router.delete('/delete-vendor/:vendorId', authenticateUser, deleteVendor);
 

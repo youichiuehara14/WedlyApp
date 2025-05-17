@@ -1,6 +1,8 @@
 const dotenv = require('dotenv').config();
 
 const User = require('../Models/users');
+const Vendor = require('../Models/vendors');
+const Board = require('../Models/boards');
 
 const {
   hashPassword,
@@ -245,12 +247,27 @@ const getProfile = (req, res) => {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
-    const user = await User.findById(decoded.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    try {
+      const user = await User.findById(decoded.id).select('-password');
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
 
-    res.json(user);
+      const vendors = await Vendor.find({ user: user._id });
+
+      const boards = await Board.find({
+        $or: [{ owner: user._id }, { members: user._id }],
+      });
+
+      res.json({
+        user,
+        vendors,
+        boards,
+      });
+    } catch (error) {
+      console.error('Get profile error:', error);
+      res.status(500).json({ error: 'Server error' });
+    }
   });
 };
 
@@ -309,6 +326,16 @@ const updateUserInfo = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -316,4 +343,5 @@ module.exports = {
   getProfile,
   logoutUser,
   updateUserInfo,
+  getAllUsers,
 };

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const vendorSchema = new mongoose.Schema({
-  board: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Boards',
+    ref: 'Users',
     required: true,
   },
   name: { type: String, required: true },

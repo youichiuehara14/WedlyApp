@@ -120,7 +120,10 @@ const getAllChecklists = async (req, res) => {
     if (!task) {
       return res.status(404).json({ message: 'Task not found' });
     }
-    res.status(200).json({ checklists: task.checklists });
+    res.status(200).json({
+      checklistLength: task.checklists.length,
+      checklists: task.checklists,
+    });
   } catch (error) {
     console.error('Get Checklists Error:', error);
     res.status(500).json({ message: error.message });
