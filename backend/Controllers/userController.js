@@ -4,10 +4,7 @@ const User = require('../Models/users');
 const Vendor = require('../Models/vendors');
 const Board = require('../Models/boards');
 
-const {
-  hashPassword,
-  comparePasswords,
-} = require('../Middlewares/passwordMiddleware');
+const { hashPassword, comparePasswords } = require('../Middlewares/passwordMiddleware');
 
 const jwt = require('jsonwebtoken');
 
@@ -16,32 +13,16 @@ const jwt = require('jsonwebtoken');
 //////////////////////////////////////////////////////
 const registerUser = async (req, res) => {
   try {
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmPassword,
-      phoneNumber,
-    } = req.body;
+    const { firstName, lastName, email, password, confirmPassword, phoneNumber } = req.body;
 
     // Check if all fields are provided
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !password ||
-      !confirmPassword ||
-      !phoneNumber
-    ) {
+    if (!firstName || !lastName || !email || !password || !confirmPassword || !phoneNumber) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
     // Check if password is at least 6 characters
     if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ error: 'Password must be at least 6 characters' });
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
     // Check if passwords match
@@ -115,9 +96,7 @@ const loginUser = async (req, res) => {
     }
     // Check if password has at least 6 characters
     if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ error: 'Password must be at least 6 characters' });
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
     // Check if password is correct
@@ -187,9 +166,7 @@ const forgotPassword = async (req, res) => {
     }
     // Check if password is at least 6 characters
     if (newPassword.length < 6) {
-      return res
-        .status(400)
-        .json({ error: 'Password must be at least 6 characters' });
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
     // Check if it contains at least one uppercase letter
     if (!/[A-Z]/.test(newPassword)) {
@@ -209,9 +186,7 @@ const forgotPassword = async (req, res) => {
     }
     // Check if password is not the same as the old one
     if (await comparePasswords(newPassword, user.password)) {
-      return res
-        .status(400)
-        .json({ error: 'New password cannot be the same as the old one' });
+      return res.status(400).json({ error: 'New password cannot be the same as the old one' });
     }
 
     // Hash the new password using your helper

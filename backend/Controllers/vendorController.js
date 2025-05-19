@@ -86,9 +86,7 @@ const updateVendor = async (req, res) => {
     // Find vendor by ID and user
     const vendor = await Vendor.findOne({ _id: vendorId, user: req.user.id });
     if (!vendor) {
-      return res
-        .status(404)
-        .json({ message: 'Vendor not found or unauthorized' });
+      return res.status(404).json({ message: 'Vendor not found or unauthorized' });
     }
 
     // Perform the update
@@ -127,9 +125,7 @@ const updateVendor = async (req, res) => {
 
     // Get the updated board (if any task is still linked to a board)
     const board =
-      tasksUsingVendor.length > 0
-        ? await Board.findById(tasksUsingVendor[0].board)
-        : null;
+      tasksUsingVendor.length > 0 ? await Board.findById(tasksUsingVendor[0].board) : null;
 
     res.status(200).json({
       message: 'Vendor updated successfully',
@@ -153,9 +149,7 @@ const deleteVendor = async (req, res) => {
     // Ensure vendor exists and belongs to user
     const vendor = await Vendor.findOne({ _id: vendorId, user: req.user.id });
     if (!vendor) {
-      return res
-        .status(404)
-        .json({ message: 'Vendor not found or unauthorized' });
+      return res.status(404).json({ message: 'Vendor not found or unauthorized' });
     }
 
     // Find tasks using this vendor

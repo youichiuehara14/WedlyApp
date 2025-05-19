@@ -10,6 +10,7 @@ import { Rocket } from 'lucide-react';
 import StartProjectButton from './StartProjectButton';
 import { useContext } from 'react';
 import { Context } from '../Context';
+import BoardSelect from './BoardSelect';
 
 // Navbar Component
 const Navbar = () => {
@@ -35,6 +36,9 @@ const Navbar = () => {
         <ul className="flex items-center gap-4">
           {user ? (
             <>
+              <li>
+                <BoardSelect />
+              </li>
               <li>
                 <StartProjectButton />
               </li>
