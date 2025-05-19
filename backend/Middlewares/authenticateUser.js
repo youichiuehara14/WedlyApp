@@ -5,9 +5,7 @@ const authenticateUser = async (req, res, next) => {
   const { token } = req.cookies;
 
   if (!token) {
-    return res
-      .status(401)
-      .json({ error: 'No token found - Authentication required' });
+    return res.status(401).json({ error: 'No token found - Authentication required' });
   }
 
   try {

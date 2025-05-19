@@ -3,7 +3,6 @@ import { useContext } from 'react';
 import { Context } from '../../Context';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
-import { useEffect } from 'react';
 
 export default function StartProjectFormModal({ onClose = () => {} }) {
   const { user } = useContext(Context);

@@ -15,15 +15,16 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
     priority: 'Medium',
     position: 0,
     vendor: '',
+    category: '', // 👈 NEW FIELD
   });
-  const [vendors, setVendors] = useState([...user.vendors]);
+  const [vendors, setVendors] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLoadingVendors, setIsLoadingVendors] = useState(false);
   const [boards, setBoards] = useState([]);
+  const [customCategory, setCustomCategory] = useState(''); // 👈 For user-defined category
 
-  // Fetch boards for the user
-  // why vendors cannot be fetched?
+  // Load vendors and boards when modal opens
   useEffect(() => {
     if (user?.vendors) {
       setVendors([...user.vendors]);
@@ -33,9 +34,7 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
     }
   }, [user?.vendors, user?.boards]);
 
-  // Fetch all vendors when modal opens
-
-  // Set error if no boards
+  // Show error if no boards
   useEffect(() => {
     if (isOpen && boards.length === 0) {
       setError('No boards found. Create a board first.');
@@ -43,9 +42,16 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
   }, [isOpen, boards]);
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // If category is changed to "Other", reset customCategory
+    if (name === 'category' && value !== 'Other') {
+      setCustomCategory('');
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -54,18 +60,29 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
     setError('');
     setLoading(true);
 
-    // Basic validation
-    if (!formData.boardId || !formData.title || !formData.description || !formData.vendor) {
-      setError('Board, title, description, and vendor are required');
-      toast.error('Board, title, description, and vendor are required');
+    const categoryToUse = formData.category === 'Other' ? customCategory : formData.category;
+
+    // Validation
+    if (
+      !formData.boardId ||
+      !formData.title ||
+      !formData.description ||
+      !formData.vendor ||
+      !categoryToUse
+    ) {
+      const errorMsg = 'Board, title, description, vendor, and category are required';
+      setError(errorMsg);
+      toast.error(errorMsg);
       setLoading(false);
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:4000/api/task/create-task', formData, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        'http://localhost:4000/api/task/create-task',
+        { ...formData, category: categoryToUse },
+        { withCredentials: true }
+      );
       console.log('Task created:', response.data);
       toast.success('Task created successfully!');
       setFormData({
@@ -78,7 +95,9 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
         priority: 'Medium',
         position: 0,
         vendor: '',
+        category: '',
       });
+      setCustomCategory('');
       onClose();
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to create task';
@@ -92,12 +111,15 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
 
   if (!isOpen || !user) return null;
 
+  const availableCategories = [...new Set(vendors.map((v) => v.category).filter(Boolean)), 'Other'];
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Create New Task</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Board Select */}
           <div>
             <label className="block text-sm font-medium">Board</label>
             <select
@@ -116,6 +138,8 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
               ))}
             </select>
           </div>
+
+          {/* Title */}
           <div>
             <label className="block text-sm font-medium">Title</label>
             <input
@@ -127,6 +151,8 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
               required
             />
           </div>
+
+          {/* Description */}
           <div>
             <label className="block text-sm font-medium">Description</label>
             <textarea
@@ -137,6 +163,8 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
               required
             />
           </div>
+
+          {/* Task Color */}
           <div>
             <label className="block text-sm font-medium">Task Color</label>
             <select
@@ -153,6 +181,8 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
               <option value="purple">Purple</option>
             </select>
           </div>
+
+          {/* Due Date */}
           <div>
             <label className="block text-sm font-medium">Due Date</label>
             <input
@@ -164,6 +194,8 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
               required
             />
           </div>
+
+          {/* Status */}
           <div>
             <label className="block text-sm font-medium">Status</label>
             <select
@@ -177,6 +209,8 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
               <option value="Done">Done</option>
             </select>
           </div>
+
+          {/* Priority */}
           <div>
             <label className="block text-sm font-medium">Priority</label>
             <select
@@ -190,7 +224,9 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
               <option value="High">High</option>
             </select>
           </div>
-          <div>
+
+          {/* Position */}
+          {/* <div>
             <label className="block text-sm font-medium">Position</label>
             <input
               type="number"
@@ -200,7 +236,9 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
               className="w-full p-2 border rounded"
               min="0"
             />
-          </div>
+          </div> */}
+
+          {/* Vendor */}
           <div>
             <label className="block text-sm font-medium">Vendor</label>
             <select
@@ -219,12 +257,14 @@ const CreateTaskModal = ({ isOpen, onClose }) => {
               ) : (
                 vendors.map((vendor) => (
                   <option key={vendor._id} value={vendor._id}>
-                    {vendor.name} ({vendor.category}) - Cost:P{vendor.cost || 'No Board'}
+                    {vendor.name} ({vendor.category}) - Cost: P{vendor.cost || 'N/A'}
                   </option>
                 ))
               )}
             </select>
           </div>
+
+          {/* Buttons */}
           <div className="flex justify-end space-x-2">
             <button
               type="button"

@@ -94,9 +94,7 @@ const getComments = async (req, res) => {
     if (!task) {
       return res.status(404).json({ message: 'Task not found' });
     }
-    res
-      .status(200)
-      .json({ commentLength: task.comments.length, comments: task.comments });
+    res.status(200).json({ commentLength: task.comments.length, comments: task.comments });
   } catch (error) {
     console.error('Get Comments Error:', error);
     res.status(500).json({ message: error.message });
