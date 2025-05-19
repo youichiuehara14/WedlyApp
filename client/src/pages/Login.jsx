@@ -69,9 +69,7 @@ const Login = () => {
       <Navbar />
       <div className="bg-gray-100 flex justify-center items-center min-h-screen pt-20 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full bg-white shadow-xl rounded-lg p-6">
-          <h1 className="text-2xl font-bold text-gray-800 text-center">
-            Login to Your Account
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-800 text-center">Login to Your Account</h1>
           <p className="text-sm text-gray-600 text-center mt-1">
             Enter your credentials to access your account.
           </p>
@@ -125,10 +123,7 @@ const Login = () => {
             </Link>
           </p>
           <p className="text-center text-sm text-gray-600 mt-2">
-            <Link
-              to="/forgot-password"
-              className="text-blue-500 hover:underline"
-            >
+            <Link to="/forgot-password" className="text-blue-500 hover:underline">
               Forgot Password?
             </Link>
           </p>

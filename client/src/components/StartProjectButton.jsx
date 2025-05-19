@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
+import StartProjectFormModal from './modals/StartProjectFormModal';
 
 export default function StartProjectButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,7 @@ export default function StartProjectButton() {
         Create Project
       </button>
 
-      {isOpen && <StartProjectModal onClose={() => setIsOpen(false)} />}
+      {isOpen && <StartProjectFormModal onClose={() => setIsOpen(false)} />}
     </>
   );
 }
