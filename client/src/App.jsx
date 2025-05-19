@@ -9,7 +9,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ChangePassword from './pages/ChangePassword';
 import Register from './pages/Register';
 import VendorPage from './pages/VendorPage';
-import Tasks from './pages/Tasks';
+import TasksPage from './pages/TasksPage';
 import AccountPage from './pages/AccountPage';
 import OverviewPage from './pages/OverviewPage';
 
@@ -27,7 +27,7 @@ function App() {
         {/* Main Application Layout */}
         <Route path="/home" element={<HomePage />}>
           <Route path="overview" element={<OverviewPage />} />
-          <Route path="tasks" element={<Tasks />} />
+          <Route path="tasks" element={<TasksPage />} />
           <Route path="vendor" element={<VendorPage />} />
           <Route path="account" element={<AccountPage />} />
           <Route path="change-password" element={<ChangePassword />} />

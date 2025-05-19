@@ -11,12 +11,9 @@ export const ContextProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(
-        'http://localhost:4000/api/user/profile',
-        {
-          withCredentials: true,
-        }
-      );
+      const { data } = await axios.get('http://localhost:4000/api/user/profile', {
+        withCredentials: true,
+      });
       setUser(data);
     } catch (err) {
       console.error(err);

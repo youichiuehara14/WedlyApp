@@ -28,7 +28,7 @@ const Navbar = () => {
             <Rocket color="#1446E7" strokeWidth={1} />
             <span>DashboardX</span>
           </NavLink>
-          <span>Hi {user ? `${user.firstName} ${user.lastName}` : 'User'}</span>
+          <span>Hi {user ? `${user.user.firstName} ${user.user.lastName}` : 'User'}</span>
         </div>
 
         {/* Right Side: Actions (Create button + Profile) */}
@@ -39,15 +39,9 @@ const Navbar = () => {
                 <StartProjectButton />
               </li>
               <li>
-                <NavLink
-                  to="/profile"
-                  className="flex items-center"
-                  aria-label="Go to profile"
-                >
+                <NavLink to="/profile" className="flex items-center" aria-label="Go to profile">
                   <img
-                    src={
-                      user.profileImage || 'placeholder image for user profile'
-                    }
+                    src={user.profileImage || 'placeholder image for user profile'}
                     alt="User profile"
                     className="w-8 h-8 rounded-full object-cover"
                   />
