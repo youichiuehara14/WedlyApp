@@ -12,30 +12,27 @@ import VendorPage from './pages/VendorPage';
 import TasksPage from './pages/TasksPage';
 import AccountPage from './pages/AccountPage';
 import OverviewPage from './pages/OverviewPage';
-import { BoardProvider } from './BoardContext';
 
 function App() {
   return (
     <ContextProvider>
-      <BoardProvider>
-        <Toaster position="top-center" toastOptions={{ duration: 5000 }} />
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Toaster position="top-center" toastOptions={{ duration: 5000 }} />
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* Main Application Layout */}
-          <Route path="/home" element={<HomePage />}>
-            <Route path="overview" element={<OverviewPage />} />
-            <Route path="tasks" element={<TasksPage />} />
-            <Route path="vendor" element={<VendorPage />} />
-            <Route path="account" element={<AccountPage />} />
-            <Route path="change-password" element={<ChangePassword />} />
-          </Route>
-        </Routes>
-      </BoardProvider>
+        {/* Main Application Layout */}
+        <Route path="/home" element={<HomePage />}>
+          <Route path="overview" element={<OverviewPage />} />
+          <Route path="tasks" element={<TasksPage />} />
+          <Route path="vendor" element={<VendorPage />} />
+          <Route path="account" element={<AccountPage />} />
+          <Route path="change-password" element={<ChangePassword />} />
+        </Route>
+      </Routes>
     </ContextProvider>
   );
 }

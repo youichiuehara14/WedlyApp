@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
 const Sidebar = () => {
-  const { user, setUser } = useContext(Context);
+  const { setUser } = useContext(Context);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -33,8 +33,6 @@ const Sidebar = () => {
       })
       .catch((error) => console.error('Logout error:', error));
   };
-
-  console.log(user);
 
   return (
     <div className="sm:flex flex-col justify-between h-full w-72 bg-white shadow-md hidden ">

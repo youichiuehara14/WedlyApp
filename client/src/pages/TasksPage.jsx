@@ -4,17 +4,28 @@ import TaskFormButton from '../components/TaskFormButton';
 import { Context } from '../Context';
 
 function TasksPage() {
-  const { user } = useContext(Context);
+  const { user, activeBoardObject, fetchTasksPerBoard } = useContext(Context);
 
   if (!user) {
     return <div>Loading user data...</div>;
   }
 
   return (
-    <div className="space-y-15">
-      <TaskFormButton />
-      <KanbanBoard />
-    </div>
+    <>
+      {activeBoardObject ? (
+        <>
+          <div className="space-y-15">
+            <TaskFormButton onTaskCreated={fetchTasksPerBoard} />
+            <KanbanBoard />
+          </div>
+        </>
+      ) : (
+        // If no active board is selected, show a message
+        <div className="text-gray-500 text-sm">
+          Please select a board to view tasks.
+        </div>
+      )}
+    </>
   );
 }
 

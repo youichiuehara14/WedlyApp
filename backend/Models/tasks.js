@@ -28,7 +28,6 @@ const taskSchema = new mongoose.Schema({
   vendor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Vendors',
-    required: true,
   },
   category: {
     type: String,

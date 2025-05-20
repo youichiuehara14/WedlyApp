@@ -5,7 +5,16 @@ import { getDragStyle } from '../utils/dragStyle.js'; //  for dragging style onl
 import { colorToHex } from '../utils/colorMap.js';
 
 const TaskCard = ({ task, id, onClick }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  // Use either the direct id prop or task._id
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: id,
   });
 

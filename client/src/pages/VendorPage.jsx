@@ -1,76 +1,101 @@
-import React, { useState, useEffect, useContext } from "react";
-import axios from "axios";
-import { Context } from "../Context";
-import { toast } from "react-hot-toast";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const categories = [
-  "Photographer",
-  "Catering",
-  "Cake",
-  "Venue",
-  "Wedding Attire",
-  "Host",
-  "Entertainment",
-  "Trasportation",
-  "Makeup Artist",
-  "Photobooth",
-  "Other",
+import { toast } from 'react-hot-toast';
+
+const defaultCategories = [
+  'Photographer',
+  'Catering',
+  'Cake',
+  'Venue',
+  'Wedding Attire',
+  'Host',
+  'Entertainment',
+  'Transportation',
+  'Makeup Artist',
+  'Photo booth',
+  'Other',
 ];
 
+const highlightMatch = (text, search) => {
+  if (!search) return text;
+  const regex = new RegExp(`(${search})`, 'gi');
+  const parts = text.split(regex);
+  return parts.map((part, i) =>
+    part.toLowerCase() === search.toLowerCase() ? (
+      <mark key={i} className="bg-yellow-200 px-1 rounded">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+};
+
 export default function VendorPage() {
-  const { user } = useContext(Context) || {};
+  const [categories, setCategories] = useState(defaultCategories);
   const [vendors, setVendors] = useState([]);
   const [form, setForm] = useState({
-    name: "",
-    category: "",
-    address: "",
-    phone: "",
-    cost: "",
-    email: "",
+    name: '',
+    category: '',
+    address: '',
+    phone: '',
+    cost: '',
+    email: '',
   });
-  const [customCategory, setCustomCategory] = useState("");
+  const [customCategory, setCustomCategory] = useState('');
   const [editIndex, setEditIndex] = useState(null);
   const [editVendorId, setEditVendorId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
-  const [sortField, setSortField] = useState("name");
-  const [sortDirection, setSortDirection] = useState("asc");
-
-  // Fetch vendors from backend
-  useEffect(() => {
-    fetchVendors();
-    // eslint-disable-next-line
-  }, []);
+  const [search, setSearch] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [sortField, setSortField] = useState('name');
+  const [setSortDirection] = useState('asc');
 
   const fetchVendors = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:4000/api/vendor/vendorsPerUser",
+        'http://localhost:4000/api/vendor/vendorsPerUser',
         { withCredentials: true }
       );
-      setVendors(res.data.vendors || []);
+      const fetchedVendors = res.data.vendors;
+      setVendors(fetchedVendors);
+
+      // Collect unique categories including defaults
+      const vendorCategories = [
+        ...new Set([
+          ...defaultCategories,
+          ...fetchedVendors.map((v) => v.category),
+        ]),
+      ];
+      setCategories(vendorCategories);
     } catch (err) {
-      toast.error("Failed to fetch vendors");
+      console.error(err);
+      toast.error('Failed to fetch vendors');
     }
   };
+
+  // Fetch vendors from backend
+  useEffect(() => {
+    fetchVendors();
+  }, []);
 
   const openModal = (vendor = null, index = null) => {
     if (vendor) {
       setForm(vendor);
-      setCustomCategory(vendor.category === "Other" ? vendor.category : "");
+      setCustomCategory(vendor.category === 'Other' ? vendor.category : '');
       setEditIndex(index);
       setEditVendorId(vendor._id);
     } else {
       setForm({
-        name: "",
-        category: "",
-        address: "",
-        phone: "",
-        cost: "",
-        email: "",
+        name: '',
+        category: '',
+        address: '',
+        phone: '',
+        cost: '',
+        email: '',
       });
-      setCustomCategory("");
+      setCustomCategory('');
       setEditIndex(null);
       setEditVendorId(null);
     }
@@ -80,14 +105,14 @@ export default function VendorPage() {
   const closeModal = () => {
     setModalOpen(false);
     setForm({
-      name: "",
-      category: "",
-      address: "",
-      phone: "",
-      cost: "",
-      email: "",
+      name: '',
+      category: '',
+      address: '',
+      phone: '',
+      cost: '',
+      email: '',
     });
-    setCustomCategory("");
+    setCustomCategory('');
     setEditIndex(null);
     setEditVendorId(null);
   };
@@ -97,7 +122,7 @@ export default function VendorPage() {
 
   const handleSubmit = async () => {
     const finalCategory =
-      form.category === "Other" ? customCategory : form.category;
+      form.category === 'Other' ? customCategory : form.category;
 
     if (
       form.name &&
@@ -115,69 +140,73 @@ export default function VendorPage() {
             { ...form, category: finalCategory },
             { withCredentials: true }
           );
-          toast.success("Vendor updated!");
+          toast.success('Vendor updated!');
         } else {
           // Create vendor
           await axios.post(
-            "http://localhost:4000/api/vendor/create-vendor",
+            'http://localhost:4000/api/vendor/create-vendor',
             { ...form, category: finalCategory },
             { withCredentials: true }
           );
-          toast.success("Vendor added!");
+          toast.success('Vendor added!');
         }
+
+        if (!categories.includes(finalCategory)) {
+          setCategories((prev) => [...prev, finalCategory]);
+        }
+
         fetchVendors();
         closeModal();
       } catch (err) {
-        toast.error(err.response?.data?.message || "Failed to save vendor");
+        toast.error(err.response?.data?.message || 'Failed to save vendor');
       }
     } else {
-      toast.error("Please fill in all fields");
+      toast.error('Please fill in all fields');
     }
   };
 
   const handleDelete = async (index) => {
     const vendor = vendors[index];
     if (!vendor) return;
-    if (window.confirm("Delete this vendor?")) {
+    if (window.confirm('Delete this vendor?')) {
       try {
         await axios.delete(
           `http://localhost:4000/api/vendor/delete-vendor/${vendor._id}`,
           { withCredentials: true }
         );
-        toast.success("Vendor deleted!");
+        toast.success('Vendor deleted!');
         fetchVendors();
       } catch (err) {
-        toast.error(err.response?.data?.message || "Failed to delete vendor");
+        toast.error(err.response?.data?.message || 'Failed to delete vendor');
       }
     }
   };
 
   const toggleSort = (field) => {
     if (sortField === field) {
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection('asc');
     }
   };
 
-  const filtered = vendors
-    .filter(
-      (v) =>
-        v.name.toLowerCase().includes(search.toLowerCase()) &&
-        (filterCategory ? v.category === filterCategory : true)
-    )
-    .sort((a, b) => {
-      if (sortField === "cost") {
-        return sortDirection === "asc"
-          ? Number(a.cost) - Number(b.cost)
-          : Number(b.cost) - Number(a.cost);
-      } else {
-        return sortDirection === "asc"
-          ? a[sortField].localeCompare(b[sortField])
-          : b[sortField].localeCompare(a[sortField]);
-      }
-    });
+  const filtered = vendors.filter((v) => {
+    const searchTerm = search.toLowerCase();
+    const matchesSearch =
+      v.name.toLowerCase().includes(searchTerm) ||
+      v.phone.toLowerCase().includes(searchTerm) ||
+      v.email.toLowerCase().includes(searchTerm) ||
+      v.address.toLowerCase().includes(searchTerm) ||
+      v.category.toLowerCase().includes(searchTerm) ||
+      v.cost.toString().toLowerCase().includes(searchTerm);
+
+    const matchesCategory = filterCategory
+      ? v.category === filterCategory
+      : true;
+
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="bg-gray-50 overflow-y-auto w-screen h-screen p-4">
@@ -214,7 +243,7 @@ export default function VendorPage() {
             <tr className="bg-gray-100 text-left">
               <th
                 className="p-2 cursor-pointer"
-                onClick={() => toggleSort("name")}
+                onClick={() => toggleSort('name')}
               >
                 Name
               </th>
@@ -223,7 +252,7 @@ export default function VendorPage() {
               <th className="p-2">Phone</th>
               <th
                 className="p-2 cursor-pointer"
-                onClick={() => toggleSort("cost")}
+                onClick={() => toggleSort('cost')}
               >
                 Cost
               </th>
@@ -235,12 +264,15 @@ export default function VendorPage() {
             {filtered.length > 0 ? (
               filtered.map((v, i) => (
                 <tr key={v._id || i} className="border-t border-gray-200">
-                  <td className="p-2">{v.name}</td>
-                  <td className="p-2">{v.category}</td>
-                  <td className="p-2">{v.address}</td>
-                  <td className="p-2">{v.phone}</td>
-                  <td className="p-2">{v.cost}</td>
-                  <td className="p-2">{v.email}</td>
+                  <td className="p-2">{highlightMatch(v.name, search)}</td>
+                  <td className="p-2">{highlightMatch(v.category, search)}</td>
+                  <td className="p-2">{highlightMatch(v.address, search)}</td>
+                  <td className="p-2">{highlightMatch(v.phone, search)}</td>
+                  <td className="p-2">
+                    {highlightMatch(v.cost.toString(), search)}
+                  </td>
+                  <td className="p-2">{highlightMatch(v.email, search)}</td>
+
                   <td className="p-2 space-x-2">
                     <button
                       onClick={() => openModal(v, i)}
@@ -273,9 +305,10 @@ export default function VendorPage() {
         <div className="fixed inset-0 backdrop-blur flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-xl font-semibold mb-4">
-              {editIndex !== null ? "Edit Vendor" : "Add Vendor"}
+              {editIndex !== null ? 'Edit Vendor' : 'Add Vendor'}
             </h2>
             <div className="space-y-3">
+              <label>Name</label>
               <input
                 name="name"
                 placeholder="Name"
@@ -283,6 +316,7 @@ export default function VendorPage() {
                 onChange={handleChange}
                 className="w-full border p-2 rounded"
               />
+              <label>Category</label>
               <select
                 name="category"
                 value={form.category}
@@ -296,7 +330,7 @@ export default function VendorPage() {
                   </option>
                 ))}
               </select>
-              {form.category === "Other" && (
+              {form.category === 'Other' && (
                 <input
                   value={customCategory}
                   onChange={(e) => setCustomCategory(e.target.value)}
@@ -304,6 +338,7 @@ export default function VendorPage() {
                   className="w-full border p-2 rounded"
                 />
               )}
+              <label>Address</label>
               <input
                 name="address"
                 placeholder="Address"
@@ -311,6 +346,7 @@ export default function VendorPage() {
                 onChange={handleChange}
                 className="w-full border p-2 rounded"
               />
+              <label>Phone Number</label>
               <input
                 name="phone"
                 placeholder="Phone"
@@ -318,6 +354,7 @@ export default function VendorPage() {
                 onChange={handleChange}
                 className="w-full border p-2 rounded"
               />
+              <label>Cost</label>
               <input
                 name="cost"
                 type="number"
@@ -326,6 +363,7 @@ export default function VendorPage() {
                 onChange={handleChange}
                 className="w-full border p-2 rounded"
               />
+              <label>Email</label>
               <input
                 name="email"
                 placeholder="Email"

@@ -9,59 +9,108 @@ import {
   useSensors,
   DragOverlay,
 } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
 import KanbanColumn from './KanbanColumn';
 import TaskCard from './TaskCard';
 import TaskModal from './modals/TaskModal';
-import { BoardContext } from '../BoardContext';
+import { Context } from '../Context';
 
 const KanbanBoard = () => {
-  const { boardId } = useContext(BoardContext);
-  const [columns, setColumns] = useState({ todo: [], inProgress: [], done: [] });
+  const { activeBoardObject, tasksPerBoard, setTasksPerBoard } =
+    useContext(Context);
+  const [columns, setColumns] = useState({
+    todo: [],
+    inProgress: [],
+    done: [],
+  });
   const [activeTask, setActiveTask] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      if (!boardId) return; // Skip fetching if boardId is not set
-      try {
-        const response = await axios.get(`http://localhost:4000/api/task/board/${boardId}`, {
-          withCredentials: true,
-        });
-        const { tasks } = response.data;
+    if (!activeBoardObject._id) return;
+    if (!tasksPerBoard) return;
 
-        const grouped = { todo: [], inProgress: [], done: [] };
-        tasks.forEach((task) => {
-          const formattedTask = {
-            id: task._id,
-            title: task.title,
-            description: task.description,
-            vendor: task.vendor?._id?.toString() || task.vendor || '',
-            vendorName: task.vendor?.name || task.vendor || '',
-            category: task.category,
-            cost: task.cost,
-            checklists: task.checklists,
-            comments: task.comments,
-            dueDate: task.dueDate,
-            status: task.status,
-            taskColor: task.taskColor,
-            priority: task.priority,
-            position: task.position,
-          };
+    const grouped = { todo: [], inProgress: [], done: [] };
+    if (!tasksPerBoard?.tasks) return;
 
-          if (task.status === 'To Do') grouped.todo.push(formattedTask);
-          else if (task.status === 'In Progress') grouped.inProgress.push(formattedTask);
-          else if (task.status === 'Done') grouped.done.push(formattedTask);
-        });
+    tasksPerBoard.tasks.forEach((task) => {
+      const formattedTask = {
+        id: task._id,
+        _id: task._id,
+        title: task.title,
+        description: task.description,
+        vendor: task.vendor?._id?.toString() || task.vendor || '',
+        vendorName: task.vendor?.name || task.vendor || '',
+        category: task.category,
+        cost: task.cost,
+        checklists: task.checklists,
+        comments: task.comments,
+        dueDate: task.dueDate,
+        status: task.status,
+        taskColor: task.taskColor,
+        priority: task.priority,
+        position: task.position,
+      };
 
-        setColumns(grouped);
-      } catch (error) {
-        console.error('Failed to fetch tasks:', error);
+      if (task.status === 'To Do') grouped.todo.push(formattedTask);
+      else if (task.status === 'In Progress')
+        grouped.inProgress.push(formattedTask);
+      else if (task.status === 'Done') grouped.done.push(formattedTask);
+    });
+
+    setColumns(grouped);
+  }, [tasksPerBoard]);
+
+  const handleUpdateTask = (updatedTask) => {
+    console.log('Updating task:', updatedTask);
+    setColumns((prev) => {
+      const newColumns = { ...prev };
+
+      // Remove the task from all columns using _id
+      for (const columnId in prev) {
+        newColumns[columnId] = prev[columnId].filter(
+          (task) => task._id !== updatedTask._id
+        );
       }
-    };
 
-    fetchTasks();
-  }, [boardId]);
+      // Add it to the correct column
+      if (updatedTask.status === 'To Do') {
+        newColumns.todo = [...newColumns.todo, updatedTask];
+      } else if (updatedTask.status === 'In Progress') {
+        newColumns.inProgress = [...newColumns.inProgress, updatedTask];
+      } else if (updatedTask.status === 'Done') {
+        newColumns.done = [...newColumns.done, updatedTask];
+      }
+
+      return newColumns;
+    });
+
+    // update the taskPerBoard in context
+    setTasksPerBoard((prev) => {
+      const newTasks = prev.tasks.map((task) =>
+        task._id === updatedTask._id ? updatedTask : task
+      );
+      return { ...prev, tasks: newTasks };
+    });
+  };
+
+  const handleDeleteTask = (taskId) => {
+    setColumns((prev) => {
+      const newColumns = {};
+      for (const [columnId, tasks] of Object.entries(prev)) {
+        newColumns[columnId] = tasks.filter((task) => task.id !== taskId);
+      }
+      return newColumns;
+    });
+    setTasksPerBoard((prev) => {
+      const newTasks = prev.tasks.filter((task) => task._id !== taskId);
+      return { ...prev, tasks: newTasks };
+    });
+  };
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
@@ -69,8 +118,11 @@ const KanbanBoard = () => {
   );
 
   const findTaskAndColumn = (id) => {
+    // First try to match the full columnId-taskId format
     for (const [columnId, tasks] of Object.entries(columns)) {
-      const task = tasks.find((t) => t.id === id);
+      const task = tasks.find(
+        (t) => t._id === id || `${columnId}-${t._id}` === id
+      );
       if (task) return { task, columnId };
     }
     return null;
@@ -91,10 +143,13 @@ const KanbanBoard = () => {
     const activeId = active.id;
     const overId = over.id;
 
+    // Find tasks using _id instead of id
     const activeTaskInfo = findTaskAndColumn(activeId);
     const overTaskInfo = findTaskAndColumn(overId);
     const overIsColumn = overId.startsWith('column-');
-    const targetColumnId = overIsColumn ? overId.replace('column-', '') : overTaskInfo?.columnId;
+    const targetColumnId = overIsColumn
+      ? overId.replace('column-', '')
+      : overTaskInfo?.columnId;
 
     if (!activeTaskInfo || !targetColumnId) return;
 
@@ -108,39 +163,47 @@ const KanbanBoard = () => {
     };
 
     if (fromColumnId === targetColumnId) {
-      const oldIndex = columns[fromColumnId].findIndex((t) => t.id === activeId);
-      const newIndex = overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t.id === overId);
+      // Same column movement
+      const oldIndex = columns[fromColumnId].findIndex(
+        (t) => t._id === activeId // Changed to use _id
+      );
+      const newIndex = overIsColumn
+        ? 0
+        : columns[targetColumnId].findIndex((t) => t._id === overId); // Changed to use _id
+
       setColumns((prev) => ({
         ...prev,
         [targetColumnId]: arrayMove(prev[targetColumnId], oldIndex, newIndex),
       }));
     } else {
+      // Moving between columns
       const newStatus = statusMap[targetColumnId];
-
-      if (!taskData.vendor || !taskData.vendor.match(/^[0-9a-fA-F]{24}$/)) {
-        alert('Invalid vendor ID. Please update the vendor in the database.');
-        return;
-      }
-
-      if (!taskData.title || !taskData.description) {
-        alert('Missing title or description.');
-        return;
-      }
 
       const newColumns = {
         ...columns,
-        [fromColumnId]: columns[fromColumnId].filter((t) => t.id !== activeId),
+        [fromColumnId]: columns[fromColumnId].filter((t) => t._id !== activeId), // Changed to use _id
         [targetColumnId]: [
           ...columns[targetColumnId].slice(
             0,
-            overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t.id === overId)
+            overIsColumn
+              ? 0
+              : columns[targetColumnId].findIndex((t) => t._id === overId) // Changed to use _id
           ),
-          { ...taskData, status: newStatus },
+          {
+            ...taskData,
+            status: newStatus,
+            position: overIsColumn
+              ? 0
+              : columns[targetColumnId].findIndex((t) => t._id === overId), // Update position
+          },
           ...columns[targetColumnId].slice(
-            overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t.id === overId)
+            overIsColumn
+              ? 0
+              : columns[targetColumnId].findIndex((t) => t._id === overId) // Changed to use _id
           ),
         ],
       };
+
       setColumns(newColumns);
 
       try {
@@ -151,27 +214,47 @@ const KanbanBoard = () => {
           dueDate: taskData.dueDate || null,
           status: newStatus,
           priority: taskData.priority || 'Medium',
-          position: taskData.position || 0,
+          position: overIsColumn
+            ? 0
+            : columns[targetColumnId].findIndex((t) => t._id === overId),
           vendor: taskData.vendor,
         };
 
-        await axios.put(`http://localhost:4000/api/task/update-task/${activeId}`, updatedTaskData, {
-          withCredentials: true,
+        await axios.put(
+          `http://localhost:4000/api/task/update-task/${activeId}`, // Make sure your API expects _id
+          updatedTaskData,
+          { withCredentials: true }
+        );
+
+        // update the context side
+        setTasksPerBoard((prev) => {
+          const newTasks = prev.tasks.map((task) =>
+            task._id === activeId ? { ...task, ...updatedTaskData } : task
+          );
+          return { ...prev, tasks: newTasks };
         });
       } catch (error) {
+        // Revert on error
         setColumns((prev) => ({
           ...prev,
-          [fromColumnId]: [...prev[fromColumnId], { ...taskData, status: statusMap[fromColumnId] }],
-          [targetColumnId]: prev[targetColumnId].filter((t) => t.id !== activeId),
+          [fromColumnId]: [
+            ...prev[fromColumnId],
+            { ...taskData, status: statusMap[fromColumnId] },
+          ],
+          [targetColumnId]: prev[targetColumnId].filter(
+            (t) => t._id !== activeId // Changed to use _id
+          ),
         }));
-        alert('Failed to update task status: ' + (error.response?.data?.message || error.message));
+        alert(
+          'Failed to update task status: ' +
+            (error.response?.data?.message || error.message)
+        );
       }
     }
   };
 
   return (
     <>
-      <h1>Current Board Id: {boardId}</h1>
       <DndContext
         sensors={sensors}
         collisionDetection={rectIntersection}
@@ -182,7 +265,7 @@ const KanbanBoard = () => {
           {Object.keys(columns).map((columnId) => (
             <SortableContext
               key={columnId}
-              items={columns[columnId].map((task) => task.id)}
+              items={columns[columnId].map((task) => task._id)}
               strategy={verticalListSortingStrategy}
             >
               <KanbanColumn
@@ -201,7 +284,14 @@ const KanbanBoard = () => {
           ) : null}
         </DragOverlay>
       </DndContext>
-      {selectedTask && <TaskModal task={selectedTask} onClose={() => setSelectedTask(null)} />}
+      {selectedTask && (
+        <TaskModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onTaskUpdate={handleUpdateTask}
+          onTaskDelete={handleDeleteTask}
+        />
+      )}
     </>
   );
 };

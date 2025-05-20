@@ -1,10 +1,17 @@
 import { useEffect, useState, useCallback, useContext } from 'react';
 import axios from 'axios';
-import { NotepadText, CheckSquare, MessageSquare, X, Edit2, Trash2 } from 'lucide-react';
+import {
+  NotepadText,
+  CheckSquare,
+  MessageSquare,
+  X,
+  Edit2,
+  Trash2,
+} from 'lucide-react';
 import { Context } from '../../Context';
 
-const TaskModal = ({ task, onClose }) => {
-  const { user, loading: userLoading } = useContext(Context);
+const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
+  const { user, loading: userLoading, vendorsObjects } = useContext(Context);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState({
     ...task,
@@ -14,6 +21,8 @@ const TaskModal = ({ task, onClose }) => {
   const [checklistText, setChecklistText] = useState('');
   const [commentText, setCommentText] = useState('');
   const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingChecklistId, setEditingChecklistId] = useState(null);
+  const [editingChecklistText, setEditingChecklistText] = useState('');
   const [vendors, setVendors] = useState([]);
   const [editingCommentText, setEditingCommentText] = useState('');
   const [error, setError] = useState(null);
@@ -21,10 +30,10 @@ const TaskModal = ({ task, onClose }) => {
 
   // Load vendors from user context
   useEffect(() => {
-    if (user?.vendors) {
-      setVendors([...user.vendors]);
+    if (vendorsObjects) {
+      setVendors(vendorsObjects);
     }
-  }, [user?.vendors]);
+  }, [vendorsObjects]);
 
   // Calculate checklist completion percentage
   const completionPercentage = editedTask.checklists?.length
@@ -39,10 +48,11 @@ const TaskModal = ({ task, onClose }) => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/comment/get-comment/${task.id}`,
+          `http://localhost:4000/api/comment/get-comment/${task._id}`,
           { withCredentials: true }
         );
-        const comments = response.data.task?.comments || response.data.comments || [];
+        const comments =
+          response.data.task?.comments || response.data.comments || [];
         const enhancedComments = comments.map((comment) => ({
           ...comment,
           user:
@@ -66,7 +76,11 @@ const TaskModal = ({ task, onClose }) => {
         setLoading(false);
       }
     };
-    setEditedTask({ ...task, checklists: task.checklists || [], comments: task.comments || [] });
+    setEditedTask({
+      ...task,
+      checklists: task.checklists || [],
+      comments: task.comments || [],
+    });
     fetchComments();
   }, [task, user]);
 
@@ -87,10 +101,16 @@ const TaskModal = ({ task, onClose }) => {
         { text: checklistText, isCompleted: false },
         { withCredentials: true }
       );
+
+      const updatedTask = response.data.task;
       setEditedTask((prev) => ({
         ...prev,
-        checklists: response.data.task.checklists || prev.checklists,
+        checklists: updatedTask.checklists || prev.checklists,
       }));
+
+      if (onTaskUpdate) {
+        onTaskUpdate(updatedTask);
+      }
       setChecklistText('');
       setError(null);
     } catch (error) {
@@ -109,10 +129,18 @@ const TaskModal = ({ task, onClose }) => {
         {},
         { withCredentials: true }
       );
+
+      const updatedTask = response.data.task;
+
       setEditedTask((prev) => ({
         ...prev,
-        checklists: response.data.task.checklists || prev.checklists,
+        checklists: updatedTask.checklists || prev.checklists,
       }));
+
+      if (onTaskUpdate) {
+        onTaskUpdate(updatedTask);
+      }
+
       setError(null);
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to toggle checklist');
@@ -129,14 +157,63 @@ const TaskModal = ({ task, onClose }) => {
         `http://localhost:4000/api/checklist/delete-checklist/${task.id}/${checklistId}`,
         { withCredentials: true }
       );
+
+      const updatedTask = response.data.task;
+
       setEditedTask((prev) => ({
         ...prev,
-        checklists: response.data.task.checklists || prev.checklists,
+        checklists: updatedTask.checklists || prev.checklists,
       }));
+
+      if (onTaskUpdate) {
+        onTaskUpdate(updatedTask);
+      }
+
       setError(null);
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to delete checklist item');
+      setError(
+        error.response?.data?.message || 'Failed to delete checklist item'
+      );
       console.error('Delete checklist error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditChecklist = async (checklistId, newText) => {
+    if (!newText.trim()) {
+      setError('Checklist text cannot be empty');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.put(
+        `http://localhost:4000/api/checklist/edit-checklist/${task._id}/${checklistId}`,
+        { text: newText },
+        { withCredentials: true }
+      );
+
+      const updatedTask = response.data.task;
+
+      setEditedTask((prev) => ({
+        ...prev,
+        checklists: updatedTask.checklists || prev.checklists,
+      }));
+
+      if (onTaskUpdate) {
+        onTaskUpdate(updatedTask);
+      }
+
+      setEditingChecklistId(null);
+      setEditingChecklistText('');
+
+      setError(null);
+    } catch (error) {
+      setError(
+        error.response?.data?.message || 'Failed to edit checklist item'
+      );
+      console.error('Edit checklist error:', error);
     } finally {
       setLoading(false);
     }
@@ -173,7 +250,8 @@ const TaskModal = ({ task, onClose }) => {
         { text: commentText },
         { withCredentials: true }
       );
-      const newComments = response.data.task?.comments || response.data.comments || [];
+      const newComments =
+        response.data.task?.comments || response.data.comments || [];
       const enhancedComments = newComments.map((comment) => ({
         ...comment,
         user:
@@ -214,7 +292,8 @@ const TaskModal = ({ task, onClose }) => {
         { text: editingCommentText },
         { withCredentials: true }
       );
-      const newComments = response.data.task?.comments || response.data.comments || [];
+      const newComments =
+        response.data.task?.comments || response.data.comments || [];
       const enhancedComments = newComments.map((comment) => ({
         ...comment,
         user:
@@ -270,7 +349,8 @@ const TaskModal = ({ task, onClose }) => {
         { withCredentials: true }
       );
       setIsEditing(false);
-      onClose(response.data.task);
+      onTaskUpdate(response.data.task); // Update the task in the parent component
+      onClose();
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to save task');
       console.error('Error updating task:', error);
@@ -282,9 +362,13 @@ const TaskModal = ({ task, onClose }) => {
   const deleteTask = async () => {
     setLoading(true);
     try {
-      await axios.delete(`http://localhost:4000/api/task/delete-task/${task.id}`, {
-        withCredentials: true,
-      });
+      await axios.delete(
+        `http://localhost:4000/api/task/delete-task/${task.id}`,
+        {
+          withCredentials: true,
+        }
+      );
+      onTaskDelete(task.id); // Remove the task from the parent component
       onClose(null);
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to delete task');
@@ -330,7 +414,9 @@ const TaskModal = ({ task, onClose }) => {
 
         <div className="p-5">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>
+            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+              {error}
+            </div>
           )}
 
           {isEditing ? (
@@ -382,13 +468,16 @@ const TaskModal = ({ task, onClose }) => {
                   disabled={loading || userLoading}
                 />
               ) : (
-                <span className="ml-1">{formatDate(editedTask.dueDate) || 'No due date'}</span>
+                <span className="ml-1">
+                  {formatDate(editedTask.dueDate) || 'No due date'}
+                </span>
               )}
             </div>
             <div className="flex items-center mr-4">
               <span className="font-medium">Status:</span>
               <span className="ml-1">{editedTask.status || 'To Do'}</span>
             </div>
+
             <div className="flex items-center">
               <span className="font-medium">Vendor:</span>
               {isEditing ? (
@@ -398,20 +487,22 @@ const TaskModal = ({ task, onClose }) => {
                   onChange={handleInputChange}
                   className="ml-1 border border-gray-200 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                   aria-label="Vendor"
-                  disabled={loading || userLoading || vendors.length === 0}
                 >
                   <option value="" disabled>
                     Select a vendor
                   </option>
                   {vendors.map((vendor) => (
                     <option key={vendor._id} value={vendor._id}>
-                      {vendor.name} ({vendor.category}) - Cost: P{vendor.cost || 'N/A'}
+                      {vendor.name} ({vendor.category}) - Cost: P
+                      {vendor.cost || 'N/A'}
                     </option>
                   ))}
                 </select>
               ) : (
                 <span className="ml-1">
-                  {selectedVendor ? `${selectedVendor.name} (${selectedVendor.category})` : 'None'}
+                  {selectedVendor
+                    ? `${selectedVendor.name} (${selectedVendor.category})`
+                    : 'None'}
                 </span>
               )}
             </div>
@@ -444,6 +535,7 @@ const TaskModal = ({ task, onClose }) => {
               <CheckSquare size={18} className="text-gray-500" />
               <h3 className="font-semibold text-gray-700">Task List</h3>
             </div>
+
             {editedTask.checklists?.length > 0 && (
               <div className="mb-3">
                 <div className="text-sm text-gray-600 mb-1">
@@ -457,6 +549,7 @@ const TaskModal = ({ task, onClose }) => {
                 </div>
               </div>
             )}
+
             <div className="flex gap-2 mb-3">
               <input
                 type="text"
@@ -477,6 +570,7 @@ const TaskModal = ({ task, onClose }) => {
                 {loading ? 'Adding...' : 'Add'}
               </button>
             </div>
+
             {editedTask.checklists?.length > 0 ? (
               <ul className="space-y-2 pl-1">
                 {editedTask.checklists.map((item) => (
@@ -484,32 +578,85 @@ const TaskModal = ({ task, onClose }) => {
                     key={item._id}
                     className="flex justify-between items-center text-sm text-gray-700"
                   >
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={item.isCompleted || false}
-                        onChange={() => handleToggleChecklist(item._id)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
-                        aria-label={`Toggle checklist item: ${item.text}`}
-                        disabled={loading || userLoading}
-                      />
-                      <span className={item.isCompleted ? 'line-through text-gray-400' : ''}>
-                        {item.text}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteChecklist(item._id)}
-                      disabled={loading || userLoading}
-                      className="text-gray-500 hover:text-red-500 p-1"
-                      aria-label={`Delete checklist item: ${item.text}`}
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    {editingChecklistId === item._id ? (
+                      <div className="flex items-center gap-2 w-full">
+                        <input
+                          type="text"
+                          value={editingChecklistText}
+                          onChange={(e) =>
+                            setEditingChecklistText(e.target.value)
+                          }
+                          className="flex-1 border border-gray-200 rounded px-2 py-1 text-sm"
+                        />
+                        <button
+                          onClick={() =>
+                            handleEditChecklist(item._id, editingChecklistText)
+                          }
+                          disabled={loading}
+                          className="text-green-500 hover:text-green-700 p-1"
+                        >
+                          <CheckSquare size={16} />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setEditingChecklistId(null);
+                            setEditingChecklistText('');
+                          }}
+                          disabled={loading}
+                          className="text-gray-500 hover:text-gray-700 p-1"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={item.isCompleted || false}
+                            onChange={() => handleToggleChecklist(item._id)}
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                            disabled={loading || userLoading}
+                          />
+                          <span
+                            className={
+                              item.isCompleted
+                                ? 'line-through text-gray-400'
+                                : ''
+                            }
+                          >
+                            {item.text}
+                          </span>
+                        </div>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => {
+                              setEditingChecklistId(item._id);
+                              setEditingChecklistText(item.text || '');
+                            }}
+                            disabled={loading || userLoading}
+                            className="text-gray-500 hover:text-blue-500 p-1"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteChecklist(item._id)}
+                            disabled={loading || userLoading}
+                            className="text-gray-500 hover:text-red-500 p-1"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500 italic">No checklist items.</p>
+              <p className="text-sm text-gray-500 italic">
+                No checklist items.
+              </p>
             )}
           </div>
 
@@ -518,6 +665,7 @@ const TaskModal = ({ task, onClose }) => {
               <MessageSquare size={18} className="text-gray-500" />
               <h3 className="font-semibold text-gray-700">Comments</h3>
             </div>
+
             <div className="flex gap-2 mb-3">
               <input
                 type="text"
@@ -550,7 +698,9 @@ const TaskModal = ({ task, onClose }) => {
                         <input
                           type="text"
                           value={editingCommentText}
-                          onChange={(e) => setEditingCommentText(e.target.value)}
+                          onChange={(e) =>
+                            setEditingCommentText(e.target.value)
+                          }
                           className="flex-1 border border-gray-200 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                           aria-label="Edit comment"
                           disabled={loading || userLoading}
@@ -559,7 +709,9 @@ const TaskModal = ({ task, onClose }) => {
                           onClick={() => handleEditComment(comment._id)}
                           disabled={loading || userLoading}
                           className={`border border-gray-300 bg-white text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-50 transition-colors font-medium ${
-                            loading || userLoading ? 'opacity-50 cursor-not-allowed' : ''
+                            loading || userLoading
+                              ? 'opacity-50 cursor-not-allowed'
+                              : ''
                           }`}
                         >
                           Save
@@ -571,7 +723,9 @@ const TaskModal = ({ task, onClose }) => {
                           }}
                           disabled={loading || userLoading}
                           className={`border border-gray-300 bg-white text-gray-600 py-1 px-3 rounded-lg hover:bg-gray-50 transition-colors font-medium ${
-                            loading || userLoading ? 'opacity-50 cursor-not-allowed' : ''
+                            loading || userLoading
+                              ? 'opacity-50 cursor-not-allowed'
+                              : ''
                           }`}
                         >
                           Cancel
@@ -602,11 +756,12 @@ const TaskModal = ({ task, onClose }) => {
                           </button>
                         </div>
                         <div className="text-xs text-gray-500">
-                          Posted by {comment.user?.firstName || 'Unknown User'} on{' '}
+                          Posted by {user.firstName || 'Unknown User'} on{' '}
                           {formatDate(comment.createdAt)}
-                          {comment.updatedAt && comment.createdAt !== comment.updatedAt && (
-                            <> (Edited {formatDate(comment.updatedAt)})</>
-                          )}
+                          {comment.updatedAt &&
+                            comment.createdAt !== comment.updatedAt && (
+                              <> (Edited {formatDate(comment.updatedAt)})</>
+                            )}
                         </div>
                       </div>
                     )}

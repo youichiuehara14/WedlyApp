@@ -5,11 +5,11 @@ import { toast } from 'react-hot-toast';
 import axios from 'axios';
 
 export default function StartProjectFormModal({ onClose = () => {} }) {
-  const { user } = useContext(Context);
+  const { user, setBoardsObjects } = useContext(Context);
   const [form, setForm] = useState({
-    owner: `${user.user._id}`,
+    owner: `${user._id}`,
     name: '',
-    members: [`${user.user._id}`],
+    members: [`${user._id}`],
     weddingDate: '',
     totalBudget: '',
   });
@@ -27,14 +27,19 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post('http://localhost:4000/api/board/create-new-board', form, {
-        withCredentials: true,
-      });
+      const { data } = await axios.post(
+        'http://localhost:4000/api/board/create-new-board',
+        form,
+        {
+          withCredentials: true,
+        }
+      );
       console.log('Created board:', data);
       if (data.error) {
         toast.error(data.error);
       } else {
         toast.success('Board created successfully!');
+        setBoardsObjects((prevBoards) => [...prevBoards, data]);
         onClose();
       }
     } catch (error) {
@@ -92,9 +97,9 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
             />
           </div>
 
-          {/* Due Date */}
+          {/* Wedding Date */}
           <div>
-            <label className="block font-medium">Due Date</label>
+            <label className="block font-medium">Wedding Date</label>
             <input
               type="date"
               value={weddingDate}
@@ -111,7 +116,7 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
               onClick={handleSubmit}
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-              Create Project
+              Create Board
             </button>
           </div>
         </form>

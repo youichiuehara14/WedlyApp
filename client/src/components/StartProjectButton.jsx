@@ -13,7 +13,7 @@ export default function StartProjectButton() {
         aria-label="Create a new project"
       >
         <Plus size={20} strokeWidth={3} />
-        Create Project
+        Create Board
       </button>
 
       {isOpen && <StartProjectFormModal onClose={() => setIsOpen(false)} />}

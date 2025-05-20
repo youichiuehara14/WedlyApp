@@ -12,7 +12,7 @@ const HomePage = () => {
   // Redirect to login if user is not authenticated
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/login');
+      navigate('/');
     }
   }, [loading, user, navigate]);
 

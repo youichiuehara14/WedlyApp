@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import CreateTaskModal from './modals/CreateTaskModal';
 
-const Dashboard = () => {
+const TaskFormButton = ({ onTaskCreated }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -13,9 +13,18 @@ const Dashboard = () => {
       >
         Create Task
       </button>
-      <CreateTaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <CreateTaskModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onTaskCreated={() => {
+          if (onTaskCreated) {
+            onTaskCreated();
+          }
+          setIsModalOpen(false);
+        }}
+      />
     </div>
   );
 };
 
-export default Dashboard;
+export default TaskFormButton;

@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { Context } from '../Context';
+import { Context } from '../ContextPaul';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';

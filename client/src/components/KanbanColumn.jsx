@@ -25,10 +25,22 @@ const KanbanColumn = ({ id, tasks, onTaskClick }) => {
       {/* List of task cards, displayed in the column */}
       <div className="space-y-2 max-h-[60vh] overflow-y-hidden">
         {/* Mapping through the tasks array to display each task as a TaskCard */}
-        {tasks.map((task) => (
-          // TaskCard component receives task information and a click handler to handle task clicks
-          <TaskCard key={task.id} id={task.id} task={task} onClick={onTaskClick} />
-        ))}
+        {tasks.map((task) => {
+          // Ensure task.id exists and is unique
+          if (!task._id) {
+            console.error('Task is missing id:', task);
+            return null; // Skip rendering if no id
+          }
+
+          return (
+            <TaskCard
+              key={task._id}
+              id={task._id}
+              task={task}
+              onClick={() => onTaskClick(task)}
+            />
+          );
+        })}
       </div>
     </div>
   );
