@@ -87,9 +87,7 @@ function BoardsPage() {
         { withCredentials: true }
       );
 
-      setBoardsObjects((prev) =>
-        prev.map((b) => (b._id === result.data._id ? result.data : b))
-      );
+      setBoardsObjects((prev) => prev.map((b) => (b._id === result.data._id ? result.data : b)));
 
       if (activeBoardObject?._id === result.data._id) {
         setActiveBoardObject(result.data);
@@ -129,9 +127,7 @@ function BoardsPage() {
     }
 
     // Check if the email is already in the members array
-    const isAlreadyMember = selectedBoard.members.some(
-      (member) => member.email === inviteEmail
-    );
+    const isAlreadyMember = selectedBoard.members.some((member) => member.email === inviteEmail);
 
     if (isAlreadyMember) {
       toast.error('This user is already a member of the board.');
@@ -171,9 +167,7 @@ function BoardsPage() {
     } catch (err) {
       console.error('Invite error:', err);
       toast.error(
-        err.response?.data?.error ||
-          err.message ||
-          'Failed to invite user. Please try again.'
+        err.response?.data?.error || err.message || 'Failed to invite user. Please try again.'
       );
     } finally {
       setIsInviting(false);
@@ -183,9 +177,7 @@ function BoardsPage() {
   const handleRemoveMember = async (memberId) => {
     if (!selectedBoard) return;
 
-    const confirmRemove = window.confirm(
-      'Are you sure you want to remove this member?'
-    );
+    const confirmRemove = window.confirm('Are you sure you want to remove this member?');
     if (!confirmRemove) return;
 
     try {
@@ -204,10 +196,7 @@ function BoardsPage() {
       }
     } catch (error) {
       console.error('Error removing member:', error);
-      toast.error(
-        error.response?.data?.error ||
-          'Failed to remove member. Please try again.'
-      );
+      toast.error(error.response?.data?.error || 'Failed to remove member. Please try again.');
     }
   };
 
@@ -232,211 +221,227 @@ function BoardsPage() {
   };
 
   return (
-    <>
-      <h1 className="text-3xl font-bold mb-6">Manage Boards</h1>
+    // Main container with dark background and padding
+    <div className="min-h-screen rounded-4xl text-white p-4 shadow-neumorphism-inset">
+      <div className="h-screen border-1 rounded-4xl border-[#dddddd2d] p-5">
+        <div className="rounded-lg shadow-lg   ">
+          <h1 className="text-xl sm:text-3xl font-bold mb-6 inline-block px-5 py-2 border-[#dddddd2d]">
+            Manage Boards
+          </h1>
+          <table className="min-w-full  text-white border-[#dddddd2d] border-1  ">
+            <thead>
+              <tr className="text-left text-xs sm:text-base">
+                <th className="p-3 sm:p-4">Name</th>
+                <th className="p-3 sm:p-4">Budget</th>
+                <th className="p-3 sm:p-4 hidden sm:table-cell">Spent</th>
+                <th className="p-3 sm:p-4">Remaining</th>
+                {/* Wedding Date: Smaller text on small screens, base on larger */}
+                <th className="p-3 sm:p-4 text-sm sm:text-base hidden sm:table-cell">
+                  Wedding Date
+                </th>
+                {/* Hidden on small screens, visible from md breakpoint */}
+                <th className="p-3 sm:p-4 hidden lg:table-cell">Owner</th>
+                {/* Hidden on small screens, visible from md breakpoint */}
+                <th className="p-3 sm:p-4 hidden lg:table-cell">Member/s</th>
+                <th className="p-3 sm:p-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {boardsObjects?.length > 0 ? (
+                boardsObjects.map((board) => (
+                  <tr
+                    key={board._id}
+                    className="border-t border-[#dddddd2d] duration-200 hover:bg-[#323529] transition-all"
+                  >
+                    <td className="p-3 sm:p-4 text-xs sm:text-sm">{board.name}</td>
+                    <td className="p-3 sm:p-4 text-xs sm:text-sm">
+                      {board.totalBudget.toLocaleString()}
+                    </td>
+                    <td className="p-3 sm:p-4 text-xs sm:text-sm hidden sm:table-cell">
+                      {board.totalSpent.toLocaleString()}
+                    </td>
+                    <td className="p-3 sm:p-4 text-xs sm:text-sm">
+                      {board.totalRemaining.toLocaleString()}
+                    </td>
+                    {/* Wedding Date: Smaller text on small screens, base on larger */}
+                    <td className="p-3 sm:p-4 text-xs sm:text-sm hidden sm:table-cell">
+                      {new Date(board.weddingDate).toLocaleDateString()}
+                    </td>
+                    {/* Hidden on small screens, visible from md breakpoint */}
+                    <td className="p-3 sm:p-4 text-xs sm:text-sm hidden lg:table-cell">
+                      {`${board.owner.firstName} ${board.owner.lastName}`}
+                    </td>
+                    {/* Hidden on small screens, visible from md breakpoint */}
+                    <td className="p-3 sm:p-4 text-xs sm:text-sm hidden lg:table-cell">
+                      {board.members.map((member) => {
+                        return (
+                          <div key={member._id}>{`${member.firstName} ${member.lastName}`}</div>
+                        );
+                      })}
+                    </td>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-300 rounded-md">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3 border-b">Name</th>
-              <th className="p-3 border-b">Budget</th>
-              <th className="p-3 border-b">Spent</th>
-              <th className="p-3 border-b">Remaining</th>
-              <th className="p-3 border-b">Wedding Date</th>
-              <th className="p-3 border-b">Owner</th>
-              <th className="p-3 border-b">Member/s</th>
-              <th className="p-3 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {boardsObjects?.length > 0 ? (
-              boardsObjects.map((board) => (
-                <tr key={board._id} className="hover:bg-gray-50">
-                  <td className="p-3 border-b">{board.name}</td>
-                  <td className="p-3 border-b">
-                    {board.totalBudget.toLocaleString()}
-                  </td>
-                  <td className="p-3 border-b">
-                    {board.totalSpent.toLocaleString()}
-                  </td>
-                  <td className="p-3 border-b">
-                    {board.totalRemaining.toLocaleString()}
-                  </td>
-                  <td className="p-3 border-b">
-                    {new Date(board.weddingDate).toLocaleDateString()}
-                  </td>
-                  <td className="p-3 border-b">
-                    {`${board.owner.firstName} ${board.owner.lastName}`}
-                  </td>
-                  <td className="p-3 border-b">
-                    {board.members.map((member) => {
-                      return (
-                        <div key={member._id}>
-                          {`${member.firstName} ${member.lastName}`}
-                        </div>
-                      );
-                    })}
-                  </td>
-
-                  <td className="p-3 border-b space-x-2">
-                    {board.owner._id === user._id && (
-                      <>
-                        <button
-                          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                          onClick={() => openEditModal(board)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                          onClick={() => handleDeleteConfirmation(board)}
-                        >
-                          Delete
-                        </button>
-                      </>
-                    )}
+                    <td className="p-3 sm:p-4 space-x-2">
+                      {board.owner._id === user._id && (
+                        <>
+                          <button
+                            className="text-white cursor-pointer hover:underline text-xs sm:text-sm"
+                            onClick={() => openEditModal(board)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="text-white cursor-pointer hover:underline text-xs sm:text-sm"
+                            onClick={() => handleDeleteConfirmation(board)}
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="6" // Colspan is now 6 (original 8 - 2 hidden columns)
+                    className="text-center p-4 text-gray-500 text-sm sm:text-base"
+                  >
+                    No boards available.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="text-center p-6 text-gray-500">
-                  No boards available.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 backdrop-blur flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto relative">
-            {modalType === 'edit' && selectedBoard && (
-              <>
-                <h2 className="text-xl font-semibold mb-4">Edit Board</h2>
-                <label className="block mb-2">
-                  Name:
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full border rounded p-2"
-                  />
-                </label>
-                <label className="block mb-2">
-                  Total Budget:
-                  <input
-                    type="number"
-                    name="totalBudget"
-                    value={formData.totalBudget}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full border rounded p-2"
-                    min={0}
-                  />
-                </label>
-                <label className="block mb-4">
-                  Wedding Date:
-                  <input
-                    type="date"
-                    name="weddingDate"
-                    value={formData.weddingDate}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full border rounded p-2"
-                  />
-                </label>
-
-                {/* Show Invite Member Section Only if Current User is the Owner */}
-                {selectedBoard.owner._id === user._id && (
-                  <>
-                    <label className="block mb-4">Member/s:</label>
-                    <ul className="mb-4">
-                      {selectedBoard.members.map((member) => (
-                        <li
-                          key={member._id}
-                          className="flex items-center justify-between border-b py-2"
-                        >
-                          <span>{`${member.firstName} ${member.lastName} (${member.email})`}</span>
-                          <button
-                            className="text-red-600 hover:text-red-800"
-                            onClick={() => handleRemoveMember(member._id)}
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                    <label className="block mb-2">
-                      Invite member by email:
-                    </label>
-                    <div className="flex space-x-2 mb-4">
-                      <input
-                        type="email"
-                        value={inviteEmail}
-                        onChange={(e) => setInviteEmail(e.target.value)}
-                        placeholder="Enter user email"
-                        className="flex-1 border p-2 rounded"
-                      />
-                      <button
-                        className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700"
-                        onClick={handleInviteMember}
-                        disabled={isInviting}
-                      >
-                        {isInviting ? 'Inviting...' : 'Invite'}
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                <div className="flex justify-end space-x-3">
-                  <button
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                    onClick={closeModal}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    onClick={handleEditSubmit}
-                  >
-                    Save
-                  </button>
-                </div>
-              </>
-            )}
-
-            {modalType === 'delete' && selectedBoard && (
-              <>
-                <h2 className="text-xl font-semibold mb-4 text-red-600">
-                  Delete Board
-                </h2>
-                <p>
-                  Are you sure you want to delete{' '}
-                  <strong>{selectedBoard.name}</strong>?
-                </p>
-                <div className="flex justify-end space-x-3 mt-6">
-                  <button
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                    onClick={closeModal}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                    onClick={handleDeleteSubmit}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
-    </>
+
+        {/* Modal (No changes needed for modal hiding columns) */}
+        {modalOpen && (
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md text-gray-800">
+              {modalType === 'edit' && selectedBoard && (
+                <>
+                  <h2 className="text-xl font-semibold mb-4">Edit Board</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Total Budget</label>
+                      <input
+                        type="number"
+                        name="totalBudget"
+                        value={formData.totalBudget}
+                        onChange={handleInputChange}
+                        className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none text-sm"
+                        min={0}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Wedding Date</label>
+                      <input
+                        type="date"
+                        name="weddingDate"
+                        value={formData.weddingDate}
+                        onChange={handleInputChange}
+                        className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none text-sm"
+                      />
+                    </div>
+
+                    {/* Show Invite Member Section Only if Current User is the Owner */}
+                    {selectedBoard.owner._id === user._id && (
+                      <>
+                        <label className="md:block text-sm font-medium mb-1">Member/s:</label>
+                        <ul className="mb-4 space-y-2">
+                          {selectedBoard.members.map((member) => (
+                            <li
+                              key={member._id}
+                              className="flex items-center justify-between text-sm border border-gray-300 p-2 rounded-lg"
+                            >
+                              <span>{`${member.firstName} ${member.lastName} (${member.email})`}</span>
+                              <button
+                                className="text-red-600 hover:text-red-800 text-xs sm:text-sm ml-2"
+                                onClick={() => handleRemoveMember(member._id)}
+                              >
+                                Remove
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            Invite member by email:
+                          </label>
+                          <div className="flex space-x-2">
+                            <input
+                              type="email"
+                              value={inviteEmail}
+                              onChange={(e) => setInviteEmail(e.target.value)}
+                              placeholder="Enter user email"
+                              className="flex-1 border border-gray-300 p-2 rounded-lg  focus:outline-none text-sm"
+                            />
+                            <button
+                              className="border-1 hover:bg-[#2d2f25] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
+                              onClick={handleInviteMember}
+                              disabled={isInviting}
+                            >
+                              {isInviting ? 'Inviting...' : 'Invite'}
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex justify-end gap-3 mt-6">
+                    <button
+                      onClick={handleEditSubmit}
+                      className="border-1 hover:bg-[#2d2f25] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={closeModal}
+                      className="border-1 hover:bg-[#2d2f25] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {modalType === 'delete' && selectedBoard && (
+                <>
+                  <h2 className="text-xl font-semibold mb-4 text-red-600">Delete Board</h2>
+                  <p className="text-base mb-6">
+                    Are you sure you want to delete <strong>{selectedBoard.name}</strong>?
+                  </p>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={handleDeleteSubmit}
+                      className="bg-red-600 text-[#2d2f25] px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 text-sm"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={closeModal}
+                      className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-all duration-300 text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 

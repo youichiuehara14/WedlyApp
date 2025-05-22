@@ -9,18 +9,15 @@ import {
   useSensors,
   DragOverlay,
 } from '@dnd-kit/core';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import KanbanColumn from './KanbanColumn';
 import TaskCard from './TaskCard';
 import TaskModal from './modals/TaskModal';
 import { Context } from '../Context';
+import TaskFormButton from './TaskFormButton';
 
 const KanbanBoard = () => {
-  const { activeBoardObject, tasksPerBoard, setTasksPerBoard } =
+  const { fetchTasksPerBoard, activeBoardObject, tasksPerBoard, setTasksPerBoard } =
     useContext(Context);
   const [columns, setColumns] = useState({
     todo: [],
@@ -29,6 +26,20 @@ const KanbanBoard = () => {
   });
   const [activeTask, setActiveTask] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
+
+  useEffect(() => {
+    if (activeBoardObject) {
+      fetchTasksPerBoard(activeBoardObject._id);
+    }
+  }, []);
+
+  const addNewTaskOnBoard = async () => {
+    setTasksPerBoard((prevTasks) => ({
+      ...prevTasks,
+      tasks: [...prevTasks.tasks, {}],
+    }));
+    await fetchTasksPerBoard(activeBoardObject._id);
+  };
 
   useEffect(() => {
     if (!activeBoardObject._id) return;
@@ -57,8 +68,7 @@ const KanbanBoard = () => {
       };
 
       if (task.status === 'To Do') grouped.todo.push(formattedTask);
-      else if (task.status === 'In Progress')
-        grouped.inProgress.push(formattedTask);
+      else if (task.status === 'In Progress') grouped.inProgress.push(formattedTask);
       else if (task.status === 'Done') grouped.done.push(formattedTask);
     });
 
@@ -66,18 +76,11 @@ const KanbanBoard = () => {
   }, [tasksPerBoard]);
 
   const handleUpdateTask = (updatedTask) => {
-    console.log('Updating task:', updatedTask);
     setColumns((prev) => {
       const newColumns = { ...prev };
-
-      // Remove the task from all columns using _id
       for (const columnId in prev) {
-        newColumns[columnId] = prev[columnId].filter(
-          (task) => task._id !== updatedTask._id
-        );
+        newColumns[columnId] = prev[columnId].filter((task) => task._id !== updatedTask._id);
       }
-
-      // Add it to the correct column
       if (updatedTask.status === 'To Do') {
         newColumns.todo = [...newColumns.todo, updatedTask];
       } else if (updatedTask.status === 'In Progress') {
@@ -85,11 +88,9 @@ const KanbanBoard = () => {
       } else if (updatedTask.status === 'Done') {
         newColumns.done = [...newColumns.done, updatedTask];
       }
-
       return newColumns;
     });
 
-    // update the taskPerBoard in context
     setTasksPerBoard((prev) => {
       const newTasks = prev.tasks.map((task) =>
         task._id === updatedTask._id ? updatedTask : task
@@ -114,15 +115,12 @@ const KanbanBoard = () => {
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor)
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
   );
 
   const findTaskAndColumn = (id) => {
-    // First try to match the full columnId-taskId format
     for (const [columnId, tasks] of Object.entries(columns)) {
-      const task = tasks.find(
-        (t) => t._id === id || `${columnId}-${t._id}` === id
-      );
+      const task = tasks.find((t) => t._id === id || `${columnId}-${t._id}` === id);
       if (task) return { task, columnId };
     }
     return null;
@@ -143,13 +141,10 @@ const KanbanBoard = () => {
     const activeId = active.id;
     const overId = over.id;
 
-    // Find tasks using _id instead of id
     const activeTaskInfo = findTaskAndColumn(activeId);
     const overTaskInfo = findTaskAndColumn(overId);
     const overIsColumn = overId.startsWith('column-');
-    const targetColumnId = overIsColumn
-      ? overId.replace('column-', '')
-      : overTaskInfo?.columnId;
+    const targetColumnId = overIsColumn ? overId.replace('column-', '') : overTaskInfo?.columnId;
 
     if (!activeTaskInfo || !targetColumnId) return;
 
@@ -163,43 +158,33 @@ const KanbanBoard = () => {
     };
 
     if (fromColumnId === targetColumnId) {
-      // Same column movement
-      const oldIndex = columns[fromColumnId].findIndex(
-        (t) => t._id === activeId // Changed to use _id
-      );
+      const oldIndex = columns[fromColumnId].findIndex((t) => t._id === activeId);
       const newIndex = overIsColumn
         ? 0
-        : columns[targetColumnId].findIndex((t) => t._id === overId); // Changed to use _id
+        : columns[targetColumnId].findIndex((t) => t._id === overId);
 
       setColumns((prev) => ({
         ...prev,
         [targetColumnId]: arrayMove(prev[targetColumnId], oldIndex, newIndex),
       }));
     } else {
-      // Moving between columns
       const newStatus = statusMap[targetColumnId];
 
       const newColumns = {
         ...columns,
-        [fromColumnId]: columns[fromColumnId].filter((t) => t._id !== activeId), // Changed to use _id
+        [fromColumnId]: columns[fromColumnId].filter((t) => t._id !== activeId),
         [targetColumnId]: [
           ...columns[targetColumnId].slice(
             0,
-            overIsColumn
-              ? 0
-              : columns[targetColumnId].findIndex((t) => t._id === overId) // Changed to use _id
+            overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t._id === overId)
           ),
           {
             ...taskData,
             status: newStatus,
-            position: overIsColumn
-              ? 0
-              : columns[targetColumnId].findIndex((t) => t._id === overId), // Update position
+            position: overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t._id === overId),
           },
           ...columns[targetColumnId].slice(
-            overIsColumn
-              ? 0
-              : columns[targetColumnId].findIndex((t) => t._id === overId) // Changed to use _id
+            overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t._id === overId)
           ),
         ],
       };
@@ -214,19 +199,14 @@ const KanbanBoard = () => {
           dueDate: taskData.dueDate || null,
           status: newStatus,
           priority: taskData.priority || 'Medium',
-          position: overIsColumn
-            ? 0
-            : columns[targetColumnId].findIndex((t) => t._id === overId),
+          position: overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t._id === overId),
           vendor: taskData.vendor,
         };
 
-        await axios.put(
-          `http://localhost:4000/api/task/update-task/${activeId}`, // Make sure your API expects _id
-          updatedTaskData,
-          { withCredentials: true }
-        );
+        await axios.put(`http://localhost:4000/api/task/update-task/${activeId}`, updatedTaskData, {
+          withCredentials: true,
+        });
 
-        // update the context side
         setTasksPerBoard((prev) => {
           const newTasks = prev.tasks.map((task) =>
             task._id === activeId ? { ...task, ...updatedTaskData } : task
@@ -234,51 +214,59 @@ const KanbanBoard = () => {
           return { ...prev, tasks: newTasks };
         });
       } catch (error) {
-        // Revert on error
         setColumns((prev) => ({
           ...prev,
-          [fromColumnId]: [
-            ...prev[fromColumnId],
-            { ...taskData, status: statusMap[fromColumnId] },
-          ],
-          [targetColumnId]: prev[targetColumnId].filter(
-            (t) => t._id !== activeId // Changed to use _id
-          ),
+          [fromColumnId]: [...prev[fromColumnId], { ...taskData, status: statusMap[fromColumnId] }],
+          [targetColumnId]: prev[targetColumnId].filter((t) => t._id !== activeId),
         }));
-        alert(
-          'Failed to update task status: ' +
-            (error.response?.data?.message || error.message)
-        );
+        alert('Failed to update task status: ' + (error.response?.data?.message || error.message));
       }
     }
   };
 
   return (
-    <>
+    <div className="flex flex-col h-screen  w-full justify-evenly items-center overflow-x-auto rounded-4xl border-[#dddddd2d] ">
+      <div className="flex flex-col w-[90%] mx-auto gap-4 sm:gap-6 mt-15 mb-10">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl text-white font-semibold">
+          Board: {activeBoardObject.name}
+        </h1>
+
+        {/* 👇 Tiny Task Status Row */}
+        <div className="flex gap-4 text-white font-semibold text-xs sm:text-sm md:text-base">
+          <span>{columns.todo.length} To Do</span>
+          <span>{columns.inProgress.length} In Progress</span>
+          <span>{columns.done.length} Done</span>
+        </div>
+
+        <TaskFormButton onTaskCreated={addNewTaskOnBoard} />
+      </div>
+
       <DndContext
         sensors={sensors}
         collisionDetection={rectIntersection}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+        <div className="flex flex-row px-10 space-x-5 space-y-3  sm:space-y-0 lg:space-x-10 max-w-full">
           {Object.keys(columns).map((columnId) => (
             <SortableContext
               key={columnId}
               items={columns[columnId].map((task) => task._id)}
               strategy={verticalListSortingStrategy}
             >
-              <KanbanColumn
-                id={columnId}
-                tasks={columns[columnId]}
-                onTaskClick={(task) => setSelectedTask(task)}
-              />
+              <div className="w-full sm:w-64 md:w-72 lg:w-80 flex-shrink-0">
+                <KanbanColumn
+                  id={columnId}
+                  tasks={columns[columnId]}
+                  onTaskClick={(task) => setSelectedTask(task)}
+                />
+              </div>
             </SortableContext>
           ))}
         </div>
         <DragOverlay>
           {activeTask ? (
-            <div className="w-72">
+            <div className="w-full max-w-64 sm:max-w-72 md:max-w-80">
               <TaskCard task={activeTask} id={activeTask.id} />
             </div>
           ) : null}
@@ -292,7 +280,7 @@ const KanbanBoard = () => {
           onTaskDelete={handleDeleteTask}
         />
       )}
-    </>
+    </div>
   );
 };
 

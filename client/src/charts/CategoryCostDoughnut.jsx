@@ -11,6 +11,20 @@ const CategoryCostDoughnut = () => {
   const [loading, setLoading] = useState(true);
   const { activeBoardObject, tasksPerBoard } = useContext(Context);
 
+  const options = {
+    plugins: {
+      legend: {
+        labels: {
+          color: 'white',
+        },
+      },
+      tooltip: {
+        titleColor: 'white',
+        bodyColor: 'white',
+      },
+    },
+  };
+
   useEffect(() => {
     if (!activeBoardObject || !tasksPerBoard?.tasks?.length) {
       setChartData(null);
@@ -35,17 +49,8 @@ const CategoryCostDoughnut = () => {
 
       if (labels.length && costs.length) {
         // Repeat static colors if there are more categories than colors
-        const baseColors = [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
-          '#4BC0C0',
-          '#9966FF',
-          '#FF9F40',
-        ];
-        const backgroundColor = labels.map(
-          (_, i) => baseColors[i % baseColors.length]
-        );
+        const baseColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+        const backgroundColor = labels.map((_, i) => baseColors[i % baseColors.length]);
 
         setChartData({
           labels,
@@ -71,15 +76,14 @@ const CategoryCostDoughnut = () => {
 
   return (
     <div className="max-w-md mx-auto p-4">
-      <h2 className="text-lg font-bold text-center mb-4">
-        Task Cost by Category
-      </h2>
       {loading ? (
-        <p className="text-center text-gray-500">Loading chart...</p>
+        <p className="text-center text-white">Loading chart...</p>
       ) : chartData ? (
-        <Doughnut data={chartData} />
+        <div className="w-[200px] h-[200px]">
+          <Doughnut data={chartData} options={options} />
+        </div>
       ) : (
-        <p className="text-center text-gray-500">No data available</p>
+        <p className="text-center text-white">No data available</p>
       )}
     </div>
   );

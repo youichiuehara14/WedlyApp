@@ -2,14 +2,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { Context } from '../Context';
 import { Bar } from 'react-chartjs-2';
-import {
-  Chart,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import { Chart, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
 
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -22,6 +15,7 @@ const CategoryCostBar = () => {
   const options = {
     plugins: {
       legend: {
+        color: 'white',
         display: false,
       },
     },
@@ -89,16 +83,18 @@ const CategoryCostBar = () => {
   }, [activeBoardObject, tasksPerBoard]);
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h2 className="text-lg font-bold text-center mb-4">
-        Task Cost by Category (Bar Chart)
-      </h2>
+    <div className="w-full overflow-x-auto">
       {loading ? (
-        <p className="text-center text-gray-500">Loading chart...</p>
+        <p className="text-center text-white">Loading chart...</p>
       ) : chartData ? (
-        <Bar data={chartData} options={options} />
+        <div className="flex flex-col items-center gap-5  justify-center w-[230px] h-[230px] sm:w-[300px] sm:h-[300px]">
+          <h2 className="text-sm sm:text-lg font-bold text-center  text-white">
+            Task Cost by Category (Bar Chart)
+          </h2>
+          <Bar data={chartData} options={options} />
+        </div>
       ) : (
-        <p className="text-center text-gray-500">No data available</p>
+        <p className="text-center text-white">No data available</p>
       )}
     </div>
   );
