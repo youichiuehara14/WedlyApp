@@ -1,20 +1,21 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 function Register() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [registerFormData, setRegisterFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    phoneNumber: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phoneNumber: "",
   });
 
   const handleChange = (e) => {
@@ -39,13 +40,13 @@ function Register() {
 
     // Check if passwords match
     if (password !== registerFormData.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error("Passwords do not match");
       return;
     }
 
     try {
       const { data } = await axios.post(
-        'http://localhost:4000/api/user/register',
+        "http://localhost:4000/api/user/register",
         {
           firstName,
           lastName,
@@ -60,22 +61,22 @@ function Register() {
         toast.error(data.error);
       } else {
         setRegisterFormData({
-          firstName: '',
-          lastName: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-          phoneNumber: '',
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          phoneNumber: "",
         }); // Reset form fields
-        toast.success('Registration successful');
-        navigate('/login');
+        toast.success("Registration successful");
+        navigate("/login");
       }
-      console.log('Registration successful:', data);
+      console.log("Registration successful:", data);
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
         toast.error(error.response.data.error);
       } else {
-        toast.error('Registration failed');
+        toast.error("Registration failed");
       }
       console.log(error);
     }
@@ -104,14 +105,15 @@ function Register() {
   };
 
   const strengthColors = [
-    'bg-red-500',
-    'bg-orange-400',
-    'bg-yellow-400',
-    'bg-green-500',
+    "bg-red-500",
+    "bg-orange-400",
+    "bg-yellow-400",
+    "bg-green-500",
   ];
 
   return (
     <>
+      <Navbar />
       <div className="bg-gray-100 flex justify-center items-center min-h-screen pt-20 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full bg-white shadow-xl rounded-lg p-6">
           <h1 className="text-2xl font-bold text-gray-800 text-center">
@@ -174,7 +176,7 @@ function Register() {
               Password
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={registerFormData.password}
                   onChange={handleChange}
@@ -186,7 +188,7 @@ function Register() {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-blue-600 hover:underline focus:outline-none"
                   onClick={togglePasswordVisibility}
                 >
-                  {showPassword ? 'Hide' : 'Show'}
+                  {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
             </label>
@@ -195,7 +197,7 @@ function Register() {
               Confirm Password
               <div className="relative">
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   value={registerFormData.confirmPassword}
                   onChange={handleChange}
@@ -207,7 +209,7 @@ function Register() {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-blue-600 hover:underline focus:outline-none"
                   onClick={toggleConfirmPasswordVisibility}
                 >
-                  {showConfirmPassword ? 'Hide' : 'Show'}
+                  {showConfirmPassword ? "Hide" : "Show"}
                 </button>
               </div>
             </label>
@@ -224,7 +226,7 @@ function Register() {
                     className={`flex-1 rounded ${
                       getPasswordStrength() > i
                         ? strengthColors[i]
-                        : 'bg-gray-200'
+                        : "bg-gray-200"
                     }`}
                   />
                 ))}
@@ -234,8 +236,8 @@ function Register() {
                 <li
                   className={
                     registerFormData.password.length >= 6
-                      ? 'text-green-600'
-                      : ''
+                      ? "text-green-600"
+                      : ""
                   }
                 >
                   • Minimum 6 characters
@@ -243,15 +245,15 @@ function Register() {
                 <li
                   className={
                     /[A-Z]/.test(registerFormData.password)
-                      ? 'text-green-600'
-                      : ''
+                      ? "text-green-600"
+                      : ""
                   }
                 >
                   • Must contain at least one uppercase letter
                 </li>
                 <li
                   className={
-                    /\d/.test(registerFormData.password) ? 'text-green-600' : ''
+                    /\d/.test(registerFormData.password) ? "text-green-600" : ""
                   }
                 >
                   • Must contain at least one number
@@ -262,8 +264,8 @@ function Register() {
                     registerFormData.confirmPassword &&
                     registerFormData.password ===
                       registerFormData.confirmPassword
-                      ? 'text-green-600'
-                      : ''
+                      ? "text-green-600"
+                      : ""
                   }
                 >
                   • Provided passwords must match
@@ -280,7 +282,7 @@ function Register() {
           </form>
 
           <p className="text-center text-sm text-gray-600 mt-4">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link to="/login" className="text-blue-500 hover:underline">
               Login here
             </Link>
