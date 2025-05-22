@@ -39,7 +39,7 @@ const TaskCard = ({ task, id, onClick }) => {
       {...attributes}
       {...listeners}
       onClick={() => onClick && onClick(task)}
-      className="bg-white  border-2 text-black p-2 sm:p-3 md:p-4 mb-2 sm:mb-3 rounded-lg shadow-lg hover:shadow-xl cursor-pointer border-[#dddddd2d] mt-2  relative "
+      className="bg-white  border-2 text-black p-2 sm:p-3 md:p-4 mb-2 sm:mb-3 rounded-lg shadow-lg hover:shadow-xl cursor-pointer border-[#dddddd2d] mt-3  relative "
     >
       <div
         className="w-4 sm:w-3 h-5 mb-2 absolute -top-2 "

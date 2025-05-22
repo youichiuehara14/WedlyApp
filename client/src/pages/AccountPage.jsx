@@ -62,13 +62,29 @@ function AccountPage() {
   if (loading) return <div className="text-center text-white mt-20">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-[#2d2f25] py-12 px-4 rounded-4xl ">
-      <div className="max-w-4xl mx-auto p-6 backdrop-blur-md rounded-4xl shadow-xl shadow-neumorphism border-1 border-gray-400/10">
-        <h2 className="text-3xl font-semibold text-white text-center mb-6 flex items-center justify-center gap-2">
-          Account Information
-        </h2>
+    <div className="min-h-full flex items-center bg-[#2d2f25] p-6 rounded-4xl ">
+      <div className="w-full mt-10 sm:w-[90%] lg:w-[70%] mx-auto p-4 sm:px-24 sm:py-24 backdrop-blur-md rounded-4xl shadow-xl shadow-neumorphism border border-gray-400/10">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+          <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-0">
+            Account Information
+          </h2>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <button
+              onClick={() => setEditing(true)}
+              className="w-full sm:w-30 flex items-center justify-center gap-2 border border-gray-400/70 cursor-pointer text-white py-2 rounded-lg hover:bg-gray-600/10 hover:scale-105 transition-all duration-200 text-sm"
+            >
+              <Pencil size={16} /> Edit
+            </button>
+            <Link
+              to="/home/change-password"
+              className="w-full sm:w-30 flex items-center justify-center gap-2 border border-gray-400/70 cursor-pointer text-white py-2 rounded-lg hover:bg-gray-600/10 hover:scale-105 transition-all duration-200 text-sm text-center"
+            >
+              <LockKeyhole size={16} /> Password
+            </Link>
+          </div>
+        </div>
 
-        <div className="flex flex-col items-center gap-6 w-full max-w-md mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-full sm:max-w-4xl mx-auto">
           {['firstName', 'lastName', 'email', 'phoneNumber'].map((field) => (
             <div key={field} className="w-full">
               <label className="block text-sm font-medium text-gray-300 mb-1 capitalize">
@@ -80,9 +96,9 @@ function AccountPage() {
                 value={formData[field]}
                 onChange={handleInputChange}
                 disabled={!editing}
-                className={`w-full px-4 py-2 border text-sm rounded-lg focus:outline-none focus:ring-2 ${
+                className={`w-full px-4 py-2 border text-sm rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 ${
                   editing
-                    ? 'bg-white text-gray-800 '
+                    ? 'bg-white text-gray-800'
                     : 'bg-gray-200 text-gray-600 focus:ring-transparent'
                 }`}
               />
@@ -90,38 +106,22 @@ function AccountPage() {
           ))}
         </div>
 
-        <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-10">
-          {!editing ? (
+        {editing && (
+          <div className="flex justify-center gap-4 mt-4 sm:mt-6">
             <button
-              onClick={() => setEditing(true)}
-              className="w-40 flex items-center justify-center gap-2 border-1 border-gray-400/70 cursor-pointer text-white py-2 rounded-lg  transition text-sm"
+              onClick={handleSaveChanges}
+              className="w-full sm:w-40 flex items-center justify-center gap-2 border border-gray-400/70 cursor-pointer text-white py-2 rounded-lg hover:bg-gray-600/10 hover:scale-105 transition-all duration-200 text-sm"
             >
-              <Pencil size={16} /> Edit
+              <Save size={16} /> Save
             </button>
-          ) : (
-            <>
-              <button
-                onClick={handleSaveChanges}
-                className="w-40 flex items-center justify-center gap-2 border-1 border-gray-400/70 cursor-pointer text-white py-2 rounded-lg hover:bg-gray-600/10 transition text-sm"
-              >
-                <Save size={16} /> Save
-              </button>
-              <button
-                onClick={() => setEditing(false)}
-                className="w-40 flex items-center justify-center gap-2 border-1 border-gray-400/70 cursor-pointer text-white py-2 rounded-lg hover:bg-gray-600/10 transition text-sm"
-              >
-                <X size={16} /> Cancel
-              </button>
-            </>
-          )}
-
-          <Link
-            to="/home/change-password"
-            className="w-40 flex items-center justify-center gap-2 border-1 border-gray-400/70 cursor-pointer text-white py-2 rounded-lg hover:bg-gray-600/10 transition text-sm text-center"
-          >
-            <LockKeyhole size={16} /> Password
-          </Link>
-        </div>
+            <button
+              onClick={() => setEditing(false)}
+              className="w-full sm:w-40 flex items-center justify-center gap-2 border border-gray-400/70 cursor-pointer text-white py-2 rounded-lg hover:bg-gray-600/10 hover:scale-105 transition-all duration-200 text-sm"
+            >
+              <X size={16} /> Cancel
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

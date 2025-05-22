@@ -74,7 +74,7 @@ const Navbar = () => {
         <nav className="flex flex-col sm:flex-row items-center justify-between p-4 w-[90%] mx-auto">
           {/* Left Side: Logo + Menu */}
           <div className="flex items-center gap-4">
-            {/* 👇 Only show left-side hamburger menu if logged in */}
+            {/* Left-side hamburger menu for logged-in users */}
             {user && (
               <div className="xl:hidden">
                 <button onClick={toggleMobileMenu} className="flex items-center">
@@ -136,7 +136,7 @@ const Navbar = () => {
           )}
 
           {/* Right Side: Actions */}
-          <ul className="flex items-center gap-4">
+          <ul className="flex flex-col mt-5 sm:flex-row items-center sm:gap-4">
             {user ? (
               <>
                 <div className="p-4">
@@ -170,6 +170,15 @@ const Navbar = () => {
               </button>
             )}
           </ul>
+
+          {/* Right-side Mobile Menu Button - Hidden when user is logged in */}
+          {!user && (
+            <div className="md:hidden">
+              <button onClick={toggleMenu} className="p-2 rounded hover:bg-gray-700">
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+          )}
 
           {/* Mobile Scroll Menu for Landing Page */}
           {isMenuOpen && isLandingPage && (
@@ -214,13 +223,6 @@ const Navbar = () => {
               </div>
             </div>
           )}
-
-          {/* Right-side Mobile Menu Button */}
-          <div className="md:hidden">
-            <button onClick={toggleMenu} className="p-2 rounded hover:bg-gray-700">
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
         </nav>
 
         {/* Mobile Hamburger Slide-Out Menu for Logged In Users Only */}
