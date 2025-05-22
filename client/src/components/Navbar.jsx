@@ -6,12 +6,20 @@ import { Context } from '../Context';
 
 // Navbar Component
 const Navbar = () => {
-  const { user, boardsObjects, setActiveBoardObject, activeBoardObject } =
-    useContext(Context);
+  const {
+    user,
+    boardsObjects,
+    setActiveBoardObject,
+    activeBoardObject,
+    fetchTasksPerBoard,
+  } = useContext(Context);
 
   const handleChange = (e) => {
     const selectedBoard = boardsObjects.find((b) => b._id === e.target.value);
     setActiveBoardObject(selectedBoard);
+    if (selectedBoard) {
+      fetchTasksPerBoard(selectedBoard._id);
+    }
   };
 
   return (

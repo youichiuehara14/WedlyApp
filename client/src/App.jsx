@@ -12,6 +12,8 @@ import VendorPage from './pages/VendorPage';
 import TasksPage from './pages/TasksPage';
 import AccountPage from './pages/AccountPage';
 import OverviewPage from './pages/OverviewPage';
+import BoardsPage from './pages/BoardsPage';
+import GlobalChatPage from './pages/GlobalChatPage';
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           <Route path="overview" element={<OverviewPage />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="vendor" element={<VendorPage />} />
+          <Route path="boards" element={<BoardsPage />} />
+          <Route path="messages" element={<GlobalChatPage />} />
           <Route path="account" element={<AccountPage />} />
           <Route path="change-password" element={<ChangePassword />} />
         </Route>

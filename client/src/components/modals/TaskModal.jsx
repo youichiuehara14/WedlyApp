@@ -11,7 +11,13 @@ import {
 import { Context } from '../../Context';
 
 const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
-  const { user, loading: userLoading, vendorsObjects } = useContext(Context);
+  const {
+    user,
+    loading: userLoading,
+    vendorsObjects,
+    vendorsObjectsPerUser,
+    activeBoardObject,
+  } = useContext(Context);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState({
     ...task,
@@ -23,17 +29,19 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingChecklistId, setEditingChecklistId] = useState(null);
   const [editingChecklistText, setEditingChecklistText] = useState('');
-  const [vendors, setVendors] = useState([]);
+
   const [editingCommentText, setEditingCommentText] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Load vendors from user context
-  useEffect(() => {
-    if (vendorsObjects) {
-      setVendors(vendorsObjects);
-    }
-  }, [vendorsObjects]);
+  // Determine if the logged-in user is the owner of the active board
+  const isBoardOwner = user?._id === activeBoardObject?.owner?._id;
+  // Choose the correct list of vendors based on user role
+  const vendorList = isBoardOwner ? vendorsObjectsPerUser : vendorsObjects;
+
+  const selectedVendor = vendorList?.find((v) => v._id === editedTask.vendor);
+
+  console.log(vendorList);
 
   // Calculate checklist completion percentage
   const completionPercentage = editedTask.checklists?.length
@@ -397,9 +405,6 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
     }
   }, []);
 
-  // Get selected vendor's name for display in view mode
-  const selectedVendor = vendors.find((v) => v._id === editedTask.vendor);
-
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg relative">
@@ -491,7 +496,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                   <option value="" disabled>
                     Select a vendor
                   </option>
-                  {vendors.map((vendor) => (
+                  {vendorList.map((vendor) => (
                     <option key={vendor._id} value={vendor._id}>
                       {vendor.name} ({vendor.category}) - Cost: P
                       {vendor.cost || 'N/A'}

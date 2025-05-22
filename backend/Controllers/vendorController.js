@@ -56,6 +56,32 @@ const createVendor = async (req, res) => {
 // Get vendor by board
 //////////////////////////////////////////////////////
 
+const getVendorListByBoard = async (req, res) => {
+  try {
+    const { boardId } = req.query;
+
+    if (!boardId) {
+      return res.status(400).json({ message: 'Board ID is required' });
+    }
+
+    // Get the board and its owner
+    const board = await Board.findById(boardId);
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+
+    const ownerId = board.owner;
+
+    // Fetch vendors for the board owner
+    const vendors = await Vendor.find({ user: ownerId });
+
+    res.status(200).json({ vendors });
+  } catch (error) {
+    console.error('Get Vendor By Board Error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getVendorListPerUser = async (req, res) => {
   try {
     // fetch the vendors for the logged-in user
@@ -83,14 +109,8 @@ const updateVendor = async (req, res) => {
     const { vendorId } = req.params;
     const { name, category, address, phone, cost, email } = req.body;
 
-    // Find vendor by ID and user
-    const vendor = await Vendor.findOne({ _id: vendorId, user: req.user.id });
-    if (!vendor) {
-      return res.status(404).json({ message: 'Vendor not found or unauthorized' });
-    }
-
-    // Perform the update
-    await Vendor.updateOne(
+    // Find and update vendor, return updated document in one step
+    const updatedVendor = await Vendor.findOneAndUpdate(
       { _id: vendorId, user: req.user.id },
       {
         $set: {
@@ -102,10 +122,15 @@ const updateVendor = async (req, res) => {
           email,
           updatedAt: Date.now(),
         },
-      }
+      },
+      { new: true } // return the updated document
     );
 
-    const updatedVendor = await Vendor.findById(vendorId);
+    if (!updatedVendor) {
+      return res
+        .status(404)
+        .json({ message: 'Vendor not found or unauthorized' });
+    }
 
     // Update all tasks using this vendor to sync cost and category
     const tasksUsingVendor = await Task.find({ vendor: vendorId });
@@ -123,13 +148,8 @@ const updateVendor = async (req, res) => {
       );
     }
 
-    // Get the updated board (if any task is still linked to a board)
-    const board =
-      tasksUsingVendor.length > 0 ? await Board.findById(tasksUsingVendor[0].board) : null;
-
     res.status(200).json({
       message: 'Vendor updated successfully',
-      board,
       vendor: updatedVendor,
     });
   } catch (error) {
@@ -149,7 +169,9 @@ const deleteVendor = async (req, res) => {
     // Ensure vendor exists and belongs to user
     const vendor = await Vendor.findOne({ _id: vendorId, user: req.user.id });
     if (!vendor) {
-      return res.status(404).json({ message: 'Vendor not found or unauthorized' });
+      return res
+        .status(404)
+        .json({ message: 'Vendor not found or unauthorized' });
     }
 
     // Find tasks using this vendor
@@ -191,6 +213,7 @@ const deleteVendor = async (req, res) => {
 
 module.exports = {
   createVendor,
+  getVendorListByBoard,
   getVendorListPerUser,
   updateVendor,
   deleteVendor,

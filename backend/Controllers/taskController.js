@@ -1,6 +1,7 @@
 const Vendor = require('../Models/vendors');
 const Board = require('../Models/boards');
 const Task = require('../Models/tasks');
+const sendEmail = require('../Utility/sendEmail');
 
 //////////////////////////////////////////////////////
 // Helper Function to compute the total cost of all tasks during creation, update, and delete
@@ -161,6 +162,15 @@ const updateTask = async (req, res) => {
 
     // Update the board's budget after task update
     await updateBoardBudget(updatedTask.board._id);
+
+    // ✅ Send email if task is moved to "Done"
+    if (status && status.toLowerCase() === 'done') {
+      await sendEmail(
+        'project5upliftcodecamp@gmail.com',
+        `🎉 Task "${updatedTask.title}" is completed`,
+        `<p>Hello,</p><p>The task "<strong>${updatedTask.title}</strong>" has been marked as <strong>Done</strong>.</p>`
+      );
+    }
 
     if (!updatedTask) {
       return res.status(404).json({ message: 'Task not found' });

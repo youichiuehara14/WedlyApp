@@ -14,14 +14,20 @@ function OverviewCard_Budget() {
   const { activeBoardObject, tasksPerBoard, fetchTasksPerBoard } =
     useContext(Context);
 
-  // Add useEffect to ensure fresh data
   useEffect(() => {
     if (activeBoardObject?._id) {
-      fetchTasksPerBoard();
+      fetchTasksPerBoard(activeBoardObject._id);
     }
-  }, [activeBoardObject?._id, tasksPerBoard, fetchTasksPerBoard]);
+  }, [activeBoardObject?._id]);
 
   const tasks = tasksPerBoard?.tasks || [];
+
+  const tasksCost = tasks.reduce((acc, task) => {
+    const taskCost = parseFloat(task.cost) || 0;
+    return acc + taskCost;
+  }, 0);
+
+  const remainingBudget = activeBoardObject?.totalBudget - tasksCost || 0;
 
   const totalTasks = tasks.length;
   const doneTasks = tasks.filter((task) => task.status === 'Done').length;
@@ -71,7 +77,7 @@ function OverviewCard_Budget() {
             <ArrowDownCircle className="text-red-500 w-6 h-6" />
           </div>
           <div className="text-2xl font-bold text-gray-800">
-            Php {activeBoardObject?.totalSpent?.toLocaleString() || 0}
+            Php {tasksCost.toLocaleString() || 0}
           </div>
         </div>
 
@@ -83,7 +89,7 @@ function OverviewCard_Budget() {
             <PieChart className="text-green-500 w-6 h-6" />
           </div>
           <div className="text-2xl font-bold text-gray-800">
-            Php {activeBoardObject?.totalRemaining?.toLocaleString() || 0}
+            Php {remainingBudget.toLocaleString() || 0}
           </div>
         </div>
 
@@ -105,66 +111,88 @@ function OverviewCard_Budget() {
         Tasks Overview
       </h2>
 
-      <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-        <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-red-50 border border-red-100 rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-600">Total Tasks</h2>
-            <CheckCircle className="text-red-500 w-6 h-6" />
-          </div>
-          <div className="text-2xl font-bold text-gray-800">{totalTasks}</div>
+      {tasks.length === 0 ? (
+        <div className="flex items-center justify-center min-h-[120px] bg-gray-50 border border-gray-100 rounded-2xl shadow-md p-6">
+          <p className="text-gray-500">No tasks available</p>
         </div>
+      ) : (
+        <>
+          <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-red-50 border border-red-100 rounded-2xl shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-gray-600">
+                  Total Tasks
+                </h2>
+                <CheckCircle className="text-red-500 w-6 h-6" />
+              </div>
+              <div className="text-2xl font-bold text-gray-800">
+                {totalTasks}
+              </div>
+            </div>
 
-        <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-orange-50 border border-orange-100 rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-600">To-Do Tasks</h2>
-            <CheckCircle className="text-orange-500 w-6 h-6" />
-          </div>
-          <div className="text-2xl font-bold text-gray-800">
-            {tasks.filter((t) => t.status === 'To Do').length}
-          </div>
-        </div>
+            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-orange-50 border border-orange-100 rounded-2xl shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-gray-600">
+                  To-Do Tasks
+                </h2>
+                <CheckCircle className="text-orange-500 w-6 h-6" />
+              </div>
+              <div className="text-2xl font-bold text-gray-800">
+                {tasks.filter((t) => t.status === 'To Do').length}
+              </div>
+            </div>
 
-        <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-blue-50 border border-blue-100 rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-600">In Progress</h2>
-            <CheckCircle className="text-blue-500 w-6 h-6" />
-          </div>
-          <div className="text-2xl font-bold text-gray-800">
-            {tasks.filter((t) => t.status === 'In Progress').length}
-          </div>
-        </div>
+            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-blue-50 border border-blue-100 rounded-2xl shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-gray-600">
+                  In Progress
+                </h2>
+                <CheckCircle className="text-blue-500 w-6 h-6" />
+              </div>
+              <div className="text-2xl font-bold text-gray-800">
+                {tasks.filter((t) => t.status === 'In Progress').length}
+              </div>
+            </div>
 
-        <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-purple-50 border border-purple-100 rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-600">Done</h2>
-            <CheckCircle className="text-purple-500 w-6 h-6" />
+            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-purple-50 border border-purple-100 rounded-2xl shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-gray-600">Done</h2>
+                <CheckCircle className="text-purple-500 w-6 h-6" />
+              </div>
+              <div className="text-2xl font-bold text-gray-800">
+                {doneTasks}
+              </div>
+            </div>
           </div>
-          <div className="text-2xl font-bold text-gray-800">{doneTasks}</div>
-        </div>
-      </div>
 
-      {/* Row 3: Overdue / Incoming */}
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 mt-6">
-        <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-pink-50 border border-pink-100 rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-600">Overdue Tasks</h2>
-            <AlarmClock className="text-pink-500 w-6 h-6" />
-          </div>
-          <div className="text-2xl font-bold text-gray-800">{overdueTasks}</div>
-        </div>
+          {/* Row 3: Overdue / Incoming */}
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 mt-6">
+            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-pink-50 border border-pink-100 rounded-2xl shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-gray-600">
+                  Overdue Tasks
+                </h2>
+                <AlarmClock className="text-pink-500 w-6 h-6" />
+              </div>
+              <div className="text-2xl font-bold text-gray-800">
+                {overdueTasks}
+              </div>
+            </div>
 
-        <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-indigo-50 border border-indigo-100 rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-600">
-              Incoming (Next 7 Days)
-            </h2>
-            <Clock className="text-indigo-500 w-6 h-6" />
+            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-indigo-50 border border-indigo-100 rounded-2xl shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-gray-600">
+                  Incoming (Next 7 Days)
+                </h2>
+                <Clock className="text-indigo-500 w-6 h-6" />
+              </div>
+              <div className="text-2xl font-bold text-gray-800">
+                {incomingTasks}
+              </div>
+            </div>
           </div>
-          <div className="text-2xl font-bold text-gray-800">
-            {incomingTasks}
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }

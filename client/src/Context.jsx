@@ -7,6 +7,7 @@ export const ContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [boardsObjects, setBoardsObjects] = useState([]);
   const [vendorsObjects, setVendorsObjects] = useState([]);
+  const [vendorsObjectsPerUser, setVendorsObjectsPerUser] = useState([]);
   const [activeBoardObject, setActiveBoardObject] = useState(null);
   const [tasksPerBoard, setTasksPerBoard] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,12 +22,12 @@ export const ContextProvider = ({ children }) => {
 
       // Store user, boards, and vendors from response
       setUser(data.user);
-      setVendorsObjects(data.vendors);
+
       setBoardsObjects(data.boards);
     } catch (err) {
       console.error(err);
       setUser(null);
-      setVendorsObjects([]);
+
       setBoardsObjects([]);
     } finally {
       setLoading(false);
@@ -37,27 +38,71 @@ export const ContextProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  console.log(activeBoardObject);
-  console.log(tasksPerBoard);
+  console.log(user);
 
   // Store tasks per board
-  const fetchTasksPerBoard = async () => {
+  const fetchTasksPerBoard = async (boardId) => {
+    if (!boardId) return;
     try {
       const { data } = await axios.get(
-        `http://localhost:4000/api/task/board/${activeBoardObject._id}`,
+        `http://localhost:4000/api/task/board/${boardId}`,
         { withCredentials: true }
       );
       setTasksPerBoard(data);
     } catch (err) {
       console.error(err);
+      setTasksPerBoard({ tasks: [] });
+    }
+  };
+
+  const fetchVendorsPerBoard = async (boardId) => {
+    try {
+      const { data } = await axios.get(
+        `http://localhost:4000/api/vendor/vendorsPerBoard?boardId=${boardId}`,
+        { withCredentials: true }
+      );
+      setVendorsObjects(data.vendors);
+    } catch (err) {
+      console.error(err);
+      setVendorsObjects([]);
     }
   };
 
   useEffect(() => {
-    if (boardsObjects.length > 0) {
-      fetchTasksPerBoard();
+    if (activeBoardObject?._id) {
+      fetchVendorsPerBoard(activeBoardObject._id);
     }
-  }, [boardsObjects, activeBoardObject]);
+  }, [activeBoardObject]);
+
+  const fetchVendorsPerUser = async () => {
+    try {
+      const { data } = await axios.get(
+        'http://localhost:4000/api/vendor/vendorsPerUser',
+        { withCredentials: true }
+      );
+      setVendorsObjectsPerUser(data.vendors);
+    } catch (err) {
+      console.error(err);
+      setVendorsObjectsPerUser([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchVendorsPerUser();
+  }, []);
+
+  const addMemberToBoardInContext = (boardId, addedMember) => {
+    setBoardsObjects((prevBoards) =>
+      prevBoards.map((board) =>
+        board._id === boardId
+          ? {
+              ...board,
+              members: [...board.members, addedMember],
+            }
+          : board
+      )
+    );
+  };
 
   return (
     <Context.Provider
@@ -75,6 +120,11 @@ export const ContextProvider = ({ children }) => {
         tasksPerBoard,
         setTasksPerBoard,
         fetchTasksPerBoard,
+        fetchVendorsPerBoard,
+        fetchVendorsPerUser,
+        addMemberToBoardInContext,
+        vendorsObjectsPerUser,
+        setVendorsObjectsPerUser,
       }}
     >
       {children}

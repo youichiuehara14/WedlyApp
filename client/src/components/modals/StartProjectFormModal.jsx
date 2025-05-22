@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import axios from 'axios';
 
 export default function StartProjectFormModal({ onClose = () => {} }) {
-  const { user, setBoardsObjects } = useContext(Context);
+  const { user, setBoardsObjects, fetchUser } = useContext(Context);
   const [form, setForm] = useState({
     owner: `${user._id}`,
     name: '',
@@ -40,6 +40,7 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
       } else {
         toast.success('Board created successfully!');
         setBoardsObjects((prevBoards) => [...prevBoards, data]);
+        await fetchUser();
         onClose();
       }
     } catch (error) {

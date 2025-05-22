@@ -22,6 +22,13 @@ const TaskCard = ({ task, id, onClick }) => {
 
   const style = getDragStyle(transform, transition, isDragging);
 
+  // format the date
+  const date = new Date(task.dueDate);
+  const formattedDate = date.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
     <div
       ref={setNodeRef}
@@ -33,6 +40,9 @@ const TaskCard = ({ task, id, onClick }) => {
     >
       <div className="w-5 h-1" style={{ backgroundColor: hexColor }}></div>
       <p className="text-gray-800 font-semibold">{task.title}</p>
+      <p className="text-gray-600 text-sm">{task.priority}</p>
+      <p className="text-gray-600 text-sm">{formattedDate}</p>
+      <p className="text-gray-600 text-sm">Php {task.cost}</p>
     </div>
   );
 };

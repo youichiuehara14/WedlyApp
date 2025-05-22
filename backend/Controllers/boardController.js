@@ -100,51 +100,49 @@ const getBoardDetails = async (req, res) => {
 //////////////////////////////////////////////////////
 // Add Member to Board
 //////////////////////////////////////////////////////
-
 const addMemberToBoard = async (req, res) => {
-  try {
-    const { boardId, memberId } = req.body;
+  const { boardId } = req.params;
+  const { email } = req.body;
 
-    // Check if the board exists (no populate yet)
+  try {
+    // Check if the board exists
     const board = await Board.findById(boardId);
     if (!board) {
       return res.status(404).json({ error: 'Board not found' });
     }
 
-    // Check if the member exists
-    const member = await User.findById(memberId);
-    if (!member) {
-      return res.status(404).json({ error: 'Member not found' });
+    // Check if the user exists in the database
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    // Check if already a member
-    const isMember = board.members.some((m) => m.toString() === memberId);
-    if (isMember) {
-      return res.status(400).json({ error: 'User is already a member' });
+    // Check if the user is already a member of the board
+    const isAlreadyMember = board.members.some(
+      (memberId) => memberId.toString() === user._id.toString()
+    );
+    if (isAlreadyMember) {
+      return res
+        .status(400)
+        .json({ error: 'User is already a member of the board' });
     }
 
-    // Add the member and save
-    board.members.push(memberId);
+    // Add the user to the board's members array
+    board.members.push(user._id);
     await board.save();
 
-    // Now populate the updated board
-    const updatedBoard = await Board.findById(boardId)
-      .populate('owner', 'firstName lastName email')
-      .populate('members', 'firstName lastName email');
+    // Optionally, populate the added member's details
+    const addedMember = {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    };
 
-    // Get the newly added member details
-    const newMember = updatedBoard.members.find(
-      (m) => m._id.toString() === memberId
-    );
-
-    res.status(200).json({
-      message: 'User added to board',
-      addedMember: newMember,
-      board: updatedBoard,
-    });
+    res.status(200).json({ message: 'Member added successfully', addedMember });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    console.error('Error adding member to board:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -152,52 +150,97 @@ const addMemberToBoard = async (req, res) => {
 // Remove Member to Board
 //////////////////////////////////////////////////////
 
-const removeMemberToBoard = async (req, res) => {
-  try {
-    const { boardId, memberId } = req.body;
+const removeMemberFromBoard = async (req, res) => {
+  const { boardId, memberId } = req.params;
 
+  console.log('req user: ----- ', req.user.id);
+
+  try {
     // Check if the board exists
-    const board = await Board.findById(boardId);
+    const board = await Board.findById(boardId).populate('owner');
+    console.log('board: ----- ', board);
     if (!board) {
       return res.status(404).json({ error: 'Board not found' });
     }
 
-    // Check if the member exists
-    const member = await User.findById(memberId);
-    if (!member) {
-      return res.status(404).json({ error: 'Member not found' });
-    }
-
-    // Check if the user is actually a member
-    const isMember = board.members.includes(memberId);
-    if (!isMember) {
+    // Check if the current user is the owner of the board
+    if (board.owner._id.toString() !== req.user.id.toString()) {
       return res
-        .status(400)
-        .json({ error: 'User is not a member of the board' });
+        .status(403)
+        .json({ error: 'Only the owner can remove members' });
     }
 
-    // Remove the member
-    board.members.pull(memberId);
+    // Prevent the owner from removing themselves
+    if (board.owner._id.toString() === memberId) {
+      return res
+        .status(403)
+        .json({ error: 'The owner cannot remove themselves from the board' });
+    }
+
+    // Check if the member exists in the board's members array
+    const isMember = board.members.some(
+      (member) => member.toString() === memberId
+    );
+    if (!isMember) {
+      return res.status(404).json({ error: 'Member not found in the board' });
+    }
+
+    // Remove the member from the board's members array
+    board.members = board.members.filter(
+      (member) => member.toString() !== memberId
+    );
+    await board.save();
+    res.status(200).json({ message: 'Member removed successfully' });
+  } catch (error) {
+    console.error('Error removing member from board:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const updateBoard = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, totalBudget, weddingDate } = req.body;
+
+    const board = await Board.findById(id);
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+
+    // Update fields
+    board.name = name || board.name;
+    board.totalBudget = totalBudget || board.totalBudget;
+    board.weddingDate = weddingDate || board.weddingDate;
+
+    // Save the updated board
     await board.save();
 
-    // Fetch updated board with populated data
-    const updatedBoard = await Board.findById(boardId)
-      .populate('owner', 'firstName lastName email')
-      .populate('members', 'firstName lastName email');
+    // Populate the owner and members fields
+    const updatedBoard = await Board.findById(id)
+      .populate('owner')
+      .populate('members');
 
-    res.status(200).json({
-      message: 'User removed from board',
-      removedMember: {
-        _id: member._id,
-        firstName: member.firstName,
-        lastName: member.lastName,
-        email: member.email,
-      },
-      board: updatedBoard,
-    });
+    res.status(200).json(updatedBoard);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    console.error('Update board error:', error);
+    res.status(500).json({ message: 'Server error updating board' });
+  }
+};
+
+const deleteBoard = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const board = await Board.findById(id);
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+
+    await board.deleteOne();
+    res.status(200).json({ message: 'Board deleted successfully' });
+  } catch (error) {
+    console.error('Delete board error:', error);
+    res.status(500).json({ message: 'Server error deleting board' });
   }
 };
 
@@ -206,5 +249,7 @@ module.exports = {
   getBoardByUser,
   getBoardDetails,
   addMemberToBoard,
-  removeMemberToBoard,
+  updateBoard,
+  deleteBoard,
+  removeMemberFromBoard,
 };

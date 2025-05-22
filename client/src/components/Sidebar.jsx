@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { LayoutDashboard } from 'lucide-react';
 import { Store } from 'lucide-react';
 import { SquareKanban } from 'lucide-react';
-import { UserRoundCog } from 'lucide-react';
+import { UserRoundCog, AppWindow, MessageSquareMore } from 'lucide-react';
 import { LogOut } from 'lucide-react';
 import { useContext } from 'react';
 import { Context } from '../Context';
@@ -49,6 +49,14 @@ const Sidebar = () => {
           <li className="cursor-pointer hover:text-blue-500 font-medium flex gap-4 items-center">
             <Store strokeWidth={1} />
             <NavLink to="/home/vendor">Vendor</NavLink>
+          </li>
+          <li className="cursor-pointer hover:text-blue-500 font-medium flex gap-4 items-center">
+            <AppWindow strokeWidth={1} />
+            <NavLink to="/home/boards">Boards</NavLink>
+          </li>
+          <li className="cursor-pointer hover:text-blue-500 font-medium flex gap-4 items-center">
+            <MessageSquareMore strokeWidth={1} />
+            <NavLink to="/home/messages">Messages</NavLink>
           </li>
         </ul>
       </div>

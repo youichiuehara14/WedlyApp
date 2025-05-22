@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { Context } from '../Context';
 
 import { toast } from 'react-hot-toast';
 
@@ -34,7 +35,6 @@ const highlightMatch = (text, search) => {
 
 export default function VendorPage() {
   const [categories, setCategories] = useState(defaultCategories);
-  const [vendors, setVendors] = useState([]);
   const [form, setForm] = useState({
     name: '',
     category: '',
@@ -52,33 +52,26 @@ export default function VendorPage() {
   const [sortField, setSortField] = useState('name');
   const [setSortDirection] = useState('asc');
 
-  const fetchVendors = async () => {
-    try {
-      const res = await axios.get(
-        'http://localhost:4000/api/vendor/vendorsPerUser',
-        { withCredentials: true }
-      );
-      const fetchedVendors = res.data.vendors;
-      setVendors(fetchedVendors);
-
-      // Collect unique categories including defaults
-      const vendorCategories = [
-        ...new Set([
-          ...defaultCategories,
-          ...fetchedVendors.map((v) => v.category),
-        ]),
-      ];
-      setCategories(vendorCategories);
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to fetch vendors');
-    }
-  };
+  const {
+    fetchVendorsPerUser,
+    vendorsObjectsPerUser,
+    setVendorsObjectsPerUser,
+  } = useContext(Context);
 
   // Fetch vendors from backend
   useEffect(() => {
-    fetchVendors();
+    fetchVendorsPerUser();
   }, []);
+
+  useEffect(() => {
+    const vendorCategories = [
+      ...new Set([
+        ...defaultCategories,
+        ...vendorsObjectsPerUser.map((v) => v.category),
+      ]),
+    ];
+    setCategories(vendorCategories);
+  }, [vendorsObjectsPerUser]);
 
   const openModal = (vendor = null, index = null) => {
     if (vendor) {
@@ -135,27 +128,40 @@ export default function VendorPage() {
       try {
         if (editVendorId) {
           // Update vendor
-          await axios.put(
+          const { data } = await axios.put(
             `http://localhost:4000/api/vendor/update-vendor/${editVendorId}`,
             { ...form, category: finalCategory },
             { withCredentials: true }
           );
           toast.success('Vendor updated!');
+
+          // Update vendorsObjectsPerUser in context with updated vendor data from backend
+          setVendorsObjectsPerUser((prev) =>
+            prev.map((v) => (v._id === editVendorId ? data.vendor : v))
+          );
+
+          // Optionally refetch vendors if you want fresh data, but not required if above update is correct
+          // await fetchVendorsPerUser();
         } else {
           // Create vendor
-          await axios.post(
+          const { data } = await axios.post(
             'http://localhost:4000/api/vendor/create-vendor',
             { ...form, category: finalCategory },
             { withCredentials: true }
           );
           toast.success('Vendor added!');
+
+          // Add new vendor to vendorsObjectsPerUser from backend response
+          setVendorsObjectsPerUser((prev) => [...prev, data.vendor]);
+
+          // Optionally refetch vendors if you want fresh data, but not required if above update is correct
+          // await fetchVendorsPerUser();
         }
 
         if (!categories.includes(finalCategory)) {
           setCategories((prev) => [...prev, finalCategory]);
         }
 
-        fetchVendors();
         closeModal();
       } catch (err) {
         toast.error(err.response?.data?.message || 'Failed to save vendor');
@@ -166,7 +172,7 @@ export default function VendorPage() {
   };
 
   const handleDelete = async (index) => {
-    const vendor = vendors[index];
+    const vendor = vendorsObjectsPerUser[index];
     if (!vendor) return;
     if (window.confirm('Delete this vendor?')) {
       try {
@@ -175,7 +181,14 @@ export default function VendorPage() {
           { withCredentials: true }
         );
         toast.success('Vendor deleted!');
-        fetchVendors();
+
+        // Remove deleted vendor from context state
+        setVendorsObjectsPerUser((prev) =>
+          prev.filter((v) => v._id !== vendor._id)
+        );
+
+        // Optionally refetch vendors if you want fresh data
+        // await fetchVendorsPerUser();
       } catch (err) {
         toast.error(err.response?.data?.message || 'Failed to delete vendor');
       }
@@ -191,15 +204,20 @@ export default function VendorPage() {
     }
   };
 
-  const filtered = vendors.filter((v) => {
+  const filtered = vendorsObjectsPerUser.filter((v) => {
     const searchTerm = search.toLowerCase();
+
+    // Helper to safely get lowercase string or empty string if missing
+    const safeLower = (str) =>
+      typeof str === 'string' ? str.toLowerCase() : '';
+
     const matchesSearch =
-      v.name.toLowerCase().includes(searchTerm) ||
-      v.phone.toLowerCase().includes(searchTerm) ||
-      v.email.toLowerCase().includes(searchTerm) ||
-      v.address.toLowerCase().includes(searchTerm) ||
-      v.category.toLowerCase().includes(searchTerm) ||
-      v.cost.toString().toLowerCase().includes(searchTerm);
+      safeLower(v.name).includes(searchTerm) ||
+      safeLower(v.phone).includes(searchTerm) ||
+      safeLower(v.email).includes(searchTerm) ||
+      safeLower(v.address).includes(searchTerm) ||
+      safeLower(v.category).includes(searchTerm) ||
+      v.cost.toString().toLowerCase().includes(searchTerm); // cost is a number, safe to call toString()
 
     const matchesCategory = filterCategory
       ? v.category === filterCategory
@@ -264,14 +282,24 @@ export default function VendorPage() {
             {filtered.length > 0 ? (
               filtered.map((v, i) => (
                 <tr key={v._id || i} className="border-t border-gray-200">
-                  <td className="p-2">{highlightMatch(v.name, search)}</td>
-                  <td className="p-2">{highlightMatch(v.category, search)}</td>
-                  <td className="p-2">{highlightMatch(v.address, search)}</td>
-                  <td className="p-2">{highlightMatch(v.phone, search)}</td>
                   <td className="p-2">
-                    {highlightMatch(v.cost.toString(), search)}
+                    {highlightMatch(v.name || '', search)}
                   </td>
-                  <td className="p-2">{highlightMatch(v.email, search)}</td>
+                  <td className="p-2">
+                    {highlightMatch(v.category || '', search)}
+                  </td>
+                  <td className="p-2">
+                    {highlightMatch(v.address || '', search)}
+                  </td>
+                  <td className="p-2">
+                    {highlightMatch(v.phone || '', search)}
+                  </td>
+                  <td className="p-2">
+                    {highlightMatch(v.cost?.toString() ?? '', search)}
+                  </td>
+                  <td className="p-2">
+                    {highlightMatch(v.email || '', search)}
+                  </td>
 
                   <td className="p-2 space-x-2">
                     <button
