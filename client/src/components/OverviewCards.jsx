@@ -201,7 +201,7 @@ function OverviewCard_Budget() {
           </div>
 
           {/* Stats Row */}
-          <div className="flex flex-col sm:flex-row justify-between gap-4 w-full border-t border-[#dddddd2d] pt-4">
+          <div className="flex flex-col sm:flex-row justify-between gap-4 w-full border-t border-[#dddddd2d] pt-4 mt-12">
             {/* Total Budget */}
             <div className="flex items-center gap-3 sm:gap-4 flex-1 p-2 sm:p-4">
               <PhilippinePeso className="w-6 h-6 sm:w-10 sm:h-10 text-white" strokeWidth={1.5} />
@@ -219,7 +219,7 @@ function OverviewCard_Budget() {
               <div>
                 <h3 className="text-sm sm:text-base text-white">Total Spent</h3>
                 <p className="text-white font-bold text-xl sm:text-lg md:text-2xl">
-                  {activeBoardObject?.totalSpent?.toLocaleString() || 0}
+                  {tasksCost.toLocaleString() || 0}
                 </p>
               </div>
             </div>
@@ -230,7 +230,7 @@ function OverviewCard_Budget() {
               <div>
                 <h3 className="text-sm sm:text-base text-white">Remaining</h3>
                 <p className="text-white font-bold text-xl sm:text-lg md:text-2xl">
-                  {activeBoardObject?.totalRemaining?.toLocaleString() || 0}
+                  {remainingBudget.toLocaleString() || 0}
                 </p>
               </div>
             </div>

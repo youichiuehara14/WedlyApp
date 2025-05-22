@@ -148,7 +148,7 @@ const Navbar = () => {
                       className="border border-[#94949498] p-2 rounded w-full"
                     >
                       <option value="" disabled>
-                        -- Select a Board --
+                        Select a Board
                       </option>
                       {boardsObjects.map((board) => (
                         <option key={board._id} value={board._id}>
