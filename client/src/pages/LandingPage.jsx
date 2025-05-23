@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import wedpic from '/src/assets/wedpic.jpg';
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import wedpic from "/src/assets/wedpic.jpg";
 import {
   Heart,
   Calendar,
@@ -11,8 +11,8 @@ import {
   User,
   UserCheck,
   ShieldUser,
-} from 'lucide-react';
-import NavbarLandingPage from '../components/NavbarLandingPage';
+} from "lucide-react";
+import NavbarLandingPage from "../components/NavbarLandingPage";
 
 export default function WeddingPlannerLandingPage() {
   const [animatedSections, setAnimatedSections] = useState(new Set());
@@ -26,7 +26,7 @@ export default function WeddingPlannerLandingPage() {
   useEffect(() => {
     const observerOptions = {
       threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px',
+      rootMargin: "0px 0px -50px 0px",
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -48,7 +48,7 @@ export default function WeddingPlannerLandingPage() {
   const navigate = useNavigate();
 
   const handleRegisterClick = () => {
-    navigate('/register');
+    navigate("/register");
   };
 
   return (
@@ -58,14 +58,13 @@ export default function WeddingPlannerLandingPage() {
       <div
         style={{
           backgroundImage: `url(${wedpic})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'bottom',
-          height: '400px',
+          backgroundSize: "cover",
+          backgroundPosition: "bottom",
+          backgroundRepeat: "no-repeat",
+          height: "100vh",
         }}
-        className="min-h-screen font-sans pt-16"
+        className="min-h-screen font-sans pt-16 bg-center"
       >
-        {' '}
-        {/*bg-gradient-to-b from-stone-700 to-white*/}
         <div>
           <section
             id="hero"
@@ -77,7 +76,7 @@ export default function WeddingPlannerLandingPage() {
                   style={{ fontFamily: "'Great Vibes', cursive" }}
                   className="text-4xl md:text-5xl font-bold tracking-wider"
                 >
-                  Plan Your Perfect Day With{' '}
+                  Plan Your Perfect Day With{" "}
                   <span className="text-yellow-500">Ease</span>
                 </h1>
                 <p
@@ -99,8 +98,8 @@ export default function WeddingPlannerLandingPage() {
                   <button
                     onClick={() =>
                       window.open(
-                        'https://www.youtube.com/watch?v=UDzCkMyWW5I',
-                        '_blank'
+                        "https://www.youtube.com/watch?v=UDzCkMyWW5I",
+                        "_blank"
                       )
                     }
                     style={{ fontFamily: "'Cinzel', serif" }}
@@ -112,11 +111,13 @@ export default function WeddingPlannerLandingPage() {
               </div>
               <div className="relative">
                 <div className="bg-pink-100 rounded-xl p-2 shadow-lg">
-                  <img
-                    src="/api/placeholder/600/400"
-                    alt="Wedding planning on a tablet"
-                    className="rounded-lg w-full h-auto"
-                  />
+                  <p className="rounded-lg w-full h-auto text-center">
+                    <Heart
+                      className="text-yellow-500 mb-4 inline-flex pr-2 pt-3"
+                      size={30}
+                    />
+                    Wedding planning makes easy and convinient
+                  </p>
                 </div>
                 <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-lg hidden md:block">
                   <div className="flex items-center">
@@ -147,7 +148,7 @@ export default function WeddingPlannerLandingPage() {
             <div className="max-w-7xl mx-auto">
               <div
                 className={`text-center mb-16 fade-in-up ${
-                  animatedSections.has('features') ? 'animate' : ''
+                  animatedSections.has("features") ? "animate" : ""
                 }`}
               >
                 <h2
@@ -167,9 +168,9 @@ export default function WeddingPlannerLandingPage() {
 
               <div className="grid md:grid-cols-3 gap-8">
                 <div
-                  style={{ backgroundColor: '#2d2f25' }}
+                  style={{ backgroundColor: "#2d2f25" }}
                   className={`p-8 rounded-xl fade-in-up stagger-1 ${
-                    animatedSections.has('features') ? 'animate' : ''
+                    animatedSections.has("features") ? "animate" : ""
                   }`}
                 >
                   <Calendar className="text-yellow-500 mb-4" size={32} />
@@ -183,9 +184,9 @@ export default function WeddingPlannerLandingPage() {
                 </div>
 
                 <div
-                  style={{ backgroundColor: '#2d2f25' }}
+                  style={{ backgroundColor: "#2d2f25" }}
                   className={`p-8 rounded-xl fade-in-up stagger-2 ${
-                    animatedSections.has('features') ? 'animate' : ''
+                    animatedSections.has("features") ? "animate" : ""
                   }`}
                 >
                   <Users className="text-yellow-500 mb-4" size={32} />
@@ -193,15 +194,15 @@ export default function WeddingPlannerLandingPage() {
                     Guest Management
                   </h3>
                   <p className="text-white">
-                    Track RSVPs, meal preferences, and seating arrangements with
-                    ease. Keep everyone happy and organized.
+                    Track RSVPs, and manage the full list of guest with ease.
+                    Keep everyone happy and organized.
                   </p>
                 </div>
 
                 <div
-                  style={{ backgroundColor: '#2d2f25' }}
+                  style={{ backgroundColor: "#2d2f25" }}
                   className={`p-8 rounded-xl fade-in-up stagger-3 ${
-                    animatedSections.has('features') ? 'animate' : ''
+                    animatedSections.has("features") ? "animate" : ""
                   }`}
                 >
                   <Heart className="text-yellow-500 mb-4" size={32} />
@@ -221,13 +222,13 @@ export default function WeddingPlannerLandingPage() {
           <section
             id="testimonials"
             ref={testimonialsRef}
-            style={{ backgroundColor: '#2d2f25' }}
+            style={{ backgroundColor: "#2d2f25" }}
             className="py-16 px-6 md:px-12"
           >
             <div className="max-w-7xl mx-auto">
               <div
                 className={`text-center mb-16 fade-in-up ${
-                  animatedSections.has('testimonials') ? 'animate' : ''
+                  animatedSections.has("testimonials") ? "animate" : ""
                 }`}
               >
                 <h2 className="text-3xl md:text-4xl font-bold text-white">
@@ -241,7 +242,7 @@ export default function WeddingPlannerLandingPage() {
               <div className="grid md:grid-cols-2 gap-8">
                 <div
                   className={`bg-white p-8 rounded-xl shadow-sm fade-in-left stagger-1 ${
-                    animatedSections.has('testimonials') ? 'animate' : ''
+                    animatedSections.has("testimonials") ? "animate" : ""
                   }`}
                 >
                   <div className="flex items-center mb-4">
@@ -256,13 +257,13 @@ export default function WeddingPlannerLandingPage() {
                   <p className="text-gray-600 italic">
                     "This app saved our wedding! The planning tools kept us on
                     track, and the budget feature helped us save thousands. We
-                    couldn't have done it without Forever After!"
+                    couldn't have done it without Wedly!"
                   </p>
                 </div>
 
                 <div
                   className={`bg-white p-8 rounded-xl shadow-sm fade-in-right stagger-2 ${
-                    animatedSections.has('testimonials') ? 'animate' : ''
+                    animatedSections.has("testimonials") ? "animate" : ""
                   }`}
                 >
                   <div className="flex items-center mb-4">
@@ -276,8 +277,7 @@ export default function WeddingPlannerLandingPage() {
                   </div>
                   <p className="text-gray-600 italic">
                     "The guest management feature was a lifesaver! We were able
-                    to track RSVPs, dietary restrictions, and even manage our
-                    thank-you notes all in one place."
+                    to track RSVPs, and manage our guest all in one place."
                   </p>
                 </div>
               </div>
@@ -293,7 +293,7 @@ export default function WeddingPlannerLandingPage() {
             <div className="max-w-7xl mx-auto">
               <div
                 className={`text-center mb-12 fade-in-up ${
-                  animatedSections.has('features') ? 'animate' : ''
+                  animatedSections.has("features") ? "animate" : ""
                 }`}
               >
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
@@ -319,7 +319,7 @@ export default function WeddingPlannerLandingPage() {
                 {/* Free Plan */}
                 <div
                   className={`border border-gray-200 rounded-xl overflow-hidden bg-white fade-in-up stagger-1 ${
-                    animatedSections.has('features') ? 'animate' : ''
+                    animatedSections.has("features") ? "animate" : ""
                   }`}
                 >
                   <div className="p-8">
@@ -379,7 +379,7 @@ export default function WeddingPlannerLandingPage() {
                 {/* Pro Plan */}
                 <div
                   className={`border border-gray-200 rounded-xl overflow-hidden bg-white fade-in-up stagger-1 ${
-                    animatedSections.has('features') ? 'animate' : ''
+                    animatedSections.has("features") ? "animate" : ""
                   }`}
                 >
                   <div className="p-8">
@@ -416,7 +416,7 @@ export default function WeddingPlannerLandingPage() {
                           size={20}
                         />
                         <span className="text-gray-600">
-                          Access to all timeline templates
+                          Access to all boards
                         </span>
                       </li>
                       <li className="flex items-start">
@@ -453,7 +453,7 @@ export default function WeddingPlannerLandingPage() {
                 {/* Max Plan */}
                 <div
                   className={`border border-blue-100 rounded-xl overflow-hidden bg-white shadow-md relative fade-in-up stagger-3 ${
-                    animatedSections.has('features') ? 'animate' : ''
+                    animatedSections.has("features") ? "animate" : ""
                   }`}
                 >
                   <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
@@ -539,7 +539,7 @@ export default function WeddingPlannerLandingPage() {
             <div
               // style={{ backgroundColor: "#FFD700" }}
               className={`max-w-4xl mx-auto bg-gradient-to-r from-emerald-700 to-emerald-400 rounded-2xl p-8 md:p-12 text-center text-whitescale-in ${
-                animatedSections.has('cta') ? 'animate' : ''
+                animatedSections.has("cta") ? "animate" : ""
               }`}
             >
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
