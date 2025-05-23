@@ -15,6 +15,7 @@ import TaskCard from './TaskCard';
 import TaskModal from './modals/TaskModal';
 import { Context } from '../Context';
 import TaskFormButton from './TaskFormButton';
+import BASE_URL from '../config.js';
 
 const KanbanBoard = () => {
   const { fetchTasksPerBoard, activeBoardObject, tasksPerBoard, setTasksPerBoard } =
@@ -203,7 +204,7 @@ const KanbanBoard = () => {
           vendor: taskData.vendor,
         };
 
-        await axios.put(`http://localhost:4000/api/task/update-task/${activeId}`, updatedTaskData, {
+        await axios.put(`${BASE_URL}/api/task/update-task/${activeId}`, updatedTaskData, {
           withCredentials: true,
         });
 
@@ -225,19 +226,16 @@ const KanbanBoard = () => {
   };
 
   return (
-    <div className="flex flex-col h-full  w-full justify-evenly items-center overflow-x-auto rounded-4xl border-[#dddddd2d] ">
+    <div className="flex flex-col h-full w-full justify-evenly items-center overflow-x-auto rounded-4xl border-[#dddddd2d]">
       <div className="flex flex-col w-[90%] mx-auto gap-4 sm:gap-6 mt-15 mb-10">
         <h1 className="text-3xl sm:text-4xl md:text-5xl text-black font-semibold">
           Board: {activeBoardObject.name}
         </h1>
-
-        {/* 👇 Tiny Task Status Row */}
         <div className="flex gap-4 text-black font-semibold text-xs sm:text-sm md:text-base">
           <span>{columns.todo.length} To Do</span>
           <span>{columns.inProgress.length} In Progress</span>
           <span>{columns.done.length} Done</span>
         </div>
-
         <TaskFormButton onTaskCreated={addNewTaskOnBoard} />
       </div>
 
@@ -247,7 +245,7 @@ const KanbanBoard = () => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex flex-row px-10 space-x-5 space-y-3  sm:space-y-0 lg:space-x-10 max-w-full">
+        <div className="flex flex-row px-10 space-x-5 space-y-3 sm:space-y-0 lg:space-x-10 max-w-full">
           {Object.keys(columns).map((columnId) => (
             <SortableContext
               key={columnId}
