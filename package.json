@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "backend/server.js",
   "scripts": {
-    " dev": "nodemon backend/server.js",
-    "build": "npm install && npm install --prefix client && npm run build --prefix client",
+    "dev": "nodemon backend/server.js",
+    "build": "npm install && npm install --prefix backend && npm install --prefix client && npm run build --prefix client",
     "start": "node backend/server.js"
   },
   "repository": {
