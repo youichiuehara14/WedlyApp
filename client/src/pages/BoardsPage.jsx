@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from 'react';
 import { Context } from '../Context';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import BASE_URL from '../config.js';
 
 function BoardsPage() {
   const {
@@ -37,12 +38,13 @@ function BoardsPage() {
 
   const deleteBoard = async (boardId) => {
     try {
-      await axios.delete(`http://localhost:4000/api/board/${boardId}`, {
+      await axios.delete(`${BASE_URL}/api/board/${boardId}`, {
         withCredentials: true,
       });
       return true; // Success
     } catch (error) {
       console.error('Failed to delete board:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete board');
       return false;
     }
   };
@@ -81,11 +83,9 @@ function BoardsPage() {
     };
 
     try {
-      const result = await axios.put(
-        `http://localhost:4000/api/board/${selectedBoard._id}`,
-        updatedBoard,
-        { withCredentials: true }
-      );
+      const result = await axios.put(`${BASE_URL}/api/board/${selectedBoard._id}`, updatedBoard, {
+        withCredentials: true,
+      });
 
       setBoardsObjects((prev) => prev.map((b) => (b._id === result.data._id ? result.data : b)));
 
@@ -97,7 +97,7 @@ function BoardsPage() {
       closeModal();
     } catch (error) {
       console.error('Error updating board:', error);
-      toast.error('Failed to update board. Please try again.');
+      toast.error(error.response?.data?.message || 'Failed to update board');
     }
   };
 
@@ -136,7 +136,7 @@ function BoardsPage() {
     setIsInviting(true);
     try {
       const validateRes = await axios.post(
-        'http://localhost:4000/api/user/validate-email',
+        `${BASE_URL}/api/user/validate-email`,
         { email: inviteEmail },
         { withCredentials: true }
       );
@@ -147,7 +147,7 @@ function BoardsPage() {
       }
 
       const addRes = await axios.post(
-        `http://localhost:4000/api/board/add-board-member/${selectedBoard._id}/members`,
+        `${BASE_URL}/api/board/add-board-member/${selectedBoard._id}/members`,
         { email: inviteEmail },
         { withCredentials: true }
       );
@@ -161,9 +161,7 @@ function BoardsPage() {
       toast.success(`Added ${addRes.data.addedMember.firstName} to the board!`);
     } catch (err) {
       console.error('Invite error:', err);
-      toast.error(
-        err.response?.data?.error || err.message || 'Failed to invite user. Please try again.'
-      );
+      toast.error(err.response?.data?.error || err.message || 'Failed to invite user');
     } finally {
       setIsInviting(false);
     }
@@ -177,7 +175,7 @@ function BoardsPage() {
 
     try {
       const response = await axios.delete(
-        `http://localhost:4000/api/board/remove-board-member/${selectedBoard._id}/members/${memberId}`,
+        `${BASE_URL}/api/board/remove-board-member/${selectedBoard._id}/members/${memberId}`,
         { withCredentials: true }
       );
 
@@ -190,7 +188,7 @@ function BoardsPage() {
       }
     } catch (error) {
       console.error('Error removing member:', error);
-      toast.error(error.response?.data?.error || 'Failed to remove member. Please try again.');
+      toast.error(error.response?.data?.error || 'Failed to remove member');
     }
   };
 
