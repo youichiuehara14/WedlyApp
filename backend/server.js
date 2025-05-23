@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const http = require('http');
 const { Server } = require('socket.io');
-
+const path = require('path');
 const boardRoutes = require('./Routes/boardRoutes');
 const taskRoutes = require('./Routes/taskRoutes');
 const userRoutes = require('./Routes/userRoutes');
@@ -57,6 +57,13 @@ app.use('/api/vendor', vendorRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/guest', guestRoutes);
 
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '/frontend/dist')));
+  app.get('/{*splat}', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
+  });
+}
+
 // Socket.io required code
 io.on('connection', (socket) => {
   console.log('🟢 New client connected:', socket.id);
@@ -78,10 +85,7 @@ io.on('connection', (socket) => {
         content,
       });
 
-      const populatedMsg = await newMsg.populate(
-        'sender',
-        'firstName lastName'
-      );
+      const populatedMsg = await newMsg.populate('sender', 'firstName lastName');
       console.log('Broadcasting new message:', populatedMsg);
 
       io.emit('newMessage', populatedMsg);

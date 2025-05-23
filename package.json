@@ -1,0 +1,22 @@
+{
+  "name": "wedly-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    " dev": "nodemon backend/server.js",
+    "build": "npm install && npm install --prefix client && n pm run build --prefix client",
+    "start": "node backend/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/youichiuehara14/WedlyApp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/youichiuehara14/WedlyApp/issues"
+  },
+  "homepage": "https://github.com/youichiuehara14/WedlyApp#readme"
+}
