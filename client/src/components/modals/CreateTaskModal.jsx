@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Context } from '../../Context';
 import { toast } from 'react-hot-toast';
-import BASE_URL from '../../config';
+import BASE_URL from '../../config.js';
 
 const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
   const { user, activeBoardObject, vendorsObjects } = useContext(Context);
