@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/youichiuehara14/WedlyApp/issues"
   },
-  "homepage": "https://github.com/youichiuehara14/WedlyApp#readme"
+  "homepage": "https://github.com/youichiuehara14/WedlyApp#readme",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.5.0"
+  }
 }
