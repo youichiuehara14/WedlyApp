@@ -4,6 +4,7 @@ import { Context } from '../Context';
 import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import BASE_URL from '../config.js';
 
 const highlightMatch = (text, search) => {
   if (!search) return text;
@@ -100,7 +101,7 @@ export default function GuestPage() {
       try {
         if (editGuestId) {
           const { data } = await axios.put(
-            `http://localhost:4000/api/guest/updateGuest/${editGuestId}`,
+            `${BASE_URL}/api/guest/updateGuest/${editGuestId}`,
             form,
             { withCredentials: true }
           );
@@ -110,7 +111,7 @@ export default function GuestPage() {
             prev.map((guest) => (guest._id === editGuestId ? { ...guest, ...updatedGuest } : guest))
           );
         } else {
-          const { data } = await axios.post('http://localhost:4000/api/guest/createGuest', form, {
+          const { data } = await axios.post(`${BASE_URL}/api/guest/createGuest`, form, {
             withCredentials: true,
           });
           toast.success('Guest added!');
@@ -118,6 +119,7 @@ export default function GuestPage() {
         }
         closeModal();
       } catch (err) {
+        console.error('Guest error:', err);
         toast.error(err.response?.data?.message || 'Failed to save guest');
       }
     } else {
@@ -130,12 +132,13 @@ export default function GuestPage() {
     if (!guest) return;
     if (window.confirm('Delete this guest?')) {
       try {
-        await axios.delete(`http://localhost:4000/api/guest/deleteGuest/${guest._id}`, {
+        await axios.delete(`${BASE_URL}/api/guest/deleteGuest/${guest._id}`, {
           withCredentials: true,
         });
         toast.success('Guest deleted!');
         setGuestsObjects((prev) => prev.filter((_, i) => i !== index));
       } catch (err) {
+        console.error('Delete guest error:', err);
         toast.error(err.response?.data?.message || 'Failed to delete guest');
       }
     }

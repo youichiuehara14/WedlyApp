@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { Pencil, Save, X, LockKeyhole } from 'lucide-react';
+import BASE_URL from '../config.js';
 
 function AccountPage() {
   const { user, setUser } = useContext(Context);
@@ -47,7 +48,7 @@ function AccountPage() {
     }
 
     try {
-      const { data } = await axios.put('http://localhost:4000/api/user/update', formData, {
+      const { data } = await axios.put(`${BASE_URL}/api/user/update`, formData, {
         withCredentials: true,
       });
 
@@ -55,6 +56,7 @@ function AccountPage() {
       toast.success('User information updated');
       setEditing(false);
     } catch (error) {
+      console.error('Update error:', error);
       toast.error(error.response?.data?.error || 'Update failed');
     }
   };

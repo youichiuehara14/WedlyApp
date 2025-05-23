@@ -2,9 +2,9 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Context } from '../Context';
 import { toast } from 'react-hot-toast';
-
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import BASE_URL from '../config.js';
 
 const defaultCategories = [
   'Photographer',
@@ -114,7 +114,7 @@ export default function VendorPage() {
       try {
         if (editVendorId) {
           const { data } = await axios.put(
-            `http://localhost:4000/api/vendor/update-vendor/${editVendorId}`,
+            `${BASE_URL}/api/vendor/update-vendor/${editVendorId}`,
             { ...form, category: finalCategory },
             { withCredentials: true }
           );
@@ -124,7 +124,7 @@ export default function VendorPage() {
           );
         } else {
           const { data } = await axios.post(
-            'http://localhost:4000/api/vendor/create-vendor',
+            `${BASE_URL}/api/vendor/create-vendor`,
             { ...form, category: finalCategory },
             { withCredentials: true }
           );
@@ -138,6 +138,7 @@ export default function VendorPage() {
 
         closeModal();
       } catch (err) {
+        console.error('Vendor error:', err);
         toast.error(err.response?.data?.message || 'Failed to save vendor');
       }
     } else {
@@ -150,12 +151,13 @@ export default function VendorPage() {
     if (!vendor) return;
     if (window.confirm('Delete this vendor?')) {
       try {
-        await axios.delete(`http://localhost:4000/api/vendor/delete-vendor/${vendor._id}`, {
+        await axios.delete(`${BASE_URL}/api/vendor/delete-vendor/${vendor._id}`, {
           withCredentials: true,
         });
         toast.success('Vendor deleted!');
         setVendorsObjectsPerUser((prev) => prev.filter((v) => v._id !== vendor._id));
       } catch (err) {
+        console.error('Delete vendor error:', err);
         toast.error(err.response?.data?.message || 'Failed to delete vendor');
       }
     }
@@ -329,7 +331,6 @@ export default function VendorPage() {
                       {highlightMatch(v.email || '', search)}
                     </td>
                     <td className="p-3 sm:p-4 space-x-2">
-                      {/* Adjusted button font sizes */}
                       <div className="flex flex-col lg:flex-row gap-2">
                         <button
                           onClick={() => openModal(v, i)}

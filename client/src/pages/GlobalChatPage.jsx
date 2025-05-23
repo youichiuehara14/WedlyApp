@@ -1,7 +1,9 @@
-import React, { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { Context } from '../Context';
 import socket from '../utils/socket';
 import axios from 'axios';
+import BASE_URL from '../config.js';
+import { toast } from 'react-hot-toast';
 
 const GlobalChat = () => {
   const [messages, setMessages] = useState([]);
@@ -11,10 +13,11 @@ const GlobalChat = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await axios.get('http://localhost:4000/api/message');
+        const res = await axios.get(`${BASE_URL}/api/message`, { withCredentials: true });
         setMessages(res.data.messages);
       } catch (error) {
         console.error('Failed to fetch messages:', error);
+        toast.error(error.response?.data?.message || 'Failed to fetch messages');
       }
     };
 
