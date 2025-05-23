@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import BASE_URL from '../config';
 
 function ChangePassword() {
   const navigate = useNavigate();
@@ -28,12 +29,13 @@ function ChangePassword() {
     const { email, newPassword, confirmNewPassword } = changePasswordFormData;
     try {
       const { data } = await axios.post(
-        'http://localhost:4000/api/user/forgot-password',
+        `${BASE_URL}/api/user/forgot-password`,
         {
           email,
           newPassword,
           confirmNewPassword,
-        }
+        },
+        { withCredentials: true }
       );
       if (data.error) {
         toast.error(data.error);
@@ -47,12 +49,8 @@ function ChangePassword() {
         navigate('/home/account');
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        toast.error(error.response.data.error);
-      } else {
-        toast.error('An error occurred. Please try again later.');
-      }
-      console.log(error);
+      console.error('Change password error:', error);
+      toast.error(error.response?.data?.error || 'An error occurred. Please try again later.');
     }
   };
 
@@ -72,27 +70,19 @@ function ChangePassword() {
     if (
       changePasswordFormData.newPassword &&
       changePasswordFormData.confirmNewPassword &&
-      changePasswordFormData.newPassword ===
-        changePasswordFormData.confirmNewPassword
+      changePasswordFormData.newPassword === changePasswordFormData.confirmNewPassword
     )
       score++;
     return score;
   };
 
-  const strengthColors = [
-    'bg-red-500',
-    'bg-orange-400',
-    'bg-yellow-400',
-    'bg-green-500',
-  ];
+  const strengthColors = ['bg-red-500', 'bg-orange-400', 'bg-yellow-400', 'bg-green-500'];
 
   return (
     <>
       <div className="bg-gray-100 flex justify-center items-center min-h-screen pt-20 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full bg-white shadow-xl rounded-lg p-6">
-          <h1 className="text-2xl font-bold text-gray-800 text-center">
-            Reset Your Password
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-800 text-center">Reset Your Password</h1>
           <p className="text-sm text-gray-600 text-center mt-1">
             Enter your email and new password to reset your account.
           </p>
@@ -154,17 +144,13 @@ function ChangePassword() {
 
             {/* Password strength and validation */}
             <div>
-              <p className="font-medium text-sm text-gray-700 mb-1">
-                Password Strength
-              </p>
+              <p className="font-medium text-sm text-gray-700 mb-1">Password Strength</p>
               <div className="flex space-x-1 h-2 mb-2">
                 {[0, 1, 2, 3].map((i) => (
                   <div
                     key={i}
                     className={`flex-1 rounded ${
-                      getPasswordStrength() > i
-                        ? strengthColors[i]
-                        : 'bg-gray-200'
+                      getPasswordStrength() > i ? strengthColors[i] : 'bg-gray-200'
                     }`}
                   />
                 ))}
@@ -172,29 +158,19 @@ function ChangePassword() {
 
               <ul className="text-xs text-gray-400 space-y-1">
                 <li
-                  className={
-                    changePasswordFormData.newPassword.length >= 6
-                      ? 'text-green-600'
-                      : ''
-                  }
+                  className={changePasswordFormData.newPassword.length >= 6 ? 'text-green-600' : ''}
                 >
                   • Minimum 6 characters
                 </li>
                 <li
                   className={
-                    /[A-Z]/.test(changePasswordFormData.newPassword)
-                      ? 'text-green-600'
-                      : ''
+                    /[A-Z]/.test(changePasswordFormData.newPassword) ? 'text-green-600' : ''
                   }
                 >
                   • Must contain at least one uppercase letter
                 </li>
                 <li
-                  className={
-                    /\d/.test(changePasswordFormData.newPassword)
-                      ? 'text-green-600'
-                      : ''
-                  }
+                  className={/\d/.test(changePasswordFormData.newPassword) ? 'text-green-600' : ''}
                 >
                   • Must contain at least one number
                 </li>
@@ -202,8 +178,7 @@ function ChangePassword() {
                   className={
                     changePasswordFormData.newPassword &&
                     changePasswordFormData.confirmNewPassword &&
-                    changePasswordFormData.newPassword ===
-                      changePasswordFormData.confirmNewPassword
+                    changePasswordFormData.newPassword === changePasswordFormData.confirmNewPassword
                       ? 'text-green-600'
                       : ''
                   }
@@ -221,10 +196,7 @@ function ChangePassword() {
             </button>
 
             <p className="text-center text-sm text-gray-600">
-              <Link
-                to="/home/account"
-                className="text-blue-500 hover:underline"
-              >
+              <Link to="/home/account" className="text-blue-500 hover:underline">
                 Go Back
               </Link>
             </p>

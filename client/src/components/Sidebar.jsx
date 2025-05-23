@@ -15,6 +15,7 @@ import {
 import { useContext, useState } from 'react';
 import { Context } from '../Context';
 import { toast } from 'react-hot-toast';
+import BASE_URL from '../config';
 
 const SidebarItem = ({ to, icon: Icon, label, collapsed }) => (
   <li className="cursor-pointer hover:text-orange-400 font-medium">
@@ -38,24 +39,26 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const confirmLogout = window.confirm('Are you sure you want to log out?');
     if (!confirmLogout) return;
 
-    fetch('http://localhost:4000/api/user/logout', {
-      method: 'POST',
-      credentials: 'include',
-    })
-      .then((response) => {
-        if (response.ok) {
-          toast.success('Logged out successfully!');
-          setUser(null);
-          navigate('/');
-        } else {
-          console.error('Logout failed', response.statusText);
-        }
-      })
-      .catch((error) => console.error('Logout error:', error));
+    try {
+      const response = await fetch(`${BASE_URL}/api/user/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (response.ok) {
+        toast.success('Logged out successfully!');
+        setUser(null);
+        navigate('/');
+      } else {
+        throw new Error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Logout failed. Please try again.');
+    }
   };
 
   // Get first letter of user's first name
