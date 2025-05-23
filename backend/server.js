@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: './.env' });
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -20,7 +20,7 @@ const User = require('./Models/users');
 const Message = require('./Models/message');
 
 const app = express();
-const server = http.createServer(app); // Required for socket.io
+const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: 'http://localhost:5173',
@@ -30,16 +30,31 @@ const io = new Server(server, {
 });
 const PORT = process.env.PORT || 4000;
 
+// Debug environment variables
+console.log('MONGO_URL:', process.env.MONGO_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+if (!process.env.MONGO_URL) {
+  console.error('Error: MONGO_URL is not defined');
+  process.exit(1);
+}
+
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGO_URL)
+  .connect(process.env.MONGO_URL, {
+    serverSelectionTimeoutMS: 30000, // 30 seconds
+    connectTimeoutMS: 30000, // 30 seconds
+  })
   .then(() => console.log('MongoDB connected..'))
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    console.error('MongoDB connection error:', err.message);
+    process.exit(1);
+  });
 
 // Middleware
 app.use(
   cors({
-    origin: 'http://localhost:5173', //Frontend URL
+    origin: 'http://localhost:5173',
     credentials: true,
   })
 );
@@ -65,40 +80,30 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Socket.io required code
+// Socket.io
 io.on('connection', (socket) => {
   console.log('🟢 New client connected:', socket.id);
-
   socket.on('sendMessage', async (data) => {
     try {
       const { content, senderId } = data;
-
       if (!senderId || !content) return;
-
-      const User = require('./Models/users');
-      const Message = require('./Models/message');
-
       const user = await User.findById(senderId);
       if (!user) return;
-
       const newMsg = await Message.create({
         sender: senderId,
         content,
       });
-
       const populatedMsg = await newMsg.populate('sender', 'firstName lastName');
       console.log('Broadcasting new message:', populatedMsg);
-
       io.emit('newMessage', populatedMsg);
     } catch (err) {
       console.error('❌ Error saving or broadcasting message:', err.message);
       socket.emit('error', { message: 'Failed to send message' });
     }
   });
-
   socket.on('disconnect', () => {
     console.log('🔴 Client disconnected:', socket.id);
   });
 });
 
-server.listen(PORT, () => console.log('Listening on port 4000'));
+server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
