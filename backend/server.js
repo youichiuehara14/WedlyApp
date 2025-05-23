@@ -101,27 +101,37 @@ if (process.env.NODE_ENV === 'production') {
 // Socket.io
 io.on('connection', (socket) => {
   console.log('🟢 New client connected:', socket.id);
+
   socket.on('sendMessage', async (data) => {
     try {
       const { content, senderId } = data;
+
       if (!senderId || !content) return;
+
+      const User = require('./Models/users');
+      const Message = require('./Models/message');
+
       const user = await User.findById(senderId);
       if (!user) return;
+
       const newMsg = await Message.create({
         sender: senderId,
         content,
       });
+
       const populatedMsg = await newMsg.populate('sender', 'firstName lastName');
       console.log('Broadcasting new message:', populatedMsg);
+
       io.emit('newMessage', populatedMsg);
     } catch (err) {
       console.error('❌ Error saving or broadcasting message:', err.message);
       socket.emit('error', { message: 'Failed to send message' });
     }
   });
+
   socket.on('disconnect', () => {
     console.log('🔴 Client disconnected:', socket.id);
   });
 });
 
-server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+server.listen(PORT, () => console.log('Listening on port 4000'));
