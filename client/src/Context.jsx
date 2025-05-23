@@ -1,5 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { io } from 'socket.io-client';
+import BASE_URL from './config.js';
 
 export const Context = createContext();
 
@@ -12,23 +14,20 @@ export const ContextProvider = ({ children }) => {
   const [tasksPerBoard, setTasksPerBoard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [guestsObjects, setGuestsObjects] = useState([]);
+  const socket = io(BASE_URL, {
+    withCredentials: true,
+    transports: ['websocket', 'polling'],
+  });
 
   const fetchUser = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(
-        'http://localhost:4000/api/user/profile',
-        { withCredentials: true }
-      );
-
-      // Store user, boards, and vendors from response
+      const { data } = await axios.get(`${BASE_URL}/api/user/profile`, { withCredentials: true });
       setUser(data.user);
-
       setBoardsObjects(data.boards);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching user:', err);
       setUser(null);
-
       setBoardsObjects([]);
     } finally {
       setLoading(false);
@@ -37,19 +36,27 @@ export const ContextProvider = ({ children }) => {
 
   useEffect(() => {
     fetchUser();
+    socket.on('connect', () => {
+      console.log('Socket connected:', socket.id);
+    });
+    socket.on('newMessage', (message) => {
+      console.log('New message received:', message);
+    });
+    return () => {
+      socket.off('connect');
+      socket.off('newMessage');
+    };
   }, []);
 
-  // Store tasks per board
   const fetchTasksPerBoard = async (boardId) => {
     if (!boardId) return;
     try {
-      const { data } = await axios.get(
-        `http://localhost:4000/api/task/board/${boardId}`,
-        { withCredentials: true }
-      );
+      const { data } = await axios.get(`${BASE_URL}/api/task/board/${boardId}`, {
+        withCredentials: true,
+      });
       setTasksPerBoard(data);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching tasks:', err);
       setTasksPerBoard({ tasks: [] });
     }
   };
@@ -57,12 +64,12 @@ export const ContextProvider = ({ children }) => {
   const fetchVendorsPerBoard = async (boardId) => {
     try {
       const { data } = await axios.get(
-        `http://localhost:4000/api/vendor/vendorsPerBoard?boardId=${boardId}`,
+        `${BASE_URL}/api/vendor/vendorsPerBoard?boardId=${boardId}`,
         { withCredentials: true }
       );
       setVendorsObjects(data.vendors);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching vendors per board:', err);
       setVendorsObjects([]);
     }
   };
@@ -75,13 +82,12 @@ export const ContextProvider = ({ children }) => {
 
   const fetchVendorsPerUser = async () => {
     try {
-      const { data } = await axios.get(
-        'http://localhost:4000/api/vendor/vendorsPerUser',
-        { withCredentials: true }
-      );
+      const { data } = await axios.get(`${BASE_URL}/api/vendor/vendorsPerUser`, {
+        withCredentials: true,
+      });
       setVendorsObjectsPerUser(data.vendors);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching vendors per user:', err);
       setVendorsObjectsPerUser([]);
     }
   };
@@ -105,13 +111,12 @@ export const ContextProvider = ({ children }) => {
 
   const fetchGuestsPerUser = async () => {
     try {
-      const { data } = await axios.get(
-        'http://localhost:4000/api/guest/getGuestList',
-        { withCredentials: true }
-      );
+      const { data } = await axios.get(`${BASE_URL}/api/guest/getGuestList`, {
+        withCredentials: true,
+      });
       setGuestsObjects(data.guests);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching guests:', err);
       setGuestsObjects([]);
     }
   };
@@ -140,6 +145,7 @@ export const ContextProvider = ({ children }) => {
         guestsObjects,
         setGuestsObjects,
         fetchGuestsPerUser,
+        socket,
       }}
     >
       {children}
