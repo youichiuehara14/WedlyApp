@@ -51,8 +51,11 @@ export default function VendorPage() {
   const [sortField, setSortField] = useState('name');
   const [setSortDirection] = useState('asc'); // Note: setSortDirection is defined but not used to change state in the current code
 
-  const { fetchVendorsPerUser, vendorsObjectsPerUser, setVendorsObjectsPerUser } =
-    useContext(Context);
+  const {
+    fetchVendorsPerUser,
+    vendorsObjectsPerUser,
+    setVendorsObjectsPerUser,
+  } = useContext(Context);
 
   useEffect(() => {
     fetchVendorsPerUser();
@@ -60,7 +63,10 @@ export default function VendorPage() {
 
   useEffect(() => {
     const vendorCategories = [
-      ...new Set([...defaultCategories, ...vendorsObjectsPerUser.map((v) => v.category)]),
+      ...new Set([
+        ...defaultCategories,
+        ...vendorsObjectsPerUser.map((v) => v.category),
+      ]),
     ];
     setCategories(vendorCategories);
   }, [vendorsObjectsPerUser]);
@@ -102,12 +108,21 @@ export default function VendorPage() {
     setEditVendorId(null);
   };
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async () => {
-    const finalCategory = form.category === 'Other' ? customCategory : form.category;
+    const finalCategory =
+      form.category === 'Other' ? customCategory : form.category;
 
-    if (form.name && finalCategory && form.address && form.phone && form.cost && form.email) {
+    if (
+      form.name &&
+      finalCategory &&
+      form.address &&
+      form.phone &&
+      form.cost &&
+      form.email
+    ) {
       try {
         if (editVendorId) {
           const { data } = await axios.put(
@@ -147,11 +162,16 @@ export default function VendorPage() {
     if (!vendor) return;
     if (window.confirm('Delete this vendor?')) {
       try {
-        await axios.delete(`http://localhost:4000/api/vendor/delete-vendor/${vendor._id}`, {
-          withCredentials: true,
-        });
+        await axios.delete(
+          `http://localhost:4000/api/vendor/delete-vendor/${vendor._id}`,
+          {
+            withCredentials: true,
+          }
+        );
         toast.success('Vendor deleted!');
-        setVendorsObjectsPerUser((prev) => prev.filter((v) => v._id !== vendor._id));
+        setVendorsObjectsPerUser((prev) =>
+          prev.filter((v) => v._id !== vendor._id)
+        );
       } catch (err) {
         toast.error(err.response?.data?.message || 'Failed to delete vendor');
       }
@@ -169,7 +189,8 @@ export default function VendorPage() {
 
   const filtered = vendorsObjectsPerUser.filter((v) => {
     const searchTerm = search.toLowerCase();
-    const safeLower = (str) => (typeof str === 'string' ? str.toLowerCase() : '');
+    const safeLower = (str) =>
+      typeof str === 'string' ? str.toLowerCase() : '';
 
     const matchesSearch =
       safeLower(v.name).includes(searchTerm) ||
@@ -179,7 +200,9 @@ export default function VendorPage() {
       safeLower(v.category).includes(searchTerm) ||
       v.cost.toString().toLowerCase().includes(searchTerm);
 
-    const matchesCategory = filterCategory ? v.category === filterCategory : true;
+    const matchesCategory = filterCategory
+      ? v.category === filterCategory
+      : true;
 
     return matchesSearch && matchesCategory;
   });
@@ -187,7 +210,9 @@ export default function VendorPage() {
   return (
     <div className="min-h-screen bg-[#2d2f25] rounded-4xl text-white p-4 shadow-neumorphism-inset">
       <div className="h-screen border-1 rounded-4xl border-[#dddddd2d] p-5">
-        <h1 className="text-xl sm:text-3xl font-bold mb-6 inline-block px-5 py-2 ">Vendors</h1>
+        <h1 className="text-xl sm:text-3xl font-bold mb-6 inline-block px-5 py-2 ">
+          Vendors
+        </h1>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <input
@@ -220,13 +245,19 @@ export default function VendorPage() {
           <table className="min-w-full bg-[#2d2f25] text-white border-1 border-[#dddddd2d] ">
             <thead>
               <tr className=" text-left text-xs sm:text-base">
-                <th className="p-3 sm:p-4 cursor-pointer" onClick={() => toggleSort('name')}>
+                <th
+                  className="p-3 sm:p-4 cursor-pointer"
+                  onClick={() => toggleSort('name')}
+                >
                   Name
                 </th>
                 <th className="p-3 sm:p-4 hidden xl:table-cell">Category</th>
                 <th className="p-3 sm:p-4 hidden sm:table-cell">Address</th>
                 <th className="p-3 sm:p-4 table-cell">Phone</th>
-                <th className="p-3 sm:p-4 cursor-pointer" onClick={() => toggleSort('cost')}>
+                <th
+                  className="p-3 sm:p-4 cursor-pointer"
+                  onClick={() => toggleSort('cost')}
+                >
                   Cost
                 </th>
                 <th className="p-3 sm:p-4 hidden lg:table-cell">Email</th>
@@ -253,9 +284,11 @@ export default function VendorPage() {
                       {highlightMatch(v.phone || '', search)}
                     </td>
                     <td className="p-3 sm:p-4 text-xs sm:text-sm">
-                      {highlightMatch(v.cost?.toString() ?? '', search)}
+                      {highlightMatch(
+                        `Php ${Number(v.cost).toLocaleString()}`,
+                        search
+                      )}
                     </td>
-
                     <td className="p-3 sm:p-4 hidden lg:table-cell text-xs sm:text-sm">
                       {highlightMatch(v.email || '', search)}
                     </td>
@@ -278,7 +311,10 @@ export default function VendorPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="text-center p-4 text-gray-500 text-sm sm:text-base">
+                  <td
+                    colSpan="8"
+                    className="text-center p-4 text-gray-500 text-sm sm:text-base"
+                  >
                     No vendors found
                   </td>
                 </tr>
@@ -305,7 +341,9 @@ export default function VendorPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Category
+                  </label>
                   <select
                     name="category"
                     value={form.category}
@@ -322,7 +360,9 @@ export default function VendorPage() {
                 </div>
                 {form.category === 'Other' && (
                   <div>
-                    <label className="block text-sm font-medium mb-1">Custom Category</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Custom Category
+                    </label>
                     <input
                       value={customCategory}
                       onChange={(e) => setCustomCategory(e.target.value)}
@@ -332,7 +372,9 @@ export default function VendorPage() {
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Address</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Address
+                  </label>
                   <input
                     name="address"
                     placeholder="Address"
@@ -342,7 +384,9 @@ export default function VendorPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Phone Number</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Phone Number
+                  </label>
                   <input
                     name="phone"
                     placeholder="Phone"
@@ -363,7 +407,9 @@ export default function VendorPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Due Date (Optional)</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Due Date (Optional)
+                  </label>
                   <input
                     name="dueDate"
                     type="date"
@@ -373,7 +419,9 @@ export default function VendorPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Email</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Email
+                  </label>
                   <input
                     name="email"
                     placeholder="Email"

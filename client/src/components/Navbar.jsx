@@ -18,8 +18,14 @@ import ring from '../assets/icons/ring.png';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, setUser, boardsObjects, setActiveBoardObject, activeBoardObject } =
-    useContext(Context);
+  const {
+    user,
+    setUser,
+    boardsObjects,
+    setActiveBoardObject,
+    activeBoardObject,
+    fetchTasksPerBoard,
+  } = useContext(Context);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -30,7 +36,8 @@ const Navbar = () => {
     const section = document.getElementById(sectionId);
     if (section) {
       const navbarHeight = document.querySelector('nav').offsetHeight;
-      const sectionTop = section.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+      const sectionTop =
+        section.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
       window.scrollTo({ top: sectionTop, behavior: 'smooth' });
     }
     if (isMenuOpen) setIsMenuOpen(false);
@@ -39,6 +46,9 @@ const Navbar = () => {
   const handleChange = (e) => {
     const selectedBoard = boardsObjects.find((b) => b._id === e.target.value);
     setActiveBoardObject(selectedBoard);
+    if (selectedBoard) {
+      fetchTasksPerBoard(selectedBoard._id);
+    }
   };
 
   const handleLoginClick = () => navigate('/login');
@@ -70,14 +80,17 @@ const Navbar = () => {
 
   return (
     <div>
-      <header className="bg-white mt-5 shadow-md">
+      <header className="bg-white shadow-md">
         <nav className="flex flex-col sm:flex-row items-center justify-between p-4 w-[90%] mx-auto">
           {/* Left Side: Logo + Menu */}
           <div className="flex items-center gap-4">
             {/* Left-side hamburger menu for logged-in users */}
             {user && (
               <div className="xl:hidden">
-                <button onClick={toggleMobileMenu} className="flex items-center">
+                <button
+                  onClick={toggleMobileMenu}
+                  className="flex items-center"
+                >
                   <Menu strokeWidth={1} />
                 </button>
               </div>
@@ -88,7 +101,10 @@ const Navbar = () => {
               aria-label="Go to Dashboard Home"
             >
               <img src={ring} alt="" className="w-11" />
-              <span style={{ fontFamily: 'Parisienne' }} className="text-4xl font-light">
+              <span
+                style={{ fontFamily: 'Parisienne' }}
+                className="text-4xl font-light"
+              >
                 Wedly
               </span>
             </NavLink>
@@ -96,7 +112,7 @@ const Navbar = () => {
 
           {/* Landing Page Navigation Buttons */}
           {isLandingPage && (
-            <div className="hidden md:flex space-x-8">
+            <div className="hidden md:flex space-x-8 text-l">
               <a
                 href="#hero"
                 onClick={(e) => scrollToSection(e, 'hero')}
@@ -136,7 +152,7 @@ const Navbar = () => {
           )}
 
           {/* Right Side: Actions */}
-          <ul className="flex flex-col mt-5 sm:flex-row items-center sm:gap-4">
+          <ul className="flex flex-col sm:flex-row items-center sm:gap-4">
             {user ? (
               <>
                 <div className="p-4">
@@ -165,7 +181,10 @@ const Navbar = () => {
                 </li>
               </>
             ) : (
-              <button className="hidden md:flex space-x-8" onClick={handleLoginClick}>
+              <button
+                className="text-gray-600 hover:text-pink-500 transition-colors cursor-pointer text-l"
+                onClick={handleLoginClick}
+              >
                 Login
               </button>
             )}
@@ -174,7 +193,10 @@ const Navbar = () => {
           {/* Right-side Mobile Menu Button - Hidden when user is logged in */}
           {!user && (
             <div className="md:hidden">
-              <button onClick={toggleMenu} className="p-2 rounded hover:bg-gray-700">
+              <button
+                onClick={toggleMenu}
+                className="p-2 rounded hover:bg-gray-700"
+              >
                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>

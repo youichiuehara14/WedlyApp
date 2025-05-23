@@ -1,6 +1,12 @@
 import { useContext, useEffect } from 'react';
 import { Context } from '../Context';
-import { PhilippinePeso, ListChecks, LoaderCircle, CircleCheckBig, Heart } from 'lucide-react';
+import {
+  PhilippinePeso,
+  ListChecks,
+  LoaderCircle,
+  CircleCheckBig,
+  Heart,
+} from 'lucide-react';
 import weddingPlans from '../assets/icons/wedding-plans.png';
 import moneyBag from '../assets/icons/money-bag.png';
 import CategoryCostDoughnut from '../charts/CategoryCostDoughnut';
@@ -8,7 +14,8 @@ import CategoryCostBar from '../charts/CategoryCostBar';
 import wedCouple from '../assets/icons/wedcouple.svg';
 
 function OverviewCard_Budget() {
-  const { activeBoardObject, tasksPerBoard, fetchTasksPerBoard } = useContext(Context);
+  const { activeBoardObject, tasksPerBoard, fetchTasksPerBoard } =
+    useContext(Context);
 
   useEffect(() => {
     if (activeBoardObject?._id) {
@@ -53,7 +60,7 @@ function OverviewCard_Budget() {
     : null;
 
   return (
-    <div className="min-h-screen p-4 grid grid-cols-12 grid-rows-5 grid-rows-auto gap-4 border-1 rounded-4xl bg-[#2d2f25] shadow-neumorphism-inset">
+    <div className="min-h-screen p-4 grid grid-cols-12 grid-rows-5 grid-rows-auto gap-4 border-1 rounded-4xl bg-[#565a47] shadow-neumorphism-inset">
       {/* Task Overview */}
       <div className="col-span-12 md:col-span-9 xl:col-span-9 border border-[#dddddd2d] p-4 rounded-4xl row-span-2 md:row-span-3">
         {/* Task Overview 1st Row */}
@@ -74,7 +81,11 @@ function OverviewCard_Budget() {
           {/* Task Overview 2nd Row */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8 border-b-1 w-full mx-auto border-[#dddddd2d] py-10 sm:py-25">
             <div className="bg-white w-24 h-24 sm:w-24 sm:h-24 md:w-28 md:h-28 flex items-center justify-center shadow-neumorphism rounded-full ">
-              <img src={weddingPlans} alt="" className="w-10 h-10 sm:w-12 md:h-12" />
+              <img
+                src={weddingPlans}
+                alt=""
+                className="w-10 h-10 sm:w-12 md:h-12"
+              />
             </div>
 
             <div className="flex flex-col sm:flex-row items-center">
@@ -100,7 +111,9 @@ function OverviewCard_Budget() {
                 <span className="text-white font-semibold text-lg sm:text-2xl md:text-3xl lg:text-4xl">
                   {tasks.filter((t) => t.status === 'To Do').length}
                 </span>
-                <span className="text-white font-semibold text-[100%] sm:text-lg">Todo</span>
+                <span className="text-white font-semibold text-[100%] sm:text-lg">
+                  Todo
+                </span>
               </div>
             </div>
             {/* Item2 */}
@@ -113,7 +126,9 @@ function OverviewCard_Budget() {
                 <span className="text-white font-semibold text-lg sm:text-2xl md:text-3xl lg:text-4xl">
                   {tasks.filter((t) => t.status === 'In Progress').length}
                 </span>
-                <span className="text-white font-semibold text-[100%] sm:text-lg">In Progress</span>
+                <span className="text-white font-semibold text-[100%] sm:text-lg">
+                  In Progress
+                </span>
               </div>
             </div>
             {/* Items3 */}
@@ -126,7 +141,9 @@ function OverviewCard_Budget() {
                 <span className="text-white font-semibold text-lg sm:text-2xl md:text-3xl lg:text-4xl">
                   {doneTasks}
                 </span>
-                <span className="text-white font-semibold text-[100%] sm:text-lg">Done</span>
+                <span className="text-white font-semibold text-[100%] sm:text-lg">
+                  Done
+                </span>
               </div>
             </div>
           </div>
@@ -147,7 +164,9 @@ function OverviewCard_Budget() {
                 fill="#fed234"
               />
               {/* Days Number Overlay */}
-              <span className="absolute text-white font-bold text-lg">{daysLeft}</span>
+              <span className="absolute text-white font-bold text-lg">
+                {daysLeft}
+              </span>
             </div>
             <span
               style={{ fontFamily: 'Parisienne' }}
@@ -191,7 +210,11 @@ function OverviewCard_Budget() {
           <div className="flex sm:flex-row items-center flex-wrap sm:items-center gap-4 sm:gap-10 w-full p-4 md:p-6">
             {/* Icon Circle */}
             <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full flex items-center justify-center shadow-neumorphism bg-[#e0e0e0]">
-              <img src={moneyBag} alt="Money Bag" className="w-10 h-10 sm:w-12 sm:h-12" />
+              <img
+                src={moneyBag}
+                alt="Money Bag"
+                className="w-10 h-10 sm:w-12 sm:h-12"
+              />
             </div>
 
             {/* Title */}
@@ -204,9 +227,14 @@ function OverviewCard_Budget() {
           <div className="flex flex-col sm:flex-row justify-between gap-4 w-full border-t border-[#dddddd2d] pt-4 mt-12">
             {/* Total Budget */}
             <div className="flex items-center gap-3 sm:gap-4 flex-1 p-2 sm:p-4">
-              <PhilippinePeso className="w-6 h-6 sm:w-10 sm:h-10 text-white" strokeWidth={1.5} />
+              <PhilippinePeso
+                className="w-6 h-6 sm:w-10 sm:h-10 text-white"
+                strokeWidth={1.5}
+              />
               <div>
-                <h3 className="text-sm sm:text-base text-white">Total Budget</h3>
+                <h3 className="text-sm sm:text-base text-white">
+                  Total Budget
+                </h3>
                 <p className="text-white font-bold text-xl sm:text-lg md:text-2xl">
                   {activeBoardObject?.totalBudget?.toLocaleString() || 0}
                 </p>
@@ -215,7 +243,10 @@ function OverviewCard_Budget() {
 
             {/* Total Spent */}
             <div className="flex items-center gap-3 sm:gap-4 flex-1 p-2 sm:p-4">
-              <PhilippinePeso className="w-6 h-6 sm:w-10 sm:h-10 text-white" strokeWidth={1.5} />
+              <PhilippinePeso
+                className="w-6 h-6 sm:w-10 sm:h-10 text-white"
+                strokeWidth={1.5}
+              />
               <div>
                 <h3 className="text-sm sm:text-base text-white">Total Spent</h3>
                 <p className="text-white font-bold text-xl sm:text-lg md:text-2xl">
@@ -226,7 +257,10 @@ function OverviewCard_Budget() {
 
             {/* Remaining */}
             <div className="flex items-center gap-3 sm:gap-4 flex-1 p-2 sm:p-4">
-              <PhilippinePeso className="w-6 h-6 sm:w-10 sm:h-10 text-white" strokeWidth={1.5} />
+              <PhilippinePeso
+                className="w-6 h-6 sm:w-10 sm:h-10 text-white"
+                strokeWidth={1.5}
+              />
               <div>
                 <h3 className="text-sm sm:text-base text-white">Remaining</h3>
                 <p className="text-white font-bold text-xl sm:text-lg md:text-2xl">

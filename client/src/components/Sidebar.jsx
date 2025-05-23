@@ -63,7 +63,7 @@ const Sidebar = () => {
   return (
     <div
       className={`hidden xl:flex flex-col justify-between h-full ${
-        collapsed ? 'w-20' : 'w-72'
+        collapsed ? 'w-20' : 'w-60'
       } transition-all duration-300 bg-white border-r border-[#17171721]`}
     >
       {/* Toggle + Avatar */}
@@ -86,7 +86,9 @@ const Sidebar = () => {
             {profileLetter}
           </div>
           {!collapsed && (
-            <span className="mt-2 text-sm font-semibold text-gray-800">{user?.firstName}</span>
+            <span className="mt-2 text-sm font-semibold text-gray-800">
+              {user?.firstName}
+            </span>
           )}
         </div>
       </div>
@@ -100,9 +102,24 @@ const Sidebar = () => {
             label="Overview"
             collapsed={collapsed}
           />
-          <SidebarItem to="/home/tasks" icon={SquareKanban} label="Tasks" collapsed={collapsed} />
-          <SidebarItem to="/home/vendor" icon={Store} label="Vendor" collapsed={collapsed} />
-          <SidebarItem to="/home/boards" icon={AppWindow} label="Boards" collapsed={collapsed} />
+          <SidebarItem
+            to="/home/tasks"
+            icon={SquareKanban}
+            label="Tasks"
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            to="/home/vendor"
+            icon={Store}
+            label="Vendor"
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            to="/home/boards"
+            icon={AppWindow}
+            label="Boards"
+            collapsed={collapsed}
+          />
           <SidebarItem
             to="/home/messages"
             icon={MessageSquareMore}
