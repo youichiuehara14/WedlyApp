@@ -2,7 +2,6 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Context } from '../Context';
 import { toast } from 'react-hot-toast';
-
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
@@ -35,8 +34,7 @@ export default function GuestPage() {
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
 
-  const { guestsObjects, setGuestsObjects, fetchGuestsPerUser } =
-    useContext(Context);
+  const { guestsObjects, setGuestsObjects, fetchGuestsPerUser } = useContext(Context);
 
   useEffect(() => {
     fetchGuestsPerUser();
@@ -88,14 +86,7 @@ export default function GuestPage() {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]:
-        name === 'rsvp'
-          ? value === 'true'
-            ? true
-            : value === 'false'
-            ? false
-            : ''
-          : value,
+      [name]: name === 'rsvp' ? (value === 'true' ? true : value === 'false' ? false : '') : value,
     }));
   };
 
@@ -114,20 +105,14 @@ export default function GuestPage() {
             { withCredentials: true }
           );
           toast.success('Guest updated!');
-          // Use the updated guest from the response if available, otherwise fallback to form
           const updatedGuest = data.guest || form;
-
           setGuestsObjects((prev) =>
-            prev.map((guest) =>
-              guest._id === editGuestId ? { ...guest, ...updatedGuest } : guest
-            )
+            prev.map((guest) => (guest._id === editGuestId ? { ...guest, ...updatedGuest } : guest))
           );
         } else {
-          const { data } = await axios.post(
-            'http://localhost:4000/api/guest/createGuest',
-            form,
-            { withCredentials: true }
-          );
+          const { data } = await axios.post('http://localhost:4000/api/guest/createGuest', form, {
+            withCredentials: true,
+          });
           toast.success('Guest added!');
           setGuestsObjects((prev) => [...prev, data.guest]);
         }
@@ -145,12 +130,9 @@ export default function GuestPage() {
     if (!guest) return;
     if (window.confirm('Delete this guest?')) {
       try {
-        await axios.delete(
-          `http://localhost:4000/api/guest/deleteGuest/${guest._id}`,
-          {
-            withCredentials: true,
-          }
-        );
+        await axios.delete(`http://localhost:4000/api/guest/deleteGuest/${guest._id}`, {
+          withCredentials: true,
+        });
         toast.success('Guest deleted!');
         setGuestsObjects((prev) => prev.filter((_, i) => i !== index));
       } catch (err) {
@@ -171,8 +153,7 @@ export default function GuestPage() {
   const filtered = guestsObjects
     .filter((v) => {
       const searchTerm = search.toLowerCase();
-      const safeLower = (str) =>
-        typeof str === 'string' ? str.toLowerCase() : '';
+      const safeLower = (str) => (typeof str === 'string' ? str.toLowerCase() : '');
 
       const matchesSearch =
         safeLower(v.name).includes(searchTerm) ||
@@ -188,7 +169,6 @@ export default function GuestPage() {
       let aField = a[sortField];
       let bField = b[sortField];
 
-      // Normalize for string comparison
       if (typeof aField === 'string') aField = aField.toLowerCase();
       if (typeof bField === 'string') bField = bField.toLowerCase();
 
@@ -197,14 +177,13 @@ export default function GuestPage() {
       return 0;
     });
 
-  // Date formatting helper (simple YYYY-MM-DD HH:mm)
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const d = new Date(dateStr);
     const pad = (n) => (n < 10 ? '0' + n : n);
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
-      d.getDate()
-    )} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(
+      d.getHours()
+    )}:${pad(d.getMinutes())}`;
   };
 
   const exportToExcel = () => {
@@ -213,7 +192,6 @@ export default function GuestPage() {
       return;
     }
 
-    // Prepare data for export
     const data = guestsObjects.map((guest) => ({
       'Guest ID': guest._id,
       Name: guest.name || '',
@@ -224,92 +202,67 @@ export default function GuestPage() {
       'Updated At': formatDate(guest.updatedAt),
     }));
 
-    // Create worksheet and workbook
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Guests');
-
-    // Write workbook to binary and save
     const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([wbout], { type: 'application/octet-stream' });
     saveAs(blob, 'guests.xlsx');
   };
 
   return (
-    <div className="min-h-screen bg-[#2d2f25] rounded-4xl text-white p-4 shadow-neumorphism-inset">
-      <div className="h-screen border-1 rounded-4xl border-[#dddddd2d] p-5">
-        <h1 className="text-xl sm:text-3xl font-bold mb-6 inline-block px-5 py-2 ">
-          Guests
-        </h1>
+    <div className="min-h-screen bg-[#2d2f25] rounded-4xl text-black p-4 shadow-neumorphism-inset">
+      <div className="h-screen rounded-4xl p-5">
+        <h1 className="text-xl sm:text-3xl font-bold mb-6 inline-block px-5 py-2">Guests</h1>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <input
-            className="border border-[#dddddd2d] p-2 rounded-lg w-full sm:w-1/3 text-white focus:outline-none text-sm sm:text-base"
+            className="border-1 border-gray-500 p-2 rounded-lg w-full sm:w-1/3 text-black focus:outline-none text-sm sm:text-base"
             placeholder="Search guests..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           <button
-            className="border-[#dddddd2d] border-1 text-white px-4 py-2 rounded-lg hover:bg-[#323529] cursor-pointer transition-all duration-300 w-full sm:w-auto text-sm sm:text-base"
+            className="border-[#5050509d] border-1 text-black px-4 py-2 rounded-lg hover:bg-[#565a47] hover:text-white cursor-pointer transition-all duration-300 w-full sm:w-auto text-sm sm:text-base"
             onClick={() => openModal()}
           >
             Add Guest
           </button>
           <button
-            className="border-[#dddddd2d] border-1 text-white px-4 py-2 rounded-lg hover:bg-[#323529] cursor-pointer transition-all duration-300 w-full sm:w-auto text-sm sm:text-base"
+            className="border-[#5050509d] border-1 text-black px-4 py-2 rounded-lg hover:bg-[#565a47] hover:text-white cursor-pointer transition-all duration-300 w-full sm:w-auto text-sm sm:text-base"
             onClick={exportToExcel}
           >
             Export Excel
           </button>
         </div>
 
-        <div className="rounded-lg shadow-lg ">
-          <table className="min-w-full bg-[#2d2f25] text-white border-1 border-[#dddddd2d] ">
+        <div className="rounded-4xl shadow-lg shadow-neumorphism-inset p-8">
+          <table className="min-w-full text-black">
             <thead>
-              <tr className=" text-left text-xs sm:text-base">
+              <tr className="text-left text-xs sm:text-base">
                 <th
-                  className="p-3 sm:p-4 cursor-pointer"
+                  className="p-3 sm:p-4 cursor-pointer md:text-lg"
                   onClick={() => toggleSort('name')}
                 >
-                  Name{' '}
-                  {sortField === 'name'
-                    ? sortDirection === 'asc'
-                      ? '▲'
-                      : '▼'
-                    : ''}
+                  Name {sortField === 'name' ? (sortDirection === 'asc' ? '▲' : '▼') : ''}
                 </th>
                 <th
-                  className="p-3 sm:p-4 cursor-pointer"
+                  className="p-3 sm:p-4 cursor-pointer hidden sm:table-cell md:text-lg"
                   onClick={() => toggleSort('phone')}
                 >
-                  Phone{' '}
-                  {sortField === 'phone'
-                    ? sortDirection === 'asc'
-                      ? '▲'
-                      : '▼'
-                    : ''}
+                  Phone {sortField === 'phone' ? (sortDirection === 'asc' ? '▲' : '▼') : ''}
                 </th>
                 <th
-                  className="p-3 sm:p-4 cursor-pointer"
+                  className="p-3 sm:p-4 cursor-pointer md:text-lg hidden sm:table-cell"
                   onClick={() => toggleSort('email')}
                 >
-                  Email{' '}
-                  {sortField === 'email'
-                    ? sortDirection === 'asc'
-                      ? '▲'
-                      : '▼'
-                    : ''}
+                  Email {sortField === 'email' ? (sortDirection === 'asc' ? '▲' : '▼') : ''}
                 </th>
                 <th
-                  className="p-3 sm:p-4 cursor-pointer"
+                  className="p-3 sm:p-4 cursor-pointer md:text-lg"
                   onClick={() => toggleSort('rsvp')}
                 >
-                  RSVP{' '}
-                  {sortField === 'rsvp'
-                    ? sortDirection === 'asc'
-                      ? '▲'
-                      : '▼'
-                    : ''}
+                  RSVP {sortField === 'rsvp' ? (sortDirection === 'asc' ? '▲' : '▼') : ''}
                 </th>
                 <th className="p-3 sm:p-4">Actions</th>
               </tr>
@@ -319,37 +272,33 @@ export default function GuestPage() {
                 filtered.map((v, i) => (
                   <tr
                     key={v._id || i}
-                    className="border-t border-[#dddddd2d] duration-200 hover:bg-[#323529] transition-all"
+                    className="border-t border-[#323529] duration-200 transition-all"
                   >
-                    <td className="p-3 sm:p-4 text-xs sm:text-sm">
+                    <td className="p-3 sm:p-4 text-xs md:text-lg">
                       {highlightMatch(v.name || '', search)}
                     </td>
-                    <td className="p-3 sm:p-4 text-xs sm:text-sm">
+                    <td className="p-3 sm:p-4 hidden sm:table-cell text-xs md:text-lg">
                       {highlightMatch(v.phone || '', search)}
                     </td>
-                    <td className="p-3 sm:p-4 text-xs sm:text-sm">
+                    <td className="p-3 sm:p-4 hidden sm:table-cell text-xs md:text-lg">
                       {highlightMatch(v.email || '', search)}
                     </td>
-                    <td className="p-3 sm:p-4 text-xs sm:text-sm">
+                    <td className="p-3 sm:p-4 text-xs md:text-lg">
                       {highlightMatch(
-                        typeof v.rsvp === 'boolean'
-                          ? v.rsvp
-                            ? 'Yes'
-                            : 'No'
-                          : v.rsvp || '',
+                        typeof v.rsvp === 'boolean' ? (v.rsvp ? 'Yes' : 'No') : v.rsvp || '',
                         search
                       )}
                     </td>
                     <td className="p-3 sm:p-4 space-x-2">
                       <button
                         onClick={() => openModal(v, i)}
-                        className="text-white cursor-pointer hover:underline text-xs sm:text-sm"
+                        className="text-black cursor-pointer hover:underline text-xs md:text-lg"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(i)}
-                        className="text-white cursor-pointer hover:underline text-xs sm:text-sm"
+                        className="text-black cursor-pointer hover:underline text-xs md:text-lg"
                       >
                         Delete
                       </button>
@@ -358,10 +307,7 @@ export default function GuestPage() {
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="text-center p-4 text-gray-500 text-sm sm:text-base"
-                  >
+                  <td colSpan="5" className="text-center p-4 text-gray-500 text-sm sm:text-base">
                     No guests found
                   </td>
                 </tr>
@@ -387,11 +333,8 @@ export default function GuestPage() {
                     className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none text-sm"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Phone Number
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Phone Number</label>
                   <input
                     name="phone"
                     placeholder="Phone"
@@ -400,11 +343,8 @@ export default function GuestPage() {
                     className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none text-sm"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Email
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Email</label>
                   <input
                     name="email"
                     placeholder="Email"
@@ -414,7 +354,6 @@ export default function GuestPage() {
                     type="email"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-1">RSVP</label>
                   <select
@@ -429,17 +368,16 @@ export default function GuestPage() {
                   </select>
                 </div>
               </div>
-
               <div className="mt-6 flex justify-end space-x-4">
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition text-gray-800 text-sm"
+                  className="border-[#5050509d] border-1 text-black px-4 py-2 rounded-lg hover:bg-[#565a47] hover:text-white cursor-pointer transition-all duration-300 text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white transition text-sm"
+                  className="border-[#5050509d] border-1 text-black px-4 py-2 rounded-lg hover:bg-[#565a47] hover:text-white cursor-pointer transition-all duration-300 text-sm"
                 >
                   {editIndex !== null ? 'Update' : 'Add'}
                 </button>

@@ -1,25 +1,22 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   LogOut,
-  Rocket,
   SquareKanban,
   Store,
   UserRoundCog,
   Menu,
-  X,
   AppWindow,
   MessageSquareMore,
   User,
-} from "lucide-react";
-import StartProjectButton from "./StartProjectButton";
-import { useContext, useState } from "react";
-import { Context } from "../Context";
-import toast from "react-hot-toast";
-import ring from "../assets/icons/ring.png";
+} from 'lucide-react';
+import StartProjectButton from './StartProjectButton';
+import { useContext, useState } from 'react';
+import { Context } from '../Context';
+import toast from 'react-hot-toast';
+import ring from '../assets/icons/ring.png';
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const {
     user,
@@ -40,60 +37,54 @@ const Navbar = () => {
     }
   };
 
-  const handleLoginClick = () => navigate("/login");
+  const handleLoginClick = () => navigate('/login');
 
   const handleLogout = () => {
     toggleMobileMenu();
-    if (window.confirm("Are you sure you want to log out?")) {
-      fetch("http://localhost:4000/api/user/logout", {
-        method: "POST",
-        credentials: "include",
+    if (window.confirm('Are you sure you want to log out?')) {
+      fetch('http://localhost:4000/api/user/logout', {
+        method: 'POST',
+        credentials: 'include',
       })
         .then((response) => {
           if (response.ok) {
-            toast.success("Logged out successfully!");
+            toast.success('Logged out successfully!');
             setUser(null);
-            navigate("/");
+            navigate('/');
           } else {
-            console.error("Logout failed", response.statusText);
+            console.error('Logout failed', response.statusText);
           }
         })
         .catch((error) => {
-          console.error("Error during logout", error);
+          console.error('Error during logout', error);
         });
     }
   };
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
     <div>
-      <header className="bg-white shadow-md">
+      <header className="bg-[#565a47] z-0">
         <nav className="flex flex-col sm:flex-row items-center justify-between p-4 w-[90%] mx-auto">
-          {/* Left Side: Logo + Menu */}
           <div className="flex items-center gap-4">
-            {/* Left-side hamburger menu for logged-in users */}
             {user && (
               <div className="xl:hidden">
                 <button
                   onClick={toggleMobileMenu}
-                  className="flex items-center"
+                  className="flex items-center cursor-pointer text-white"
                 >
-                  <Menu strokeWidth={1} />
+                  <Menu strokeWidth={1.5} />
                 </button>
               </div>
             )}
             <NavLink
-              to={user ? "/home/overview" : "/"}
+              to={user ? '/home/overview' : '/'}
               className="text-xl font-bold flex items-center gap-1"
               aria-label="Go to Dashboard Home"
             >
-              <img src={ring} alt="" className="w-11" />
-              <span
-                style={{ fontFamily: "Parisienne" }}
-                className="text-4xl font-light"
-              >
+              <img src={ring} alt="Wedly Logo" className="w-11" />
+              <span style={{ fontFamily: 'Parisienne' }} className="text-4xl text-white font-light">
                 Wedly
               </span>
             </NavLink>
@@ -107,16 +98,16 @@ const Navbar = () => {
                   {boardsObjects?.length > 0 ? (
                     <select
                       id="board-select"
-                      value={activeBoardObject?._id || ""}
+                      value={activeBoardObject?._id || ''}
                       onChange={handleChange}
-                      className="border border-[#94949498] p-2 rounded w-full"
+                      className="border border-[#94949498] bg-[#565a47] duration-300 hover:bg-[#46493a] text-white p-2 rounded w-full cursor-pointer"
                     >
                       <option value="" disabled>
                         Select a Board
                       </option>
                       {boardsObjects.map((board) => (
                         <option key={board._id} value={board._id}>
-                          {board.name || "Untitled Board"}
+                          {board.name || 'Untitled Board'}
                         </option>
                       ))}
                     </select>
@@ -130,7 +121,7 @@ const Navbar = () => {
               </>
             ) : (
               <button
-                className="text-gray-600 hover:text-pink-500 transition-colors cursor-pointer text-l"
+                className="text-gray-600 hover:text-pink-500 transition-colors cursor-pointer text-lg"
                 onClick={handleLoginClick}
               >
                 Login
@@ -141,7 +132,7 @@ const Navbar = () => {
 
         {/* Mobile Hamburger Slide-Out Menu for Logged In Users Only */}
         {user && isMobileMenuOpen && (
-          <div className="xl:hidden bg-white shadow-md absolute top-[72px] left-0 mt-10 w-full">
+          <div className="xl:hidden bg-white shadow-md top-[72px] left-0 mt-8 w-full">
             <ul className="p-4 space-y-5">
               <li className="cursor-pointer font-medium flex gap-4 items-center">
                 <LayoutDashboard strokeWidth={1} />

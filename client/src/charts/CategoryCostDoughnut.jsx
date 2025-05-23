@@ -15,7 +15,7 @@ const CategoryCostDoughnut = () => {
     plugins: {
       legend: {
         labels: {
-          color: 'white',
+          color: 'black',
         },
       },
       tooltip: {
@@ -77,13 +77,13 @@ const CategoryCostDoughnut = () => {
   return (
     <div className="max-w-md mx-auto p-4">
       {loading ? (
-        <p className="text-center text-white">Loading chart...</p>
+        <p className="text-center text-black">Loading chart...</p>
       ) : chartData ? (
         <div className="w-[200px] h-[200px]">
           <Doughnut data={chartData} options={options} />
         </div>
       ) : (
-        <p className="text-center text-white">No data available</p>
+        <p className="text-center text-black">No data available</p>
       )}
     </div>
   );

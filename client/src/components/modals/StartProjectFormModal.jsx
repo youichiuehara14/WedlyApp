@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useContext } from 'react';
+import { useState, useContext } from 'react';
 import { Context } from '../../Context';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import { X } from 'lucide-react';
 
 export default function StartProjectFormModal({ onClose = () => {} }) {
   const { user, setBoardsObjects, fetchUser } = useContext(Context);
@@ -50,16 +50,14 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 h-screen backdrop-blur-sm bg-black/20  flex items-center justify-center ">
       <div className="bg-white p-6 rounded-lg w-full max-w-md relative shadow-lg">
-        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-2xl font-semibold cursor-pointer"
         >
-          x
+          <X />
         </button>
-        {/* Board Header */}
         <div>
           <h1 className="text-xl font-semibold">Create New Board</h1>
           <span className="text-[#17171798] font-semibold text-sm">
@@ -67,7 +65,6 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
           </span>
         </div>
         <form className="space-y-4 mt-3">
-          {/* Board Name */}
           <div>
             <label className="block font-medium">Board Name</label>
             <input
@@ -80,8 +77,6 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
               placeholder="e.g. Wedding reception"
             />
           </div>
-
-          {/* Total Budget */}
           <div>
             <label className="block font-medium">Total Budget</label>
             <input
@@ -93,8 +88,6 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
               placeholder="e.g. 5000"
             />
           </div>
-
-          {/* Wedding Date */}
           <div>
             <label className="block font-medium">Wedding Date</label>
             <input
@@ -105,8 +98,6 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
               className="w-full border rounded px-3 py-2 focus:outline-none border-gray-300"
             />
           </div>
-
-          {/* Submit */}
           <div className="text-right">
             <button
               type="submit"

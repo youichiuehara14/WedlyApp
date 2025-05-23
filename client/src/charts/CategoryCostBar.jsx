@@ -15,7 +15,7 @@ const CategoryCostBar = () => {
   const options = {
     plugins: {
       legend: {
-        color: 'white',
+        color: 'black',
         display: false,
       },
     },
@@ -83,18 +83,18 @@ const CategoryCostBar = () => {
   }, [activeBoardObject, tasksPerBoard]);
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div>
       {loading ? (
-        <p className="text-center text-white">Loading chart...</p>
+        <p className="text-center text-[#2d2f25]">Loading chart...</p>
       ) : chartData ? (
-        <div className="flex flex-col items-center gap-5  justify-center w-[230px] h-[230px] sm:w-[300px] sm:h-[300px]">
-          <h2 className="text-sm sm:text-lg font-bold text-center  text-white">
+        <div className="flex flex-col items-center justify-center md:w-[300px] xl:w-[350px]">
+          <h2 className="text-sm sm:text-lg font-bold text-center text-black">
             Task Cost by Category (Bar Chart)
           </h2>
           <Bar data={chartData} options={options} />
         </div>
       ) : (
-        <p className="text-center text-white">No data available</p>
+        <p className="text-center text-[#2d2f25]">No data available</p>
       )}
     </div>
   );

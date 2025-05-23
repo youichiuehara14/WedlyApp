@@ -397,7 +397,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
           aria-label="Close modal"
           disabled={loading || userLoading}
         >
-          <X size={20} />
+          <X size={20} className="cursor-pointer" />
         </button>
 
         <div className="p-5">
@@ -544,7 +544,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
               <button
                 onClick={handleAddChecklist}
                 disabled={loading || userLoading}
-                className={`border border-gray-300 bg-white text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-50 transition-colors font-medium ${
+                className={`border border-gray-300 bg-white text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer ${
                   loading || userLoading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
@@ -581,9 +581,9 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                             setEditingChecklistText('');
                           }}
                           disabled={loading}
-                          className="text-gray-500 hover:text-gray-700 p-1"
+                          className="text-gray-500 hover:text-gray-700 p-1 "
                         >
-                          <X size={16} />
+                          <X size={16} className="cursor-pointer" />
                         </button>
                       </div>
                     ) : (
@@ -593,7 +593,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                             type="checkbox"
                             checked={item.isCompleted || false}
                             onChange={() => handleToggleChecklist(item._id)}
-                            className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded cursor-pointer"
                             disabled={loading || userLoading}
                           />
                           <span className={item.isCompleted ? 'line-through text-gray-400' : ''}>
@@ -607,14 +607,14 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                               setEditingChecklistText(item.text || '');
                             }}
                             disabled={loading || userLoading}
-                            className="text-gray-500 hover:text-blue-500 p-1"
+                            className="text-gray-500 hover:text-blue-500 p-1 cursor-pointer"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
                             onClick={() => handleDeleteChecklist(item._id)}
                             disabled={loading || userLoading}
-                            className="text-gray-500 hover:text-red-500 p-1"
+                            className="text-gray-500 hover:text-red-500 p-1 cursor-pointer"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -648,7 +648,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
               <button
                 onClick={handleAddComment}
                 disabled={loading || userLoading}
-                className={`border border-gray-300 bg-white text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-50 transition-colors font-medium ${
+                className={`border border-gray-300 bg-white text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer${
                   loading || userLoading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
@@ -704,10 +704,10 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                               setEditingCommentText(comment.text);
                             }}
                             disabled={loading || userLoading}
-                            className="text-gray-500 hover:text-gray-700 p-1"
+                            className="text-gray-500  p-1  hover:text-blue-500"
                             aria-label={`Edit comment: ${comment.text}`}
                           >
-                            <Edit2 size={16} />
+                            <Edit2 size={16} className="cursor-pointer " />
                           </button>
                           <button
                             onClick={() => handleDeleteComment(comment._id)}
@@ -715,7 +715,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                             className="text-gray-500 hover:text-red-500 p-1"
                             aria-label={`Delete comment: ${comment.text}`}
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={16} className="cursor-pointer" />
                           </button>
                         </div>
                         <div className="text-xs text-gray-500">
@@ -738,7 +738,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
           <div className="mt-8 flex gap-4">
             {isEditing ? (
               <button
-                className={`flex-1 border border-gray-300 bg-white text-gray-700 py-2.5 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium ${
+                className={`flex-1 border border-gray-300  bg-white text-gray-700 py-2.5 px-4 rounded-lg hover:bg-[#565a47] hover:text-white cursor-pointer transition-colors font-medium ${
                   loading || userLoading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
                 onClick={saveTask}
@@ -748,7 +748,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
               </button>
             ) : (
               <button
-                className={`flex-1 border border-gray-300 bg-white text-gray-700 py-2.5 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium ${
+                className={`flex-1 border border-gray-300 bg-white text-gray-700 py-2.5 px-4 rounded-lg hover:bg-[#565a47] hover:text-white cursor-pointer transition-colors font-medium ${
                   loading || userLoading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
                 onClick={() => setIsEditing(true)}
@@ -758,7 +758,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
               </button>
             )}
             <button
-              className={`flex-1 border border-gray-300 bg-white text-gray-600 py-2.5 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium ${
+              className={`flex-1 border border-gray-300 bg-white text-gray-600 py-2.5 px-4 rounded-lg hover:bg-[#565a47] hover:text-white cursor-pointer transition-colors font-medium ${
                 loading || userLoading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
               onClick={deleteTask}

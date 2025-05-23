@@ -9,7 +9,7 @@ export default function StartProjectButton() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex border-1 text-black text-[14px] w-40 h-10 justify-center sm:text-base  border-[#94949498] duration-200 hover:bg-[#f3f3f3] rounded cursor-pointer items-center"
+        className="flex border-1 text-white text-[14px] w-40 h-10 justify-center sm:text-base  border-[#94949498] duration-200 hover:bg-[#46493a] rounded cursor-pointer items-center"
         aria-label="Create a new project"
       >
         <Plus size={20} strokeWidth={3} />

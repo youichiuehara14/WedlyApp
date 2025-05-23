@@ -9,7 +9,7 @@ const TaskFormButton = ({ onTaskCreated }) => {
     <div>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="w-30 py-2 border-1 text-white border-[#dddddd2d] duration-200 hover:bg-[#323529]  rounded cursor-pointer"
+        className="w-30 py-2 border-1 text-black border-[#b3b3b3] duration-200 hover:bg-[#565a47] hover:text-white rounded cursor-pointer"
       >
         Create Task
       </button>

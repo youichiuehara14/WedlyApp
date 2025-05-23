@@ -205,14 +205,14 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
             <button
               type="button"
               onClick={onClose}
-              className="border-1 hover:bg-[#2d2f25] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
+              className="border-1 hover:bg-[#565a47] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="border-1 hover:bg-[#2d2f25] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
+              className="border-1 hover:bg-[#565a47] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
             >
               {loading ? 'Creating...' : 'Create Task'}
             </button>
