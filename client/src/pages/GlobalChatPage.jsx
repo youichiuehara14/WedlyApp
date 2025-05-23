@@ -46,21 +46,37 @@ const GlobalChat = () => {
     <div className="min-h-screen w-full rounded-4xl bg-[#2d2f25] text-white p-4 sm:p-6 flex justify-center ">
       <div className="w-full h-[70vh] flex flex-col bg-[#2d2f25] rounded-xl border border-[#dddddd2d] shadow-lg p-4">
         <h1 className="text-xl sm:text-3xl font-bold mb-4 text-center border-b pb-2 border-[#dddddd2d]">
-          💬 Global Chat
+          💬 Messages
         </h1>
 
-        <div className="flex-1 overflow-y-auto bg-[#323529] rounded-lg p-6 mb-4 text-sm sm:text-base ">
+        <div className="flex-1 overflow-y-auto bg-[#323529] rounded-lg p-6 mb-4 text-sm sm:text-base">
           {messages.length > 0 ? (
             messages.map((msg, i) => (
-              <p key={i} className="mb-1 last:mb-0">
-                <strong className="text-blue-300">
-                  {msg.sender ? `${msg.sender.firstName} ${msg.sender.lastName}` : 'Unknown'}:
-                </strong>{' '}
-                {msg.content}
-              </p>
+              <div key={i} className="mb-4">
+                <p>
+                  <strong className="text-blue-300">
+                    {msg.sender
+                      ? `${msg.sender.firstName} ${msg.sender.lastName}`
+                      : 'Unknown'}
+                    :
+                  </strong>{' '}
+                  {msg.content}
+                </p>
+                <p className="text-gray-400 text-[10px] ml-2">
+                  {new Date(msg.createdAt).toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
+                </p>
+              </div>
             ))
           ) : (
-            <p className="text-gray-400 text-center mt-2">No messages yet. Start chatting!</p>
+            <p className="text-gray-400 text-center mt-2">
+              No messages yet. Start chatting!
+            </p>
           )}
         </div>
 

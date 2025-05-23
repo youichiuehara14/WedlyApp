@@ -32,7 +32,10 @@ const postMessage = async (req, res) => {
       content,
     });
 
-    const populatedMessage = await newMessage.populate('sender', 'name');
+    const populatedMessage = await newMessage.populate(
+      'sender',
+      'firstName lastName'
+    );
 
     res.status(201).json(populatedMessage);
   } catch (error) {
