@@ -63,9 +63,9 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`hidden xl:flex flex-col justify-between h-full ${
+      className={`bg-[#565a47] hidden xl:flex flex-col  justify-between h-full  ${
         collapsed ? 'w-20' : 'w-60'
-      } transition-all duration-300 bg-white border-r border-[#17171721]`}
+      } transition-all duration-300 border-r border-[#17171721]`}
     >
       {/* Toggle + Avatar */}
       <div>
@@ -87,46 +87,24 @@ const Sidebar = () => {
             {profileLetter}
           </div>
           {!collapsed && (
-            <span className="mt-2 text-sm font-semibold text-gray-800">
-              {user?.firstName}
-            </span>
+            <span className="mt-2 text-sm font-semibold  text-white">{user?.firstName}</span>
           )}
         </div>
       </div>
 
       {/* Top Menu */}
       <div className={`px-${collapsed ? '4' : '10'} py-5`}>
-        <ul className="space-y-5">
+        <ul className="space-y-5 text-white">
           <SidebarItem
             to="/home/overview"
             icon={LayoutDashboard}
             label="Overview"
             collapsed={collapsed}
           />
-          <SidebarItem
-            to="/home/tasks"
-            icon={SquareKanban}
-            label="Tasks"
-            collapsed={collapsed}
-          />
-          <SidebarItem
-            to="/home/vendor"
-            icon={Store}
-            label="Vendor"
-            collapsed={collapsed}
-          />
-          <SidebarItem
-            to="/home/guest"
-            icon={User}
-            label="Guest"
-            collapsed={collapsed}
-          />
-          <SidebarItem
-            to="/home/boards"
-            icon={AppWindow}
-            label="Boards"
-            collapsed={collapsed}
-          />
+          <SidebarItem to="/home/tasks" icon={SquareKanban} label="Tasks" collapsed={collapsed} />
+          <SidebarItem to="/home/vendor" icon={Store} label="Vendor" collapsed={collapsed} />
+          <SidebarItem to="/home/guest" icon={User} label="Guest" collapsed={collapsed} />
+          <SidebarItem to="/home/boards" icon={AppWindow} label="Boards" collapsed={collapsed} />
           <SidebarItem
             to="/home/messages"
             icon={MessageSquareMore}
@@ -139,7 +117,7 @@ const Sidebar = () => {
       {/* Bottom Menu */}
       <div className={`mt-auto p-${collapsed ? '4' : '6'}`}>
         {!collapsed && <hr className="mb-6 border-gray-300" />}
-        <ul className="space-y-5">
+        <ul className="space-y-5 text-white">
           <SidebarItem
             to="/home/account"
             icon={UserRoundCog}

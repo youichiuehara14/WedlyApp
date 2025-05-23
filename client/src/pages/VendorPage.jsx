@@ -54,11 +54,8 @@ export default function VendorPage() {
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
 
-  const {
-    fetchVendorsPerUser,
-    vendorsObjectsPerUser,
-    setVendorsObjectsPerUser,
-  } = useContext(Context);
+  const { fetchVendorsPerUser, vendorsObjectsPerUser, setVendorsObjectsPerUser } =
+    useContext(Context);
 
   useEffect(() => {
     fetchVendorsPerUser();
@@ -66,15 +63,10 @@ export default function VendorPage() {
 
   useEffect(() => {
     const vendorCategories = [
-      ...new Set([
-        ...defaultCategories,
-        ...vendorsObjectsPerUser.map((v) => v.category),
-      ]),
+      ...new Set([...defaultCategories, ...vendorsObjectsPerUser.map((v) => v.category)]),
     ];
     setCategories(vendorCategories);
   }, [vendorsObjectsPerUser]);
-
-  console.log('Vendors:', vendorsObjectsPerUser);
 
   const openModal = (vendor = null, index = null) => {
     if (vendor) {
@@ -113,21 +105,12 @@ export default function VendorPage() {
     setEditVendorId(null);
   };
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async () => {
-    const finalCategory =
-      form.category === 'Other' ? customCategory : form.category;
+    const finalCategory = form.category === 'Other' ? customCategory : form.category;
 
-    if (
-      form.name &&
-      finalCategory &&
-      form.address &&
-      form.phone &&
-      form.cost &&
-      form.email
-    ) {
+    if (form.name && finalCategory && form.address && form.phone && form.cost && form.email) {
       try {
         if (editVendorId) {
           const { data } = await axios.put(
@@ -167,16 +150,11 @@ export default function VendorPage() {
     if (!vendor) return;
     if (window.confirm('Delete this vendor?')) {
       try {
-        await axios.delete(
-          `http://localhost:4000/api/vendor/delete-vendor/${vendor._id}`,
-          {
-            withCredentials: true,
-          }
-        );
+        await axios.delete(`http://localhost:4000/api/vendor/delete-vendor/${vendor._id}`, {
+          withCredentials: true,
+        });
         toast.success('Vendor deleted!');
-        setVendorsObjectsPerUser((prev) =>
-          prev.filter((v) => v._id !== vendor._id)
-        );
+        setVendorsObjectsPerUser((prev) => prev.filter((v) => v._id !== vendor._id));
       } catch (err) {
         toast.error(err.response?.data?.message || 'Failed to delete vendor');
       }
@@ -195,8 +173,7 @@ export default function VendorPage() {
   const filtered = vendorsObjectsPerUser
     .filter((v) => {
       const searchTerm = search.toLowerCase();
-      const safeLower = (str) =>
-        typeof str === 'string' ? str.toLowerCase() : '';
+      const safeLower = (str) => (typeof str === 'string' ? str.toLowerCase() : '');
 
       const matchesSearch =
         safeLower(v.name).includes(searchTerm) ||
@@ -206,9 +183,7 @@ export default function VendorPage() {
         safeLower(v.category).includes(searchTerm) ||
         v.cost.toString().toLowerCase().includes(searchTerm);
 
-      const matchesCategory = filterCategory
-        ? v.category === filterCategory
-        : true;
+      const matchesCategory = filterCategory ? v.category === filterCategory : true;
 
       return matchesSearch && matchesCategory;
     })
@@ -232,9 +207,9 @@ export default function VendorPage() {
     if (!dateStr) return '';
     const d = new Date(dateStr);
     const pad = (n) => (n < 10 ? '0' + n : n);
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
-      d.getDate()
-    )} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(
+      d.getHours()
+    )}:${pad(d.getMinutes())}`;
   };
 
   const exportVendorsToExcel = () => {
@@ -268,71 +243,64 @@ export default function VendorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#2d2f25] rounded-4xl text-white p-4 shadow-neumorphism-inset">
-      <div className="h-screen border-1 rounded-4xl border-[#dddddd2d] p-5">
-        <h1 className="text-xl sm:text-3xl font-bold mb-6 inline-block px-5 py-2 ">
-          Vendors
-        </h1>
+    <div className="min-h-screen bg-[#2d2f25] rounded-4xl text-black p-4 shadow-neumorphism-inset">
+      <div className="h-screen rounded-4xl p-5 ">
+        <h1 className="text-xl sm:text-3xl font-bold mb-6 inline-block px-5 py-2 ">Vendors</h1>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <input
-            className="border border-[#dddddd2d] p-2 rounded-lg w-full sm:w-1/3 text-white focus:outline-none text-sm sm:text-base"
+            className="border-1 border-gray-500 p-2 rounded-lg w-full sm:w-1/3 text-black focus:outline-none text-sm sm:text-base"
             placeholder="Search vendors..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           <select
-            className="border border-[#dddddd2d] bg-[#2d2f25] p-2 rounded-lg sm:w-3/10 md:w-2/10 lg:w-2/10 text-white focus:outline-none text-sm sm:text-base"
+            className="border-1 border-gray-500 p-2 rounded-lg sm:w-3/10 md:w-2/10 lg:w-2/10 text-black focus:outline-none text-sm sm:text-base"
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
           >
             <option value="">All Categories</option>
             {categories.map((cat) => (
-              <option key={cat} value={cat} className="text-white">
+              <option key={cat} value={cat} className="text-black">
                 {cat}
               </option>
             ))}
           </select>
           <button
-            className="border-[#dddddd2d] border-1 text-white px-4 py-2 rounded-lg hover:bg-[#323529] cursor-pointer transition-all duration-300 w-full sm:w-auto text-sm sm:text-base"
+            className="border-[#5050509d] border-1 text-black px-4 py-2 rounded-lg hover:bg-[#565a47] hover:text-white cursor-pointer transition-all duration-300 w-full sm:w-auto text-sm sm:text-base"
             onClick={() => openModal()}
           >
             Add Vendor
           </button>
           <button
-            className="border-[#dddddd2d] border-1 text-white px-4 py-2 rounded-lg hover:bg-[#323529] cursor-pointer transition-all duration-300 w-full sm:w-auto text-sm sm:text-base"
+            className="border-[#5050509d] border-1 text-black px-4 py-2 rounded-lg hover:bg-[#565a47] hover:text-white  cursor-pointer transition-all duration-300  w-full sm:w-auto text-sm sm:text-base"
             onClick={exportVendorsToExcel}
           >
             Export Excel
           </button>
         </div>
 
-        <div className="rounded-lg shadow-lg ">
-          <table className="min-w-full bg-[#2d2f25] text-white border-1 border-[#dddddd2d] ">
+        <div className="rounded-4xl shadow-lg shadow-neumorphism-inset p-8">
+          <table className="min-w-full  text-black">
             <thead>
               <tr className=" text-left text-xs sm:text-base">
                 <th
-                  className="p-3 sm:p-4 cursor-pointer"
+                  className="p-3 sm:p-4 cursor-pointer sm:text-lg"
                   onClick={() => toggleSort('name')}
                 >
-                  Name{' '}
-                  {sortField === 'name'
-                    ? sortDirection === 'asc'
-                      ? '▲'
-                      : '▼'
-                    : ''}
+                  Name {sortField === 'name' ? (sortDirection === 'asc' ? '▲' : '▼') : ''}
                 </th>
-                <th className="p-3 sm:p-4 hidden xl:table-cell">Category</th>
-                <th className="p-3 sm:p-4 hidden sm:table-cell">Address</th>
-                <th className="p-3 sm:p-4 table-cell">Phone</th>
+                <th className="p-3 sm:p-4 sm:text-lg hidden xl:table-cell">Category</th>
+                <th className="p-3 sm:p-4 sm:text-lg hidden sm:table-cell">Address</th>
+                <th className="p-3 sm:p-4 sm:text-lg table-cell">Phone</th>
                 <th
-                  className="p-3 sm:p-4 cursor-pointer"
+                  className="p-3 sm:p-4 sm:text-lg cursor-pointer hidden sm:table-cell"
                   onClick={() => toggleSort('cost')}
                 >
                   Cost
                 </th>
-                <th className="p-3 sm:p-4 hidden lg:table-cell">Email</th>
-                <th className="p-3 sm:p-4">Actions</th>
+                <th className="p-3 sm:p-4 sm:text-lg hidden lg:table-cell">Email</th>
+                <th className="p-3 sm:p-4 sm:text-lg">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -340,52 +308,48 @@ export default function VendorPage() {
                 filtered.map((v, i) => (
                   <tr
                     key={v._id || i}
-                    className="border-t border-[#dddddd2d] duration-200 hover:bg-[#323529] transition-all"
+                    className="border-t border-[#323529] duration-200 transition-all"
                   >
-                    <td className="p-3 sm:p-4 text-xs sm:text-sm">
+                    <td className="p-3 sm:p-4 text-xs sm:text-lg">
                       {highlightMatch(v.name || '', search)}
                     </td>
-                    <td className="p-3 sm:p-4 text-xs hidden xl:table-cell sm:text-sm">
+                    <td className="p-3 sm:p-4 text-xs hidden xl:table-cell sm:text-lg">
                       {highlightMatch(v.category || '', search)}
                     </td>
-                    <td className="p-3 sm:p-4 hidden sm:table-cell text-xs sm:text-sm">
+                    <td className="p-3 sm:p-4 hidden sm:table-cell text-xs sm:text-lg">
                       {highlightMatch(v.address || '', search)}
                     </td>
-                    <td className="p-3 sm:p-4 table-cell text-xs sm:text-sm">
+                    <td className="p-3 sm:p-4 table-cell text-xs sm:text-lg">
                       {highlightMatch(v.phone || '', search)}
                     </td>
-                    <td className="p-3 sm:p-4 text-xs sm:text-sm">
-                      {highlightMatch(
-                        `Php ${Number(v.cost).toLocaleString()}`,
-                        search
-                      )}
+                    <td className="p-3 sm:p-4 hidden sm:table-cell text-xs sm:text-lg">
+                      {highlightMatch(`Php ${Number(v.cost).toLocaleString()}`, search)}
                     </td>
-                    <td className="p-3 sm:p-4 hidden lg:table-cell text-xs sm:text-sm">
+                    <td className="p-3 sm:p-4 hidden lg:table-cell text-xs sm:text-lg">
                       {highlightMatch(v.email || '', search)}
                     </td>
                     <td className="p-3 sm:p-4 space-x-2">
                       {/* Adjusted button font sizes */}
-                      <button
-                        onClick={() => openModal(v, i)}
-                        className="text-white cursor-pointer hover:underline text-xs sm:text-sm"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(i)}
-                        className="text-white cursor-pointer hover:underline text-xs sm:text-sm"
-                      >
-                        Delete
-                      </button>
+                      <div className="flex flex-col lg:flex-row gap-2">
+                        <button
+                          onClick={() => openModal(v, i)}
+                          className="text-black cursor-pointer text-xs sm:text-lg hover:underline "
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(i)}
+                          className="text-black cursor-pointer text-xs sm:text-lg hover:underline "
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan="8"
-                    className="text-center p-4 text-gray-500 text-sm sm:text-base"
-                  >
+                  <td colSpan="8" className="text-center p-4 text-gray-500 text-sm sm:text-base">
                     No vendors found
                   </td>
                 </tr>
@@ -412,9 +376,7 @@ export default function VendorPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Category
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Category</label>
                   <select
                     name="category"
                     value={form.category}
@@ -431,9 +393,7 @@ export default function VendorPage() {
                 </div>
                 {form.category === 'Other' && (
                   <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Custom Category
-                    </label>
+                    <label className="block text-sm font-medium mb-1">Custom Category</label>
                     <input
                       value={customCategory}
                       onChange={(e) => setCustomCategory(e.target.value)}
@@ -443,9 +403,7 @@ export default function VendorPage() {
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Address
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Address</label>
                   <input
                     name="address"
                     placeholder="Address"
@@ -455,9 +413,7 @@ export default function VendorPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Phone Number
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Phone Number</label>
                   <input
                     name="phone"
                     placeholder="Phone"
@@ -478,9 +434,7 @@ export default function VendorPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Due Date (Optional)
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Due Date (Optional)</label>
                   <input
                     name="dueDate"
                     type="date"
@@ -490,9 +444,7 @@ export default function VendorPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Email
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Email</label>
                   <input
                     name="email"
                     placeholder="Email"
@@ -505,13 +457,13 @@ export default function VendorPage() {
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={handleSubmit}
-                  className="border-1 hover:bg-[#2d2f25] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
+                  className="border-1 hover:bg-[#565a47] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
                 >
                   Save
                 </button>
                 <button
                   onClick={closeModal}
-                  className="border-1 hover:bg-[#2d2f25] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
+                  className="border-1 hover:bg-[#565a47] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
                 >
                   Cancel
                 </button>

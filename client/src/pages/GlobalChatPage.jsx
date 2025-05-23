@@ -43,26 +43,21 @@ const GlobalChat = () => {
   };
 
   return (
-    <div className="min-h-screen w-full rounded-4xl bg-[#2d2f25] text-white p-4 sm:p-6 flex justify-center ">
-      <div className="w-full h-[70vh] flex flex-col bg-[#2d2f25] rounded-xl border border-[#dddddd2d] shadow-lg p-4">
-        <h1 className="text-xl sm:text-3xl font-bold mb-4 text-center border-b pb-2 border-[#dddddd2d]">
-          💬 Messages
-        </h1>
+    <div className="min-h-full w-full text-black p-4 flex justify-center shadow-neumorphism-inset items-center">
+      <div className="h-[70vh] w-[70vw] flex flex-col rounded-4xl shadow-lg shadow-neumorphism-inset p-10">
+        <h1 className="text-xl sm:text-3xl font-bold mb-4 text-center pb-2">💬 Messages</h1>
 
-        <div className="flex-1 overflow-y-auto bg-[#323529] rounded-lg p-6 mb-4 text-sm sm:text-base">
+        <div className="flex-1 overflow-y-auto rounded-lg p-6 mb-4 text-sm sm:text-base border-1 border-gray-400">
           {messages.length > 0 ? (
             messages.map((msg, i) => (
               <div key={i} className="mb-4">
                 <p>
-                  <strong className="text-blue-300">
-                    {msg.sender
-                      ? `${msg.sender.firstName} ${msg.sender.lastName}`
-                      : 'Unknown'}
-                    :
+                  <strong className="text-blue-600">
+                    {msg.sender ? `${msg.sender.firstName} ${msg.sender.lastName}` : 'Unknown'}:
                   </strong>{' '}
                   {msg.content}
                 </p>
-                <p className="text-gray-400 text-[10px] ml-2">
+                <p className="text-gray-500 text-[10px] ml-2">
                   {new Date(msg.createdAt).toLocaleString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -74,13 +69,11 @@ const GlobalChat = () => {
               </div>
             ))
           ) : (
-            <p className="text-gray-400 text-center mt-2">
-              No messages yet. Start chatting!
-            </p>
+            <p className="text-gray-500 text-center mt-2">No messages yet. Start chatting!</p>
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-col sm:flex-row">
           <input
             type="text"
             value={newMsg}
@@ -89,11 +82,11 @@ const GlobalChat = () => {
               if (e.key === 'Enter') handleSend();
             }}
             placeholder="Type your message..."
-            className="flex-1 border border-[#dddddd2d] px-3 py-2 rounded-lg bg-[#323529] text-white placeholder-gray-400 focus:outline-none text-sm sm:text-base"
+            className="flex-1 border-1 border-gray-500 px-3 py-2 rounded-lg text-black placeholder-gray-400 focus:outline-none text-sm sm:text-base"
           />
           <button
             onClick={handleSend}
-            className="border-1 border-[#dddddd2d] text-white hover:bg-[#323529] hover:text-white cursor-pointer  px-4 py-2 rounded-lg transition-all duration-300 text-sm"
+            className="border-[#5050509d] border-1 text-black px-4 py-2 rounded-lg hover:bg-[#565a47] hover:text-white cursor-pointer transition-all duration-300 text-sm"
           >
             Send
           </button>

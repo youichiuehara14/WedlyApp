@@ -30,7 +30,7 @@ const HomePage = () => {
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-6 bg-[#CCCCC6]">
           <Outlet />
         </main>
       </div>

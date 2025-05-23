@@ -225,14 +225,14 @@ const KanbanBoard = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen  w-full justify-evenly items-center overflow-x-auto rounded-4xl border-[#dddddd2d] ">
+    <div className="flex flex-col h-full  w-full justify-evenly items-center overflow-x-auto rounded-4xl border-[#dddddd2d] ">
       <div className="flex flex-col w-[90%] mx-auto gap-4 sm:gap-6 mt-15 mb-10">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl text-white font-semibold">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl text-black font-semibold">
           Board: {activeBoardObject.name}
         </h1>
 
         {/* 👇 Tiny Task Status Row */}
-        <div className="flex gap-4 text-white font-semibold text-xs sm:text-sm md:text-base">
+        <div className="flex gap-4 text-black font-semibold text-xs sm:text-sm md:text-base">
           <span>{columns.todo.length} To Do</span>
           <span>{columns.inProgress.length} In Progress</span>
           <span>{columns.done.length} Done</span>
