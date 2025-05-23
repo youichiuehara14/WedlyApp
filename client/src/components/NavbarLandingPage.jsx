@@ -152,7 +152,7 @@ const NavbarLandingPage = () => {
                   href="#testimonials"
                   onClick={(e) => {
                     setMobileMenuOpen(false);
-                    scrollToSection(e, "testemonials");
+                    scrollToSection(e, "testimonials");
                   }}
                   className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
                 >
