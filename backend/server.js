@@ -58,7 +58,6 @@ app.use('/api/vendor', vendorRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/guest', guestRoutes);
 
-const __dirname = path.resolve();
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '/frontend/dist')));
   app.get('/{*splat}', (req, res) => {
