@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useContext } from 'react';
 import axios from 'axios';
 import { NotepadText, CheckSquare, MessageSquare, X, Edit2, Trash2 } from 'lucide-react';
 import { Context } from '../../Context';
+import BASE_URL from '../../config';
 
 const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
   const {
@@ -22,7 +23,6 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingChecklistId, setEditingChecklistId] = useState(null);
   const [editingChecklistText, setEditingChecklistText] = useState('');
-
   const [editingCommentText, setEditingCommentText] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -48,10 +48,9 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
     const fetchComments = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `http://localhost:4000/api/comment/get-comment/${task._id}`,
-          { withCredentials: true }
-        );
+        const response = await axios.get(`${BASE_URL}/api/comment/get-comment/${task._id}`, {
+          withCredentials: true,
+        });
         const comments = response.data.task?.comments || response.data.comments || [];
         const enhancedComments = comments.map((comment) => ({
           ...comment,
@@ -97,7 +96,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/checklist/add-checklist/${task.id}`,
+        `${BASE_URL}/api/checklist/add-checklist/${task.id}`,
         { text: checklistText, isCompleted: false },
         { withCredentials: true }
       );
@@ -125,7 +124,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
     setLoading(true);
     try {
       const response = await axios.put(
-        `http://localhost:4000/api/checklist/toggle-checklist/${task.id}/${checklistId}`,
+        `${BASE_URL}/api/checklist/toggle-checklist/${task.id}/${checklistId}`,
         {},
         { withCredentials: true }
       );
@@ -154,7 +153,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
     setLoading(true);
     try {
       const response = await axios.delete(
-        `http://localhost:4000/api/checklist/delete-checklist/${task.id}/${checklistId}`,
+        `${BASE_URL}/api/checklist/delete-checklist/${task.id}/${checklistId}`,
         { withCredentials: true }
       );
 
@@ -187,7 +186,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
     setLoading(true);
     try {
       const response = await axios.put(
-        `http://localhost:4000/api/checklist/edit-checklist/${task._id}/${checklistId}`,
+        `${BASE_URL}/api/checklist/edit-checklist/${task._id}/${checklistId}`,
         { text: newText },
         { withCredentials: true }
       );
@@ -242,7 +241,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
 
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/comment/add-comment/${task.id}`,
+        `${BASE_URL}/api/comment/add-comment/${task.id}`,
         { text: commentText },
         { withCredentials: true }
       );
@@ -283,7 +282,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
     setLoading(true);
     try {
       const response = await axios.put(
-        `http://localhost:4000/api/comment/edit-comment/${task.id}/${commentId}`,
+        `${BASE_URL}/api/comment/edit-comment/${task.id}/${commentId}`,
         { text: editingCommentText },
         { withCredentials: true }
       );
@@ -317,10 +316,9 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
   const handleDeleteComment = async (commentId) => {
     setLoading(true);
     try {
-      await axios.delete(
-        `http://localhost:4000/api/comment/delete-comment/${task.id}/${commentId}`,
-        { withCredentials: true }
-      );
+      await axios.delete(`${BASE_URL}/api/comment/delete-comment/${task.id}/${commentId}`, {
+        withCredentials: true,
+      });
       setEditedTask((prev) => ({
         ...prev,
         comments: prev.comments.filter((comment) => comment._id !== commentId),
@@ -337,11 +335,9 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
   const saveTask = async () => {
     setLoading(true);
     try {
-      const response = await axios.put(
-        `http://localhost:4000/api/task/update-task/${task.id}`,
-        editedTask,
-        { withCredentials: true }
-      );
+      const response = await axios.put(`${BASE_URL}/api/task/update-task/${task.id}`, editedTask, {
+        withCredentials: true,
+      });
       setIsEditing(false);
       onTaskUpdate(response.data.task); // Update the task in the parent component
       onClose();
@@ -356,7 +352,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
   const deleteTask = async () => {
     setLoading(true);
     try {
-      await axios.delete(`http://localhost:4000/api/task/delete-task/${task.id}`, {
+      await axios.delete(`${BASE_URL}/api/task/delete-task/${task.id}`, {
         withCredentials: true,
       });
       onTaskDelete(task.id); // Remove the task from the parent component

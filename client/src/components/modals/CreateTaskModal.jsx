@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Context } from '../../Context';
 import { toast } from 'react-hot-toast';
+import BASE_URL from '../../config';
 
 const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
   const { user, activeBoardObject, vendorsObjects } = useContext(Context);
@@ -53,7 +54,7 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
 
     try {
       const response = await axios.post(
-        'http://localhost:4000/api/task/create-task',
+        `${BASE_URL}/api/task/create-task`,
         { ...formData },
         { withCredentials: true }
       );

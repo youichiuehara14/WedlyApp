@@ -3,6 +3,7 @@ import { Context } from '../../Context';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { X } from 'lucide-react';
+import BASE_URL from '../../config.js';
 
 export default function StartProjectFormModal({ onClose = () => {} }) {
   const { user, setBoardsObjects, fetchUser } = useContext(Context);
@@ -27,7 +28,7 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post('http://localhost:4000/api/board/create-new-board', form, {
+      const { data } = await axios.post(`${BASE_URL}/api/board/create-new-board`, form, {
         withCredentials: true,
       });
       console.log('Created board:', data);
