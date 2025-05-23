@@ -1,20 +1,9 @@
-// TaskCard renders a task with drag-and-drop functionality and handles click events.
-
 import { useSortable } from '@dnd-kit/sortable';
-import { getDragStyle } from '../utils/dragStyle.js'; //  for dragging style only
+import { getDragStyle } from '../utils/dragStyle.js';
 import { colorToHex } from '../utils/colorMap.js';
 
 const TaskCard = ({ task, id, onClick }) => {
-  // Use either the direct id prop or task._id
-
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: id,
   });
 
@@ -22,12 +11,26 @@ const TaskCard = ({ task, id, onClick }) => {
 
   const style = getDragStyle(transform, transition, isDragging);
 
-  // format the date
-  const date = new Date(task.dueDate);
-  const formattedDate = date.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-  });
+  const currentDate = new Date('2025-05-23T01:35:00-07:00');
+  const dueDate = new Date(task.dueDate);
+  const timeDiff = dueDate - currentDate;
+  const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  const daysLeftText =
+    dueDate > currentDate ? `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left` : 'Overdue';
+
+  const completionPercentage = task.checklists?.length
+    ? (task.checklists.filter((item) => item.isCompleted).length / task.checklists.length) * 100
+    : 0;
+
+  // Determine background color based on priority
+  const priorityBgColor =
+    task.priority === 'High'
+      ? 'bg-red-400'
+      : task.priority === 'Medium'
+      ? 'bg-yellow-600'
+      : task.priority === 'Low'
+      ? 'bg-green-400'
+      : '';
 
   return (
     <div
@@ -36,13 +39,33 @@ const TaskCard = ({ task, id, onClick }) => {
       {...attributes}
       {...listeners}
       onClick={() => onClick && onClick(task)}
-      className="bg-white p-4 mb-3 rounded-lg shadow-lg hover:shadow-xl cursor-pointer"
+      className="bg-white  border-2 text-black p-2 sm:p-3 md:p-4 mb-2 sm:mb-3 rounded-lg shadow-lg hover:shadow-xl cursor-pointer border-[#dddddd2d] mt-3  relative "
     >
-      <div className="w-5 h-1" style={{ backgroundColor: hexColor }}></div>
-      <p className="text-gray-800 font-semibold">{task.title}</p>
-      <p className="text-gray-600 text-sm">{task.priority}</p>
-      <p className="text-gray-600 text-sm">{formattedDate}</p>
-      <p className="text-gray-600 text-sm">Php {task.cost}</p>
+      <div
+        className="w-4 sm:w-3 h-5 mb-2 absolute -top-2 "
+        style={{ backgroundColor: hexColor }}
+      ></div>
+      <p className={` text-[13px] w-15 text-center text-white mb-2 ml-auto ${priorityBgColor}`}>
+        {task.priority}
+      </p>
+
+      <div className="flex flex-col">
+        <p className="text-black font-semibold text-sm sm:text-base flex-1">{task.title}</p>
+        <p className="text-[13px] text-black font-semibold">{task.category}</p>
+      </div>
+      <div className="mt-2">
+        <div className="text-xs text-black mb-1">Progress: {Math.round(completionPercentage)}%</div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-blue-600 h-2 rounded-full"
+            style={{ width: `${completionPercentage}%` }}
+          ></div>
+        </div>
+      </div>
+      <div className="flex items-center mt-2 justify-between  ">
+        <p className="text-black text-xs sm:text-sm ">Php {task.cost}</p>
+        <p className="text-[11px] text-black font-medium">{daysLeftText}</p>
+      </div>
     </div>
   );
 };

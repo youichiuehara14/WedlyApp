@@ -1,45 +1,39 @@
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Rocket } from "lucide-react";
-import StartProjectButton from "./StartProjectButton";
-import { useContext } from "react";
-import { Context } from "../Context";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  LogOut,
+  Rocket,
+  SquareKanban,
+  Store,
+  UserRoundCog,
+  Menu,
+  X,
+} from 'lucide-react';
+import StartProjectButton from './StartProjectButton';
+import { useContext, useState } from 'react';
+import { Context } from '../Context';
+import toast from 'react-hot-toast';
+import ring from '../assets/icons/ring.png';
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // For the mobile menu
-  const { user, boardsObjects, setActiveBoardObject, activeBoardObject } =
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, setUser, boardsObjects, setActiveBoardObject, activeBoardObject } =
     useContext(Context);
 
-  // Use to hide the navigation when the user login
   const location = useLocation();
   const navigate = useNavigate();
+  const isLandingPage = location.pathname === '/';
 
-  // Function to handle smooth scrolling with offset for fixed header
   const scrollToSection = (event, sectionId) => {
     event.preventDefault();
     const section = document.getElementById(sectionId);
-
     if (section) {
-      const navbarHeight = document.querySelector("nav").offsetHeight;
-      const sectionTop =
-        section.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
-
-      window.scrollTo({
-        top: sectionTop,
-        behavior: "smooth",
-      });
+      const navbarHeight = document.querySelector('nav').offsetHeight;
+      const sectionTop = section.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+      window.scrollTo({ top: sectionTop, behavior: 'smooth' });
     }
-
-    // Close the mobile menu if it's open
-    if (isMenuOpen) {
-      setIsMenuOpen(false);
-    }
-  };
-
-  // Function to toggle the mobile menu
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+    if (isMenuOpen) setIsMenuOpen(false);
   };
 
   const handleChange = (e) => {
@@ -47,92 +41,118 @@ const Navbar = () => {
     setActiveBoardObject(selectedBoard);
   };
 
-  // Use navigate to redirect to login page
-  const handleLoginClick = () => {
-    navigate("/login");
+  const handleLoginClick = () => navigate('/login');
+
+  const handleLogout = () => {
+    toggleMobileMenu();
+    if (window.confirm('Are you sure you want to log out?')) {
+      fetch('http://localhost:4000/api/user/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+        .then((response) => {
+          if (response.ok) {
+            toast.success('Logged out successfully!');
+            setUser(null);
+            navigate('/');
+          } else {
+            console.error('Logout failed', response.statusText);
+          }
+        })
+        .catch((error) => {
+          console.error('Error during logout', error);
+        });
+    }
   };
 
-  // Show landing nav buttons only on landing page route
-  const isLandingPage = location.pathname === "/";
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
     <div>
-      <header className="bg-white shadow-md">
-        <nav className="flex items-center justify-between p-4 mx-auto bg-white shadow-sm py-4 px-6 md:px-12 fixed top-0 left-0 right-0 z-50">
-          {/* Left Side: Logo + Greeting */}
+      <header className="bg-white mt-5 shadow-md">
+        <nav className="flex flex-col sm:flex-row items-center justify-between p-4 w-[90%] mx-auto">
+          {/* Left Side: Logo + Menu */}
           <div className="flex items-center gap-4">
+            {/* Left-side hamburger menu for logged-in users */}
+            {user && (
+              <div className="xl:hidden">
+                <button onClick={toggleMobileMenu} className="flex items-center">
+                  <Menu strokeWidth={1} />
+                </button>
+              </div>
+            )}
             <NavLink
-              to={user ? "/home/overview" : "/"}
+              to={user ? '/home/overview' : '/'}
               className="text-xl font-bold flex items-center gap-1"
               aria-label="Go to Dashboard Home"
             >
-              <Rocket color="#1446E7" strokeWidth={1} />
-              <span>Wedly</span>
+              <img src={ring} alt="" className="w-11" />
+              <span style={{ fontFamily: 'Parisienne' }} className="text-4xl font-light">
+                Wedly
+              </span>
             </NavLink>
-            <span>
-              Hi {user ? `${user.firstName} ${user.lastName}` : "User"}
-            </span>
           </div>
 
           {/* Landing Page Navigation Buttons */}
           {isLandingPage && (
-            <>
-              <div className="hidden md:flex space-x-8">
-                <a
-                  href="#hero"
-                  onClick={(e) => scrollToSection(e, "hero")}
-                  className="text-gray-600 hover:text-pink-500 transition-colors"
-                >
-                  About
-                </a>
-                <a
-                  href="#features"
-                  onClick={(e) => scrollToSection(e, "features")}
-                  className="text-gray-600 hover:text-pink-500 transition-colors"
-                >
-                  Features
-                </a>
-                <a
-                  href="#testimonials"
-                  onClick={(e) => scrollToSection(e, "testimonials")}
-                  className="text-gray-600 hover:text-pink-500 transition-colors"
-                >
-                  Testimonials
-                </a>
-                <a
-                  href="#pricing"
-                  onClick={(e) => scrollToSection(e, "pricing")}
-                  className="text-gray-600 hover:text-pink-500 transition-colors"
-                >
-                  Pricing
-                </a>
-                <a
-                  href="#contact"
-                  onClick={(e) => scrollToSection(e, "contact")}
-                  className="text-gray-600 hover:text-pink-500 transition-colors"
-                >
-                  Contact
-                </a>
-              </div>
-            </>
+            <div className="hidden md:flex space-x-8">
+              <a
+                href="#hero"
+                onClick={(e) => scrollToSection(e, 'hero')}
+                className="text-gray-600 hover:text-pink-500 transition-colors"
+              >
+                About
+              </a>
+              <a
+                href="#features"
+                onClick={(e) => scrollToSection(e, 'features')}
+                className="text-gray-600 hover:text-pink-500 transition-colors"
+              >
+                Features
+              </a>
+              <a
+                href="#testimonials"
+                onClick={(e) => scrollToSection(e, 'testimonials')}
+                className="text-gray-600 hover:text-pink-500 transition-colors"
+              >
+                Testimonials
+              </a>
+              <a
+                href="#pricing"
+                onClick={(e) => scrollToSection(e, 'pricing')}
+                className="text-gray-600 hover:text-pink-500 transition-colors"
+              >
+                Pricing
+              </a>
+              <a
+                href="#contact"
+                onClick={(e) => scrollToSection(e, 'contact')}
+                className="text-gray-600 hover:text-pink-500 transition-colors"
+              >
+                Contact
+              </a>
+            </div>
           )}
 
-          {/* Right Side: Actions (Create button + Profile) */}
-          <ul className="flex items-center gap-4">
+          {/* Right Side: Actions */}
+          <ul className="flex flex-col mt-5 sm:flex-row items-center sm:gap-4">
             {user ? (
               <>
                 <div className="p-4">
-                  {boardsObjects && boardsObjects.length > 0 ? (
+                  {boardsObjects?.length > 0 ? (
                     <select
                       id="board-select"
-                      value={activeBoardObject?._id || ""}
+                      value={activeBoardObject?._id || ''}
                       onChange={handleChange}
-                      className="border border-gray-300 p-2 rounded w-full"
+                      className="border border-[#94949498] p-2 rounded w-full"
                     >
-                      <option value="">-- Select a Board --</option>
+                      <option value="" disabled>
+                        Select a Board
+                      </option>
                       {boardsObjects.map((board) => (
                         <option key={board._id} value={board._id}>
-                          {board.name || "Untitled Board"}
+                          {board.name || 'Untitled Board'}
                         </option>
                       ))}
                     </select>
@@ -140,96 +160,110 @@ const Navbar = () => {
                     <p className="text-sm text-gray-500">Loading boards...</p>
                   )}
                 </div>
-
                 <li>
                   <StartProjectButton />
                 </li>
-                <li>
-                  <NavLink
-                    to="/profile"
-                    className="flex items-center"
-                    aria-label="Go to profile"
-                  >
-                    <img
-                      src={
-                        user.profileImage ||
-                        "placeholder image for user profile"
-                      }
-                      alt="User profile"
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  </NavLink>
-                </li>
               </>
             ) : (
-              <button
-                className="hidden md:flex space-x-8"
-                onClick={handleLoginClick}
-              >
+              <button className="hidden md:flex space-x-8" onClick={handleLoginClick}>
                 Login
               </button>
             )}
           </ul>
 
-          {/* Mobile Menu */}
+          {/* Right-side Mobile Menu Button - Hidden when user is logged in */}
+          {!user && (
+            <div className="md:hidden">
+              <button onClick={toggleMenu} className="p-2 rounded hover:bg-gray-700">
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+          )}
+
+          {/* Mobile Scroll Menu for Landing Page */}
           {isMenuOpen && isLandingPage && (
             <div className="md:hidden mt-4 py-4 border-t border-gray-100">
               <div className="flex flex-col space-y-3">
                 <a
                   href="#hero"
-                  onClick={(e) => scrollToSection(e, "hero")}
+                  onClick={(e) => scrollToSection(e, 'hero')}
                   className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
                 >
                   Hero
                 </a>
                 <a
                   href="#features"
-                  onClick={(e) => scrollToSection(e, "features")}
+                  onClick={(e) => scrollToSection(e, 'features')}
                   className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
                 >
                   Features
                 </a>
                 <a
                   href="#testimonials"
-                  onClick={(e) => scrollToSection(e, "testimonials")}
+                  onClick={(e) => scrollToSection(e, 'testimonials')}
                   className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
                 >
                   Testimonials
                 </a>
                 <a
                   href="#pricing"
-                  onClick={(e) => scrollToSection(e, "pricing")}
+                  onClick={(e) => scrollToSection(e, 'pricing')}
                   className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
                 >
                   Pricing
                 </a>
                 <a
                   href="#contact"
-                  onClick={(e) => scrollToSection(e, "contact")}
+                  onClick={(e) => scrollToSection(e, 'contact')}
                   className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
                 >
                   Contact
                 </a>
-                <div>
-                  <button onClick={handleLoginClick}>Login</button>
-                </div>
+                <button onClick={handleLoginClick}>Login</button>
               </div>
             </div>
           )}
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded hover:bg-gray-700"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-            {/* <button onClick={toggleMenu} className="text-gray-600">
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button> */}
-          </div>
         </nav>
+
+        {/* Mobile Hamburger Slide-Out Menu for Logged In Users Only */}
+        {user && isMobileMenuOpen && (
+          <div className="xl:hidden bg-white shadow-md absolute top-[72px] left-0 mt-10 w-full">
+            <ul className="p-4 space-y-5">
+              <li className="cursor-pointer font-medium flex gap-4 items-center">
+                <LayoutDashboard strokeWidth={1} />
+                <NavLink to="/home/overview" onClick={toggleMobileMenu}>
+                  Overview
+                </NavLink>
+              </li>
+              <li className="cursor-pointer font-medium flex gap-4 items-center">
+                <SquareKanban strokeWidth={1} />
+                <NavLink to="/home/tasks" onClick={toggleMobileMenu}>
+                  Tasks
+                </NavLink>
+              </li>
+              <li className="cursor-pointer font-medium flex gap-4 items-center">
+                <Store strokeWidth={1} />
+                <NavLink to="/home/vendor" onClick={toggleMobileMenu}>
+                  Vendor
+                </NavLink>
+              </li>
+              <hr className="my-6 border-gray-300" />
+              <li className="cursor-pointer font-medium flex gap-4 items-center">
+                <UserRoundCog strokeWidth={1} />
+                <NavLink to="/home/account" onClick={toggleMobileMenu}>
+                  Profile
+                </NavLink>
+              </li>
+              <li
+                className="cursor-pointer font-medium flex gap-4 items-center"
+                onClick={handleLogout}
+              >
+                <LogOut strokeWidth={1} />
+                <span>Logout</span>
+              </li>
+            </ul>
+          </div>
+        )}
       </header>
     </div>
   );

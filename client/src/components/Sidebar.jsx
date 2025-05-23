@@ -1,21 +1,45 @@
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard } from 'lucide-react';
-import { Store } from 'lucide-react';
-import { SquareKanban } from 'lucide-react';
-import { UserRoundCog, AppWindow, MessageSquareMore } from 'lucide-react';
-import { LogOut } from 'lucide-react';
-import { useContext } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  Store,
+  SquareKanban,
+  UserRoundCog,
+  AppWindow,
+  MessageSquareMore,
+  LogOut,
+  ChevronsLeft,
+  ChevronsRight,
+  UserRound,
+} from 'lucide-react';
+import { useContext, useState } from 'react';
 import { Context } from '../Context';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
+const SidebarItem = ({ to, icon: Icon, label, collapsed }) => (
+  <li className="cursor-pointer hover:text-orange-400 font-medium">
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `flex items-center ${collapsed ? 'justify-center' : 'gap-4'} ${
+          isActive ? 'text-orange-400 font-semibold' : ''
+        }`
+      }
+      title={collapsed ? label : ''}
+    >
+      <Icon strokeWidth={1} />
+      {!collapsed && <span>{label}</span>}
+    </NavLink>
+  </li>
+);
+
 const Sidebar = () => {
-  const { setUser } = useContext(Context);
+  const { user, setUser } = useContext(Context);
   const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
 
   const handleLogout = () => {
     const confirmLogout = window.confirm('Are you sure you want to log out?');
-    if (!confirmLogout) return; // Exit if the user cancels the logout
+    if (!confirmLogout) return;
 
     fetch('http://localhost:4000/api/user/logout', {
       method: 'POST',
@@ -24,7 +48,6 @@ const Sidebar = () => {
       .then((response) => {
         if (response.ok) {
           toast.success('Logged out successfully!');
-          // Clear user state
           setUser(null);
           navigate('/');
         } else {
@@ -34,46 +57,80 @@ const Sidebar = () => {
       .catch((error) => console.error('Logout error:', error));
   };
 
+  // Get first letter of user's first name
+  const profileLetter = user?.firstName?.charAt(0).toUpperCase() || '?';
+
   return (
-    <div className="sm:flex flex-col justify-between h-full w-72 bg-white shadow-md hidden ">
-      <div className="py-15 px-10">
+    <div
+      className={`hidden xl:flex flex-col justify-between h-full ${
+        collapsed ? 'w-20' : 'w-72'
+      } transition-all duration-300 bg-white border-r border-[#17171721]`}
+    >
+      {/* Toggle + Avatar */}
+      <div>
+        <div className="flex justify-end p-3">
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-gray-600 hover:text-orange-400 transition cursor-pointer"
+          >
+            {collapsed ? <ChevronsRight /> : <ChevronsLeft />}
+          </button>
+        </div>
+
+        <div className="flex flex-col items-center mb-4">
+          <div
+            className={`w-16 h-16 bg-blue-700 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-md  ${
+              collapsed ? 'text-xl w-12 h-12' : ''
+            }`}
+          >
+            {profileLetter}
+          </div>
+          {!collapsed && (
+            <span className="mt-2 text-sm font-semibold text-gray-800">{user?.firstName}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Top Menu */}
+      <div className={`px-${collapsed ? '4' : '10'} py-5`}>
         <ul className="space-y-5">
-          <li className="cursor-pointer hover:text-blue-500 font-medium flex gap-4 items-center">
-            <LayoutDashboard strokeWidth={1} />
-            <NavLink to="/home/overview">Overview</NavLink>
-          </li>
-          <li className="cursor-pointer hover:text-blue-500 font-medium flex gap-4 items-center">
-            <SquareKanban strokeWidth={1} />
-            <NavLink to="/home/tasks">Tasks</NavLink>
-          </li>
-          <li className="cursor-pointer hover:text-blue-500 font-medium flex gap-4 items-center">
-            <Store strokeWidth={1} />
-            <NavLink to="/home/vendor">Vendor</NavLink>
-          </li>
-          <li className="cursor-pointer hover:text-blue-500 font-medium flex gap-4 items-center">
-            <AppWindow strokeWidth={1} />
-            <NavLink to="/home/boards">Boards</NavLink>
-          </li>
-          <li className="cursor-pointer hover:text-blue-500 font-medium flex gap-4 items-center">
-            <MessageSquareMore strokeWidth={1} />
-            <NavLink to="/home/messages">Messages</NavLink>
-          </li>
+          <SidebarItem
+            to="/home/overview"
+            icon={LayoutDashboard}
+            label="Overview"
+            collapsed={collapsed}
+          />
+          <SidebarItem to="/home/tasks" icon={SquareKanban} label="Tasks" collapsed={collapsed} />
+          <SidebarItem to="/home/vendor" icon={Store} label="Vendor" collapsed={collapsed} />
+          <SidebarItem to="/home/boards" icon={AppWindow} label="Boards" collapsed={collapsed} />
+          <SidebarItem
+            to="/home/messages"
+            icon={MessageSquareMore}
+            label="Messages"
+            collapsed={collapsed}
+          />
         </ul>
       </div>
 
-      <div className="mt-auto p-6">
-        <hr className="mb-6 border-gray-300" />
-        <ul className="space-y-5 ">
-          <li className="cursor-pointer hover:text-blue-500 font-medium flex gap-4 items-center">
-            <UserRoundCog strokeWidth={1} />
-            <NavLink to="/home/account">Profile</NavLink>
-          </li>
+      {/* Bottom Menu */}
+      <div className={`mt-auto p-${collapsed ? '4' : '6'}`}>
+        {!collapsed && <hr className="mb-6 border-gray-300" />}
+        <ul className="space-y-5">
+          <SidebarItem
+            to="/home/account"
+            icon={UserRoundCog}
+            label="Profile"
+            collapsed={collapsed}
+          />
           <li
-            className="cursor-pointer hover:text-blue-500 font-medium flex gap-4 items-center"
+            className={`cursor-pointer hover:text-orange-400 font-medium flex items-center ${
+              collapsed ? 'justify-center' : 'gap-4'
+            }`}
             onClick={handleLogout}
+            title={collapsed ? 'Logout' : ''}
           >
             <LogOut strokeWidth={1} />
-            <span>Logout</span>
+            {!collapsed && <span>Logout</span>}
           </li>
         </ul>
       </div>

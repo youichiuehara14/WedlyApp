@@ -1,13 +1,6 @@
 import { useEffect, useState, useCallback, useContext } from 'react';
 import axios from 'axios';
-import {
-  NotepadText,
-  CheckSquare,
-  MessageSquare,
-  X,
-  Edit2,
-  Trash2,
-} from 'lucide-react';
+import { NotepadText, CheckSquare, MessageSquare, X, Edit2, Trash2 } from 'lucide-react';
 import { Context } from '../../Context';
 
 const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
@@ -59,8 +52,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
           `http://localhost:4000/api/comment/get-comment/${task._id}`,
           { withCredentials: true }
         );
-        const comments =
-          response.data.task?.comments || response.data.comments || [];
+        const comments = response.data.task?.comments || response.data.comments || [];
         const enhancedComments = comments.map((comment) => ({
           ...comment,
           user:
@@ -179,9 +171,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
 
       setError(null);
     } catch (error) {
-      setError(
-        error.response?.data?.message || 'Failed to delete checklist item'
-      );
+      setError(error.response?.data?.message || 'Failed to delete checklist item');
       console.error('Delete checklist error:', error);
     } finally {
       setLoading(false);
@@ -218,9 +208,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
 
       setError(null);
     } catch (error) {
-      setError(
-        error.response?.data?.message || 'Failed to edit checklist item'
-      );
+      setError(error.response?.data?.message || 'Failed to edit checklist item');
       console.error('Edit checklist error:', error);
     } finally {
       setLoading(false);
@@ -258,8 +246,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
         { text: commentText },
         { withCredentials: true }
       );
-      const newComments =
-        response.data.task?.comments || response.data.comments || [];
+      const newComments = response.data.task?.comments || response.data.comments || [];
       const enhancedComments = newComments.map((comment) => ({
         ...comment,
         user:
@@ -300,8 +287,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
         { text: editingCommentText },
         { withCredentials: true }
       );
-      const newComments =
-        response.data.task?.comments || response.data.comments || [];
+      const newComments = response.data.task?.comments || response.data.comments || [];
       const enhancedComments = newComments.map((comment) => ({
         ...comment,
         user:
@@ -370,12 +356,9 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
   const deleteTask = async () => {
     setLoading(true);
     try {
-      await axios.delete(
-        `http://localhost:4000/api/task/delete-task/${task.id}`,
-        {
-          withCredentials: true,
-        }
-      );
+      await axios.delete(`http://localhost:4000/api/task/delete-task/${task.id}`, {
+        withCredentials: true,
+      });
       onTaskDelete(task.id); // Remove the task from the parent component
       onClose(null);
     } catch (error) {
@@ -419,9 +402,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
 
         <div className="p-5">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
-              {error}
-            </div>
+            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>
           )}
 
           {isEditing ? (
@@ -473,9 +454,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                   disabled={loading || userLoading}
                 />
               ) : (
-                <span className="ml-1">
-                  {formatDate(editedTask.dueDate) || 'No due date'}
-                </span>
+                <span className="ml-1">{formatDate(editedTask.dueDate) || 'No due date'}</span>
               )}
             </div>
             <div className="flex items-center mr-4">
@@ -498,16 +477,13 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                   </option>
                   {vendorList.map((vendor) => (
                     <option key={vendor._id} value={vendor._id}>
-                      {vendor.name} ({vendor.category}) - Cost: P
-                      {vendor.cost || 'N/A'}
+                      {vendor.name} ({vendor.category}) - Cost: P{vendor.cost || 'N/A'}
                     </option>
                   ))}
                 </select>
               ) : (
                 <span className="ml-1">
-                  {selectedVendor
-                    ? `${selectedVendor.name} (${selectedVendor.category})`
-                    : 'None'}
+                  {selectedVendor ? `${selectedVendor.name} (${selectedVendor.category})` : 'None'}
                 </span>
               )}
             </div>
@@ -543,12 +519,12 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
 
             {editedTask.checklists?.length > 0 && (
               <div className="mb-3">
-                <div className="text-sm text-gray-600 mb-1">
+                <div className="text-sm text-gray-600 mb-1 ">
                   Progress: {Math.round(completionPercentage)}%
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div
-                    className="bg-blue-600 h-2.5 rounded-full"
+                    className="bg-blue-600 h-2.5 rounded-full duration-900 ease-in-out"
                     style={{ width: `${completionPercentage}%` }}
                   ></div>
                 </div>
@@ -588,15 +564,11 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                         <input
                           type="text"
                           value={editingChecklistText}
-                          onChange={(e) =>
-                            setEditingChecklistText(e.target.value)
-                          }
+                          onChange={(e) => setEditingChecklistText(e.target.value)}
                           className="flex-1 border border-gray-200 rounded px-2 py-1 text-sm"
                         />
                         <button
-                          onClick={() =>
-                            handleEditChecklist(item._id, editingChecklistText)
-                          }
+                          onClick={() => handleEditChecklist(item._id, editingChecklistText)}
                           disabled={loading}
                           className="text-green-500 hover:text-green-700 p-1"
                         >
@@ -624,13 +596,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                             className="w-4 h-4 text-blue-600 border-gray-300 rounded"
                             disabled={loading || userLoading}
                           />
-                          <span
-                            className={
-                              item.isCompleted
-                                ? 'line-through text-gray-400'
-                                : ''
-                            }
-                          >
+                          <span className={item.isCompleted ? 'line-through text-gray-400' : ''}>
                             {item.text}
                           </span>
                         </div>
@@ -659,9 +625,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500 italic">
-                No checklist items.
-              </p>
+              <p className="text-sm text-gray-500 italic">No checklist items.</p>
             )}
           </div>
 
@@ -703,9 +667,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                         <input
                           type="text"
                           value={editingCommentText}
-                          onChange={(e) =>
-                            setEditingCommentText(e.target.value)
-                          }
+                          onChange={(e) => setEditingCommentText(e.target.value)}
                           className="flex-1 border border-gray-200 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                           aria-label="Edit comment"
                           disabled={loading || userLoading}
@@ -714,9 +676,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                           onClick={() => handleEditComment(comment._id)}
                           disabled={loading || userLoading}
                           className={`border border-gray-300 bg-white text-gray-700 py-1 px-3 rounded-lg hover:bg-gray-50 transition-colors font-medium ${
-                            loading || userLoading
-                              ? 'opacity-50 cursor-not-allowed'
-                              : ''
+                            loading || userLoading ? 'opacity-50 cursor-not-allowed' : ''
                           }`}
                         >
                           Save
@@ -728,9 +688,7 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                           }}
                           disabled={loading || userLoading}
                           className={`border border-gray-300 bg-white text-gray-600 py-1 px-3 rounded-lg hover:bg-gray-50 transition-colors font-medium ${
-                            loading || userLoading
-                              ? 'opacity-50 cursor-not-allowed'
-                              : ''
+                            loading || userLoading ? 'opacity-50 cursor-not-allowed' : ''
                           }`}
                         >
                           Cancel
@@ -763,10 +721,9 @@ const TaskModal = ({ task, onClose, onTaskUpdate, onTaskDelete }) => {
                         <div className="text-xs text-gray-500">
                           Posted by {user.firstName || 'Unknown User'} on{' '}
                           {formatDate(comment.createdAt)}
-                          {comment.updatedAt &&
-                            comment.createdAt !== comment.updatedAt && (
-                              <> (Edited {formatDate(comment.updatedAt)})</>
-                            )}
+                          {comment.updatedAt && comment.createdAt !== comment.updatedAt && (
+                            <> (Edited {formatDate(comment.updatedAt)})</>
+                          )}
                         </div>
                       </div>
                     )}

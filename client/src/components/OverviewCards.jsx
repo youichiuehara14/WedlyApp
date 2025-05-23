@@ -1,18 +1,14 @@
 import { useContext, useEffect } from 'react';
 import { Context } from '../Context';
-import {
-  DollarSign,
-  ArrowDownCircle,
-  PieChart,
-  CheckCircle,
-  Calendar,
-  AlarmClock,
-  Clock,
-} from 'lucide-react';
+import { PhilippinePeso, ListChecks, LoaderCircle, CircleCheckBig, Heart } from 'lucide-react';
+import weddingPlans from '../assets/icons/wedding-plans.png';
+import moneyBag from '../assets/icons/money-bag.png';
+import CategoryCostDoughnut from '../charts/CategoryCostDoughnut';
+import CategoryCostBar from '../charts/CategoryCostBar';
+import wedCouple from '../assets/icons/wedcouple.svg';
 
 function OverviewCard_Budget() {
-  const { activeBoardObject, tasksPerBoard, fetchTasksPerBoard } =
-    useContext(Context);
+  const { activeBoardObject, tasksPerBoard, fetchTasksPerBoard } = useContext(Context);
 
   useEffect(() => {
     if (activeBoardObject?._id) {
@@ -57,142 +53,190 @@ function OverviewCard_Budget() {
     : null;
 
   return (
-    <div className="flex flex-col gap-6">
-      <h2 className="text-2xl font-medium text-gray-600">Budget Overview</h2>
-      {/* Row 1: Budget Cards */}
-      <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-        <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-blue-50 border border-blue-100 rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-600">Total Budget</h2>
-            <DollarSign className="text-blue-500 w-6 h-6" />
+    <div className="min-h-screen p-4 grid grid-cols-12 grid-rows-5 grid-rows-auto gap-4 border-1 rounded-4xl bg-[#2d2f25] shadow-neumorphism-inset">
+      {/* Task Overview */}
+      <div className="col-span-12 md:col-span-9 xl:col-span-9 border border-[#dddddd2d] p-4 rounded-4xl row-span-2 md:row-span-3">
+        {/* Task Overview 1st Row */}
+        <div className="flex flex-col h-full justify-between ">
+          <div className="flex flex-col items-start sm:items-center sm:flex-row justify-between p-5 ">
+            <span className="py-2 iflex text-white text-sm md:text-lg cursor-pointer">
+              View Task
+            </span>
+            <div className="flex gap-2 flex-wrap">
+              <span className=" text-[10px] sm:text-xs  text-white font-semibold">
+                {overdueTasks} Overdue
+              </span>
+              <span className=" text-xs  text-white font-semibold">
+                {incomingTasks} Incoming (Next 7 days)
+              </span>
+            </div>
           </div>
-          <div className="text-2xl font-bold text-gray-800">
-            Php {activeBoardObject?.totalBudget?.toLocaleString() || 0}
-          </div>
-        </div>
+          {/* Task Overview 2nd Row */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 border-b-1 w-full mx-auto border-[#dddddd2d] py-10 sm:py-25">
+            <div className="bg-white w-24 h-24 sm:w-24 sm:h-24 md:w-28 md:h-28 flex items-center justify-center shadow-neumorphism rounded-full ">
+              <img src={weddingPlans} alt="" className="w-10 h-10 sm:w-12 md:h-12" />
+            </div>
 
-        <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-red-50 border border-red-100 rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-600">Total Spent</h2>
-            <ArrowDownCircle className="text-red-500 w-6 h-6" />
+            <div className="flex flex-col sm:flex-row items-center">
+              <span className="text-6xl sm:text-8xl font-bold text-orange-300 sm:mr-5">
+                {totalTasks}
+              </span>
+              <span className="text-2xl sm:text-4xl text-white font-semibold duration-500">
+                Total Tasks
+              </span>
+            </div>
           </div>
-          <div className="text-2xl font-bold text-gray-800">
-            Php {tasksCost.toLocaleString() || 0}
-          </div>
-        </div>
 
-        <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-green-50 border border-green-100 rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-600">
-              Remaining Budget
-            </h2>
-            <PieChart className="text-green-500 w-6 h-6" />
-          </div>
-          <div className="text-2xl font-bold text-gray-800">
-            Php {remainingBudget.toLocaleString() || 0}
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-yellow-50 border border-yellow-100 rounded-2xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-600">
-              Days Until Wedding
-            </h2>
-            <Calendar className="text-yellow-500 w-6 h-6" />
-          </div>
-          <div className="text-2xl font-bold text-gray-800">
-            {daysLeft !== null ? `${daysLeft} days` : 'N/A'}
+          {/*Task Overview ThirdRow */}
+          <div className="flex justify-between md:justify-evenly px-5 sm:px-10 py-5 ">
+            {/* Third row items */}
+            {/* Item1 */}
+            <div className="flex items-center gap-3">
+              <ListChecks
+                color="white"
+                className="w-[20%] hidden sm:inline-block sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+              />
+              <div className="flex flex-col items-center">
+                <span className="text-white font-semibold text-lg sm:text-2xl md:text-3xl lg:text-4xl">
+                  {tasks.filter((t) => t.status === 'To Do').length}
+                </span>
+                <span className="text-white font-semibold text-[100%] sm:text-lg">Todo</span>
+              </div>
+            </div>
+            {/* Item2 */}
+            <div className="flex items-center gap-3">
+              <LoaderCircle
+                color="white"
+                className="w-[20%] hidden sm:inline-block sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+              />
+              <div className="flex flex-col items-center">
+                <span className="text-white font-semibold text-lg sm:text-2xl md:text-3xl lg:text-4xl">
+                  {tasks.filter((t) => t.status === 'In Progress').length}
+                </span>
+                <span className="text-white font-semibold text-[100%] sm:text-lg">In Progress</span>
+              </div>
+            </div>
+            {/* Items3 */}
+            <div className="flex items-center gap-3">
+              <CircleCheckBig
+                color="white"
+                className="w-[20%] hidden sm:inline-block sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+              />
+              <div className="flex flex-col items-center">
+                <span className="text-white font-semibold text-lg sm:text-2xl md:text-3xl lg:text-4xl">
+                  {doneTasks}
+                </span>
+                <span className="text-white font-semibold text-[100%] sm:text-lg">Done</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Row 2: Task Progress, Overdue, Upcoming */}
-      <h2 className="text-2xl font-medium text-gray-600 mt-16">
-        Tasks Overview
-      </h2>
-
-      {tasks.length === 0 ? (
-        <div className="flex items-center justify-center min-h-[120px] bg-gray-50 border border-gray-100 rounded-2xl shadow-md p-6">
-          <p className="text-gray-500">No tasks available</p>
+      {/* Countdown Widget */}
+      <div className="col-span-12 sm:col-span-12 md:col-span-3 border bg-white  rounded-xl row-span-3 2xl:row-span-1 relative overflow-hidden ">
+        <div className="flex flex-col 2xl:flex-row h-full w-full 2xl:gap-4  ">
+          <div className="flex flex-col mt-10 2xl:mt-0 2xl:flex-row h-full w-full justify-center items-center gap-2  mx-auto">
+            <div className="flex items-center justify-center w-30 h-30 2xl:w-20 2xl:h-20 z-5">
+              {/* Heart Icon Background */}
+              <Heart
+                className="w-[100%] h-full"
+                size={90}
+                color="#fed234"
+                strokeWidth={1.25}
+                fill="#fed234"
+              />
+              {/* Days Number Overlay */}
+              <span className="absolute text-white font-bold text-lg">{daysLeft}</span>
+            </div>
+            <span
+              style={{ fontFamily: 'Parisienne' }}
+              className="text-xl text-orange-400 font-semibold"
+            >
+              Days until wedding
+            </span>
+          </div>
+          <div>
+            <img
+              src={wedCouple}
+              alt="Couple"
+              className="w-[full] 2xl:w-[40%] object-contain 2xl:absolute relative top-8 2xl:top-12 2xl:-bottom-6 2xl:-left-8"
+            />
+          </div>
         </div>
-      ) : (
-        <>
-          <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-red-50 border border-red-100 rounded-2xl shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-gray-600">
-                  Total Tasks
-                </h2>
-                <CheckCircle className="text-red-500 w-6 h-6" />
-              </div>
-              <div className="text-2xl font-bold text-gray-800">
-                {totalTasks}
+      </div>
+
+      {/* Pie Chart */}
+      <div className="col-span-12 md:col-span-6 2xl:col-span-3 md:row-span-2 row-span-3 border border-[#dddddd2d] p-4 rounded-xl">
+        <div className="flex flex-col py-5 ">
+          <h2 className="sm:text-lg font-bold text-center mb-4 text-white">
+            Task Cost by Category
+          </h2>
+          <CategoryCostDoughnut boardId={activeBoardObject} />
+        </div>
+      </div>
+
+      {/* ================================================= */}
+      {/* Bar Chart */}
+      <div className="col-span-12 md:col-span-6 2xl:col-span-4 md:row-span-2 row-span-3 border border-[#dddddd2d] p-4 rounded-xl flex items-center justify-center ">
+        <div className="flex flex-col h-full items-center justify-center ">
+          <CategoryCostBar boardId={activeBoardObject} />
+        </div>
+      </div>
+      {/* ================================================= */}
+
+      <div className="col-span-12 2xl:col-span-8 2xl:row-span-2 border border-[#dddddd2d] p-4 rounded-xl">
+        <div className="flex flex-col h-full">
+          {/* Header Row */}
+          <div className="flex sm:flex-row items-center flex-wrap sm:items-center gap-4 sm:gap-10 w-full p-4 md:p-6">
+            {/* Icon Circle */}
+            <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full flex items-center justify-center shadow-neumorphism bg-[#e0e0e0]">
+              <img src={moneyBag} alt="Money Bag" className="w-10 h-10 sm:w-12 sm:h-12" />
+            </div>
+
+            {/* Title */}
+            <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-semibold text-white">
+              Budget Overview
+            </h2>
+          </div>
+
+          {/* Stats Row */}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 w-full border-t border-[#dddddd2d] pt-4 mt-12">
+            {/* Total Budget */}
+            <div className="flex items-center gap-3 sm:gap-4 flex-1 p-2 sm:p-4">
+              <PhilippinePeso className="w-6 h-6 sm:w-10 sm:h-10 text-white" strokeWidth={1.5} />
+              <div>
+                <h3 className="text-sm sm:text-base text-white">Total Budget</h3>
+                <p className="text-white font-bold text-xl sm:text-lg md:text-2xl">
+                  {activeBoardObject?.totalBudget?.toLocaleString() || 0}
+                </p>
               </div>
             </div>
 
-            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-orange-50 border border-orange-100 rounded-2xl shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-gray-600">
-                  To-Do Tasks
-                </h2>
-                <CheckCircle className="text-orange-500 w-6 h-6" />
-              </div>
-              <div className="text-2xl font-bold text-gray-800">
-                {tasks.filter((t) => t.status === 'To Do').length}
-              </div>
-            </div>
-
-            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-blue-50 border border-blue-100 rounded-2xl shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-gray-600">
-                  In Progress
-                </h2>
-                <CheckCircle className="text-blue-500 w-6 h-6" />
-              </div>
-              <div className="text-2xl font-bold text-gray-800">
-                {tasks.filter((t) => t.status === 'In Progress').length}
+            {/* Total Spent */}
+            <div className="flex items-center gap-3 sm:gap-4 flex-1 p-2 sm:p-4">
+              <PhilippinePeso className="w-6 h-6 sm:w-10 sm:h-10 text-white" strokeWidth={1.5} />
+              <div>
+                <h3 className="text-sm sm:text-base text-white">Total Spent</h3>
+                <p className="text-white font-bold text-xl sm:text-lg md:text-2xl">
+                  {tasksCost.toLocaleString() || 0}
+                </p>
               </div>
             </div>
 
-            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-purple-50 border border-purple-100 rounded-2xl shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-gray-600">Done</h2>
-                <CheckCircle className="text-purple-500 w-6 h-6" />
-              </div>
-              <div className="text-2xl font-bold text-gray-800">
-                {doneTasks}
+            {/* Remaining */}
+            <div className="flex items-center gap-3 sm:gap-4 flex-1 p-2 sm:p-4">
+              <PhilippinePeso className="w-6 h-6 sm:w-10 sm:h-10 text-white" strokeWidth={1.5} />
+              <div>
+                <h3 className="text-sm sm:text-base text-white">Remaining</h3>
+                <p className="text-white font-bold text-xl sm:text-lg md:text-2xl">
+                  {remainingBudget.toLocaleString() || 0}
+                </p>
               </div>
             </div>
           </div>
-
-          {/* Row 3: Overdue / Incoming */}
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 mt-6">
-            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-pink-50 border border-pink-100 rounded-2xl shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-gray-600">
-                  Overdue Tasks
-                </h2>
-                <AlarmClock className="text-pink-500 w-6 h-6" />
-              </div>
-              <div className="text-2xl font-bold text-gray-800">
-                {overdueTasks}
-              </div>
-            </div>
-
-            <div className="flex flex-col justify-between gap-2 min-h-[120px] bg-indigo-50 border border-indigo-100 rounded-2xl shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-gray-600">
-                  Incoming (Next 7 Days)
-                </h2>
-                <Clock className="text-indigo-500 w-6 h-6" />
-              </div>
-              <div className="text-2xl font-bold text-gray-800">
-                {incomingTasks}
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }

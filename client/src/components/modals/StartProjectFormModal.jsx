@@ -27,13 +27,9 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(
-        'http://localhost:4000/api/board/create-new-board',
-        form,
-        {
-          withCredentials: true,
-        }
-      );
+      const { data } = await axios.post('http://localhost:4000/api/board/create-new-board', form, {
+        withCredentials: true,
+      });
       console.log('Created board:', data);
       if (data.error) {
         toast.error(data.error);
@@ -70,7 +66,7 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
             BoardOwner: {user.firstName}
           </span>
         </div>
-        <form className="space-y-4">
+        <form className="space-y-4 mt-3">
           {/* Board Name */}
           <div>
             <label className="block font-medium">Board Name</label>
@@ -80,8 +76,8 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
               value={name}
               name="name"
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              placeholder="e.g. Website Redesign"
+              className="w-full border rounded px-3 py-2 focus:outline-none border-gray-300"
+              placeholder="e.g. Wedding reception"
             />
           </div>
 
@@ -93,7 +89,7 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
               value={totalBudget}
               name="totalBudget"
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 focus:outline-none border-gray-300"
               placeholder="e.g. 5000"
             />
           </div>
@@ -106,7 +102,7 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
               value={weddingDate}
               name="weddingDate"
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 focus:outline-none border-gray-300"
             />
           </div>
 
@@ -115,7 +111,7 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
             <button
               type="submit"
               onClick={handleSubmit}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="border-1 hover:bg-[#2d2f25] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
             >
               Create Board
             </button>

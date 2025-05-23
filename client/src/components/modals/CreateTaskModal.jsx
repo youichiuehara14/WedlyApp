@@ -43,12 +43,7 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
     setLoading(true);
 
     // Validation
-    if (
-      !formData.boardId ||
-      !formData.title ||
-      !formData.description ||
-      !formData.vendor
-    ) {
+    if (!formData.boardId || !formData.title || !formData.description || !formData.vendor) {
       const errorMsg = 'Board, title, description, and vendor are required';
       setError(errorMsg);
       toast.error(errorMsg);
@@ -107,7 +102,7 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded border-gray-300 focus:outline-none"
               required
             />
           </div>
@@ -119,7 +114,7 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded border-gray-300 focus:outline-none"
               required
             />
           </div>
@@ -131,7 +126,7 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
               name="taskColor"
               value={formData.taskColor}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded border-gray-300 focus:outline-none"
             >
               <option value="red">Red</option>
               <option value="orange">Orange</option>
@@ -150,7 +145,7 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
               name="dueDate"
               value={formData.dueDate}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded border-gray-300 focus:outline-none"
               required
             />
           </div>
@@ -162,7 +157,7 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded border-gray-300 focus:outline-none"
             >
               <option value="To Do">To Do</option>
               <option value="In Progress">In Progress</option>
@@ -177,7 +172,7 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
               name="priority"
               value={formData.priority}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded border-gray-300 focus:outline-none"
             >
               <option value="Low">Low</option>
               <option value="Medium">Medium</option>
@@ -192,15 +187,14 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
               name="vendor"
               value={formData.vendor}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded border-gray-300 focus:outline-none"
               required
               disabled={vendorsObjects.length === 0}
             >
               <option value="">Select a vendor</option>
               {vendorsObjects.map((vendor) => (
                 <option key={vendor._id} value={vendor._id}>
-                  {vendor.name} ({vendor.category}) - Cost: P
-                  {vendor.cost || 'N/A'}
+                  {vendor.name} ({vendor.category}) - Cost: P{vendor.cost || 'N/A'}
                 </option>
               ))}
             </select>
@@ -211,14 +205,14 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              className="border-1 hover:bg-[#2d2f25] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="border-1 hover:bg-[#2d2f25] hover:text-white cursor-pointer text-[#2d2f25] px-4 py-2 rounded-lg transition-all duration-300 text-sm"
             >
               {loading ? 'Creating...' : 'Create Task'}
             </button>
