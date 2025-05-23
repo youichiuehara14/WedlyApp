@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   LogOut,
@@ -8,6 +8,9 @@ import {
   UserRoundCog,
   Menu,
   X,
+  AppWindow,
+  MessageSquareMore,
+  User,
 } from 'lucide-react';
 import StartProjectButton from './StartProjectButton';
 import { useContext, useState } from 'react';
@@ -27,21 +30,7 @@ const Navbar = () => {
     fetchTasksPerBoard,
   } = useContext(Context);
 
-  const location = useLocation();
   const navigate = useNavigate();
-  const isLandingPage = location.pathname === '/';
-
-  const scrollToSection = (event, sectionId) => {
-    event.preventDefault();
-    const section = document.getElementById(sectionId);
-    if (section) {
-      const navbarHeight = document.querySelector('nav').offsetHeight;
-      const sectionTop =
-        section.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
-      window.scrollTo({ top: sectionTop, behavior: 'smooth' });
-    }
-    if (isMenuOpen) setIsMenuOpen(false);
-  };
 
   const handleChange = (e) => {
     const selectedBoard = boardsObjects.find((b) => b._id === e.target.value);
@@ -110,47 +99,6 @@ const Navbar = () => {
             </NavLink>
           </div>
 
-          {/* Landing Page Navigation Buttons */}
-          {isLandingPage && (
-            <div className="hidden md:flex space-x-8 text-l">
-              <a
-                href="#hero"
-                onClick={(e) => scrollToSection(e, 'hero')}
-                className="text-gray-600 hover:text-pink-500 transition-colors"
-              >
-                About
-              </a>
-              <a
-                href="#features"
-                onClick={(e) => scrollToSection(e, 'features')}
-                className="text-gray-600 hover:text-pink-500 transition-colors"
-              >
-                Features
-              </a>
-              <a
-                href="#testimonials"
-                onClick={(e) => scrollToSection(e, 'testimonials')}
-                className="text-gray-600 hover:text-pink-500 transition-colors"
-              >
-                Testimonials
-              </a>
-              <a
-                href="#pricing"
-                onClick={(e) => scrollToSection(e, 'pricing')}
-                className="text-gray-600 hover:text-pink-500 transition-colors"
-              >
-                Pricing
-              </a>
-              <a
-                href="#contact"
-                onClick={(e) => scrollToSection(e, 'contact')}
-                className="text-gray-600 hover:text-pink-500 transition-colors"
-              >
-                Contact
-              </a>
-            </div>
-          )}
-
           {/* Right Side: Actions */}
           <ul className="flex flex-col sm:flex-row items-center sm:gap-4">
             {user ? (
@@ -201,50 +149,6 @@ const Navbar = () => {
               </button>
             </div>
           )}
-
-          {/* Mobile Scroll Menu for Landing Page */}
-          {isMenuOpen && isLandingPage && (
-            <div className="md:hidden mt-4 py-4 border-t border-gray-100">
-              <div className="flex flex-col space-y-3">
-                <a
-                  href="#hero"
-                  onClick={(e) => scrollToSection(e, 'hero')}
-                  className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
-                >
-                  Hero
-                </a>
-                <a
-                  href="#features"
-                  onClick={(e) => scrollToSection(e, 'features')}
-                  className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
-                >
-                  Features
-                </a>
-                <a
-                  href="#testimonials"
-                  onClick={(e) => scrollToSection(e, 'testimonials')}
-                  className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
-                >
-                  Testimonials
-                </a>
-                <a
-                  href="#pricing"
-                  onClick={(e) => scrollToSection(e, 'pricing')}
-                  className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
-                >
-                  Pricing
-                </a>
-                <a
-                  href="#contact"
-                  onClick={(e) => scrollToSection(e, 'contact')}
-                  className="text-gray-600 hover:text-pink-500 py-2 transition-colors"
-                >
-                  Contact
-                </a>
-                <button onClick={handleLoginClick}>Login</button>
-              </div>
-            </div>
-          )}
         </nav>
 
         {/* Mobile Hamburger Slide-Out Menu for Logged In Users Only */}
@@ -267,6 +171,24 @@ const Navbar = () => {
                 <Store strokeWidth={1} />
                 <NavLink to="/home/vendor" onClick={toggleMobileMenu}>
                   Vendor
+                </NavLink>
+              </li>
+              <li className="cursor-pointer font-medium flex gap-4 items-center">
+                <User strokeWidth={1} />
+                <NavLink to="/home/guest" onClick={toggleMobileMenu}>
+                  Guest
+                </NavLink>
+              </li>
+              <li className="cursor-pointer font-medium flex gap-4 items-center">
+                <AppWindow strokeWidth={1} />
+                <NavLink to="/home/boards" onClick={toggleMobileMenu}>
+                  Boards
+                </NavLink>
+              </li>
+              <li className="cursor-pointer font-medium flex gap-4 items-center">
+                <MessageSquareMore strokeWidth={1} />
+                <NavLink to="/home/messages" onClick={toggleMobileMenu}>
+                  Messages
                 </NavLink>
               </li>
               <hr className="my-6 border-gray-300" />

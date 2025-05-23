@@ -13,6 +13,7 @@ const checklistRoutes = require('./Routes/checklistRoutes');
 const commentRoutes = require('./Routes/commentRoutes');
 const vendorRoutes = require('./Routes/vendorRoutes');
 const messageRoutes = require('./Routes/messageRoutes');
+const guestRoutes = require('./Routes/guestRoutes');
 
 const User = require('./Models/users');
 const Message = require('./Models/message');
@@ -54,6 +55,7 @@ app.use('/api/checklist', checklistRoutes);
 app.use('/api/comment', commentRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/message', messageRoutes);
+app.use('/api/guest', guestRoutes);
 
 // Socket.io required code
 io.on('connection', (socket) => {

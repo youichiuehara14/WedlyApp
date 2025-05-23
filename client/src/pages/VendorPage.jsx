@@ -3,6 +3,9 @@ import axios from 'axios';
 import { Context } from '../Context';
 import { toast } from 'react-hot-toast';
 
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+
 const defaultCategories = [
   'Photographer',
   'Catering',
@@ -49,7 +52,7 @@ export default function VendorPage() {
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [sortField, setSortField] = useState('name');
-  const [setSortDirection] = useState('asc'); // Note: setSortDirection is defined but not used to change state in the current code
+  const [sortDirection, setSortDirection] = useState('asc');
 
   const {
     fetchVendorsPerUser,
@@ -70,6 +73,8 @@ export default function VendorPage() {
     ];
     setCategories(vendorCategories);
   }, [vendorsObjectsPerUser]);
+
+  console.log('Vendors:', vendorsObjectsPerUser);
 
   const openModal = (vendor = null, index = null) => {
     if (vendor) {
@@ -187,25 +192,80 @@ export default function VendorPage() {
     }
   };
 
-  const filtered = vendorsObjectsPerUser.filter((v) => {
-    const searchTerm = search.toLowerCase();
-    const safeLower = (str) =>
-      typeof str === 'string' ? str.toLowerCase() : '';
+  const filtered = vendorsObjectsPerUser
+    .filter((v) => {
+      const searchTerm = search.toLowerCase();
+      const safeLower = (str) =>
+        typeof str === 'string' ? str.toLowerCase() : '';
 
-    const matchesSearch =
-      safeLower(v.name).includes(searchTerm) ||
-      safeLower(v.phone).includes(searchTerm) ||
-      safeLower(v.email).includes(searchTerm) ||
-      safeLower(v.address).includes(searchTerm) ||
-      safeLower(v.category).includes(searchTerm) ||
-      v.cost.toString().toLowerCase().includes(searchTerm);
+      const matchesSearch =
+        safeLower(v.name).includes(searchTerm) ||
+        safeLower(v.phone).includes(searchTerm) ||
+        safeLower(v.email).includes(searchTerm) ||
+        safeLower(v.address).includes(searchTerm) ||
+        safeLower(v.category).includes(searchTerm) ||
+        v.cost.toString().toLowerCase().includes(searchTerm);
 
-    const matchesCategory = filterCategory
-      ? v.category === filterCategory
-      : true;
+      const matchesCategory = filterCategory
+        ? v.category === filterCategory
+        : true;
 
-    return matchesSearch && matchesCategory;
-  });
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      // Handle cases where fields might be undefined
+      const aValue = a[sortField] || '';
+      const bValue = b[sortField] || '';
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortDirection === 'asc'
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      } else {
+        // For numbers (like cost)
+        return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+    });
+
+  // Date formatting helper (simple YYYY-MM-DD HH:mm)
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const pad = (n) => (n < 10 ? '0' + n : n);
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+      d.getDate()
+    )} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const exportVendorsToExcel = () => {
+    if (!vendorsObjectsPerUser || vendorsObjectsPerUser.length === 0) {
+      toast.error('No vendors to export');
+      return;
+    }
+
+    // Prepare data for export
+    const data = vendorsObjectsPerUser.map((vendor) => ({
+      'Vendor ID': vendor._id,
+      Name: vendor.name || '',
+      Category: vendor.category || '',
+      Address: vendor.address || '',
+      Phone: vendor.phone || '',
+      Email: vendor.email || '',
+      Cost: vendor.cost != null ? vendor.cost : '',
+      'Created At': formatDate(vendor.createdAt),
+      'Updated At': formatDate(vendor.updatedAt),
+    }));
+
+    // Create worksheet and workbook
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Vendors');
+
+    // Write workbook to binary and save
+    const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/octet-stream' });
+    saveAs(blob, 'vendors.xlsx');
+  };
 
   return (
     <div className="min-h-screen bg-[#2d2f25] rounded-4xl text-white p-4 shadow-neumorphism-inset">
@@ -239,6 +299,12 @@ export default function VendorPage() {
           >
             Add Vendor
           </button>
+          <button
+            className="border-[#dddddd2d] border-1 text-white px-4 py-2 rounded-lg hover:bg-[#323529] cursor-pointer transition-all duration-300 w-full sm:w-auto text-sm sm:text-base"
+            onClick={exportVendorsToExcel}
+          >
+            Export Excel
+          </button>
         </div>
 
         <div className="rounded-lg shadow-lg ">
@@ -249,7 +315,12 @@ export default function VendorPage() {
                   className="p-3 sm:p-4 cursor-pointer"
                   onClick={() => toggleSort('name')}
                 >
-                  Name
+                  Name{' '}
+                  {sortField === 'name'
+                    ? sortDirection === 'asc'
+                      ? '▲'
+                      : '▼'
+                    : ''}
                 </th>
                 <th className="p-3 sm:p-4 hidden xl:table-cell">Category</th>
                 <th className="p-3 sm:p-4 hidden sm:table-cell">Address</th>

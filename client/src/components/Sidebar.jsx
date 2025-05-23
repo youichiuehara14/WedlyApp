@@ -10,6 +10,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   UserRound,
+  User,
 } from 'lucide-react';
 import { useContext, useState } from 'react';
 import { Context } from '../Context';
@@ -112,6 +113,12 @@ const Sidebar = () => {
             to="/home/vendor"
             icon={Store}
             label="Vendor"
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            to="/home/guest"
+            icon={User}
+            label="Guest"
             collapsed={collapsed}
           />
           <SidebarItem

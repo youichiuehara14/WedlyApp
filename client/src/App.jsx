@@ -14,6 +14,7 @@ import AccountPage from './pages/AccountPage';
 import OverviewPage from './pages/OverviewPage';
 import BoardsPage from './pages/BoardsPage';
 import GlobalChatPage from './pages/GlobalChatPage';
+import GuestPage from './pages/GuestPage';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="overview" element={<OverviewPage />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="vendor" element={<VendorPage />} />
+          <Route path="guest" element={<GuestPage />} />
           <Route path="boards" element={<BoardsPage />} />
           <Route path="messages" element={<GlobalChatPage />} />
           <Route path="account" element={<AccountPage />} />

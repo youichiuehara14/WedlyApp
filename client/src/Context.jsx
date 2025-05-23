@@ -11,6 +11,7 @@ export const ContextProvider = ({ children }) => {
   const [activeBoardObject, setActiveBoardObject] = useState(null);
   const [tasksPerBoard, setTasksPerBoard] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [guestsObjects, setGuestsObjects] = useState([]);
 
   const fetchUser = async () => {
     try {
@@ -37,8 +38,6 @@ export const ContextProvider = ({ children }) => {
   useEffect(() => {
     fetchUser();
   }, []);
-
-  console.log(user);
 
   // Store tasks per board
   const fetchTasksPerBoard = async (boardId) => {
@@ -104,6 +103,19 @@ export const ContextProvider = ({ children }) => {
     );
   };
 
+  const fetchGuestsPerUser = async () => {
+    try {
+      const { data } = await axios.get(
+        'http://localhost:4000/api/guest/getGuestList',
+        { withCredentials: true }
+      );
+      setGuestsObjects(data.guests);
+    } catch (err) {
+      console.error(err);
+      setGuestsObjects([]);
+    }
+  };
+
   return (
     <Context.Provider
       value={{
@@ -125,6 +137,9 @@ export const ContextProvider = ({ children }) => {
         addMemberToBoardInContext,
         vendorsObjectsPerUser,
         setVendorsObjectsPerUser,
+        guestsObjects,
+        setGuestsObjects,
+        fetchGuestsPerUser,
       }}
     >
       {children}
