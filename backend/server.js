@@ -6,7 +6,6 @@ const cookieParser = require('cookie-parser');
 const http = require('http');
 const { Server } = require('socket.io');
 
-// Load .env in development, rely on Render's variables in production
 if (process.env.NODE_ENV !== 'production') {
   const dotenvResult = require('dotenv').config({ path: './.env' });
   console.log('dotenv loaded:', dotenvResult);
@@ -14,11 +13,10 @@ if (process.env.NODE_ENV !== 'production') {
   console.log('Running in production, using Render environment variables');
 }
 
-// Debug: Verify environment variables and paths
-console.log('mongoose:', require('mongoose'));
 console.log('MONGO_URL:', process.env.MONGO_URL);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORT:', process.env.PORT);
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
 if (!process.env.MONGO_URL) {
   console.error('Error: MONGO_URL is not defined');
   process.exit(1);
@@ -38,24 +36,20 @@ const Message = require('./Models/message');
 
 const app = express();
 const server = http.createServer(app);
-// const io = new Server(server, {
-//   cors: {
-//     origin: 'http://localhost:5173',
-//     methods: ['GET', 'POST'],
-//     credentials: true,
-//   },
-// });
+const allowedOrigins =
+  process.env.NODE_ENV === 'production'
+    ? [process.env.FRONTEND_URL || 'https://wedlyapp.onrender.com']
+    : ['http://localhost:5173'];
 
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173', 'https://wedlyapp.onrender.com'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
 });
 const PORT = process.env.PORT || 4000;
 
-// MongoDB connection
 mongoose
   .connect(process.env.MONGO_URL, {
     serverSelectionTimeoutMS: 30000,
@@ -67,10 +61,9 @@ mongoose
     process.exit(1);
   });
 
-// Middleware
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -79,7 +72,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 
-// Routes
 app.use('/api/user', userRoutes);
 app.use('/api/board', boardRoutes);
 app.use('/api/task', taskRoutes);
@@ -89,7 +81,6 @@ app.use('/api/vendor', vendorRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/guest', guestRoutes);
 
-// Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
   const staticPath = path.join(__dirname, '../client/dist');
   console.log('Serving static files from:', staticPath);
@@ -106,40 +97,29 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Socket.io
 io.on('connection', (socket) => {
   console.log('🟢 New client connected:', socket.id);
-
   socket.on('sendMessage', async (data) => {
     try {
       const { content, senderId } = data;
-
       if (!senderId || !content) return;
-
-      const User = require('./Models/users');
-      const Message = require('./Models/message');
-
       const user = await User.findById(senderId);
       if (!user) return;
-
       const newMsg = await Message.create({
         sender: senderId,
         content,
       });
-
       const populatedMsg = await newMsg.populate('sender', 'firstName lastName');
       console.log('Broadcasting new message:', populatedMsg);
-
       io.emit('newMessage', populatedMsg);
     } catch (err) {
       console.error('❌ Error saving or broadcasting message:', err.message);
       socket.emit('error', { message: 'Failed to send message' });
     }
   });
-
   socket.on('disconnect', () => {
     console.log('🔴 Client disconnected:', socket.id);
   });
 });
 
-server.listen(PORT, () => console.log('Listening on port 4000'));
+server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
