@@ -50,7 +50,7 @@ export default function StartProjectFormModal({ onClose = () => {} }) {
   };
 
   return (
-    <div className="fixed inset-0 h-screen backdrop-blur-sm bg-black/20  flex items-center justify-center ">
+    <div className="fixed inset-0 h-screen backdrop-blur-sm bg-black/20 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg w-full max-w-md relative shadow-lg">
         <button
           onClick={onClose}
