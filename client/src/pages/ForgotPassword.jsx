@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import BASE_URL from '../config';
 
 function ForgotPassword() {
   const navigate = useNavigate();
@@ -29,12 +30,13 @@ function ForgotPassword() {
     const { email, newPassword, confirmNewPassword } = forgotPasswordFormData;
     try {
       const { data } = await axios.post(
-        'http://localhost:4000/api/user/forgot-password',
+        `${BASE_URL}/api/user/forgot-password`,
         {
           email,
           newPassword,
           confirmNewPassword,
-        }
+        },
+        { withCredentials: true }
       );
       if (data.error) {
         toast.error(data.error);
@@ -48,12 +50,8 @@ function ForgotPassword() {
         navigate('/login');
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        toast.error(error.response.data.error);
-      } else {
-        toast.error('An error occurred. Please try again later.');
-      }
-      console.log(error);
+      console.error('Forgot password error:', error);
+      toast.error(error.response?.data?.error || 'An error occurred. Please try again later.');
     }
   };
 
@@ -73,19 +71,13 @@ function ForgotPassword() {
     if (
       forgotPasswordFormData.newPassword &&
       forgotPasswordFormData.confirmNewPassword &&
-      forgotPasswordFormData.newPassword ===
-        forgotPasswordFormData.confirmNewPassword
+      forgotPasswordFormData.newPassword === forgotPasswordFormData.confirmNewPassword
     )
       score++;
     return score;
   };
 
-  const strengthColors = [
-    'bg-red-500',
-    'bg-orange-400',
-    'bg-yellow-400',
-    'bg-green-500',
-  ];
+  const strengthColors = ['bg-red-500', 'bg-orange-400', 'bg-yellow-400', 'bg-green-500'];
 
   return (
     <>
@@ -93,9 +85,7 @@ function ForgotPassword() {
         <Navbar />
         <div className=" flex justify-center items-center pb-8 px-4 sm:px-6 lg:px-8 mt-18">
           <div className="max-w-md w-full bg-white shadow-xl rounded-lg p-6">
-            <h1 className="text-2xl font-bold text-gray-800 text-center">
-              Reset Your Password
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-800 text-center">Reset Your Password</h1>
             <p className="text-sm text-gray-600 text-center mt-1">
               Enter your email and new password to reset your account.
             </p>
@@ -157,17 +147,13 @@ function ForgotPassword() {
 
               {/* Password strength and validation */}
               <div>
-                <p className="font-medium text-sm text-gray-700 mb-1">
-                  Password Strength
-                </p>
+                <p className="font-medium text-sm text-gray-700 mb-1">Password Strength</p>
                 <div className="flex space-x-1 h-2 mb-2">
                   {[0, 1, 2, 3].map((i) => (
                     <div
                       key={i}
                       className={`flex-1 rounded ${
-                        getPasswordStrength() > i
-                          ? strengthColors[i]
-                          : 'bg-gray-200'
+                        getPasswordStrength() > i ? strengthColors[i] : 'bg-gray-200'
                       }`}
                     />
                   ))}
@@ -176,27 +162,21 @@ function ForgotPassword() {
                 <ul className="text-xs text-gray-400 space-y-1">
                   <li
                     className={
-                      forgotPasswordFormData.newPassword.length >= 6
-                        ? 'text-green-600'
-                        : ''
+                      forgotPasswordFormData.newPassword.length >= 6 ? 'text-green-600' : ''
                     }
                   >
                     • Minimum 6 characters
                   </li>
                   <li
                     className={
-                      /[A-Z]/.test(forgotPasswordFormData.newPassword)
-                        ? 'text-green-600'
-                        : ''
+                      /[A-Z]/.test(forgotPasswordFormData.newPassword) ? 'text-green-600' : ''
                     }
                   >
                     • Must contain at least one uppercase letter
                   </li>
                   <li
                     className={
-                      /\d/.test(forgotPasswordFormData.newPassword)
-                        ? 'text-green-600'
-                        : ''
+                      /\d/.test(forgotPasswordFormData.newPassword) ? 'text-green-600' : ''
                     }
                   >
                     • Must contain at least one number

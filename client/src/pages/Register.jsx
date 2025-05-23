@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import BASE_URL from '../config';
 
 function Register() {
   const navigate = useNavigate();
@@ -29,24 +30,17 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmPassword,
-      phoneNumber,
-    } = registerFormData;
+    const { firstName, lastName, email, password, confirmPassword, phoneNumber } = registerFormData;
 
     // Check if passwords match
-    if (password !== registerFormData.confirmPassword) {
+    if (password !== confirmPassword) {
       toast.error('Passwords do not match');
       return;
     }
 
     try {
       const { data } = await axios.post(
-        'http://localhost:4000/api/user/register',
+        `${BASE_URL}/api/user/register`,
         {
           firstName,
           lastName,
@@ -54,7 +48,8 @@ function Register() {
           password,
           confirmPassword,
           phoneNumber,
-        }
+        },
+        { withCredentials: true }
       );
 
       if (data.error) {
@@ -67,18 +62,13 @@ function Register() {
           password: '',
           confirmPassword: '',
           phoneNumber: '',
-        }); // Reset form fields
+        });
         toast.success('Registration successful');
         navigate('/login');
       }
-      console.log('Registration successful:', data);
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        toast.error(error.response.data.error);
-      } else {
-        toast.error('Registration failed');
-      }
-      console.log(error);
+      console.error('Registration error:', error);
+      toast.error(error.response?.data?.error || 'Registration failed');
     }
   };
 
@@ -104,12 +94,7 @@ function Register() {
     return score;
   };
 
-  const strengthColors = [
-    'bg-red-500',
-    'bg-orange-400',
-    'bg-yellow-400',
-    'bg-green-500',
-  ];
+  const strengthColors = ['bg-red-500', 'bg-orange-400', 'bg-yellow-400', 'bg-green-500'];
 
   return (
     <>
@@ -117,9 +102,7 @@ function Register() {
         <Navbar />
         <div className=" flex justify-center items-center mt-10 px-4 sm:px-6 lg:px-8">
           <div className="max-w-md w-full bg-white shadow-xl rounded-lg p-6">
-            <h1 className="text-2xl font-bold text-gray-800 text-center">
-              Create Your Account
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-800 text-center">Create Your Account</h1>
             <p className="text-sm text-gray-600 text-center">
               Fill in the details below to register.
             </p>
@@ -217,56 +200,33 @@ function Register() {
 
               {/* Password strength and validation */}
               <div>
-                <p className="font-medium text-sm text-gray-700 mb-1">
-                  Password Strength
-                </p>
+                <p className="font-medium text-sm text-gray-700 mb-1">Password Strength</p>
                 <div className="flex space-x-1 h-2 mb-2">
                   {[0, 1, 2, 3].map((i) => (
                     <div
                       key={i}
                       className={`flex-1 rounded ${
-                        getPasswordStrength() > i
-                          ? strengthColors[i]
-                          : 'bg-gray-200'
+                        getPasswordStrength() > i ? strengthColors[i] : 'bg-gray-200'
                       }`}
                     />
                   ))}
                 </div>
 
                 <ul className="text-xs text-gray-400 space-y-1">
-                  <li
-                    className={
-                      registerFormData.password.length >= 6
-                        ? 'text-green-600'
-                        : ''
-                    }
-                  >
+                  <li className={registerFormData.password.length >= 6 ? 'text-green-600' : ''}>
                     • Minimum 6 characters
                   </li>
-                  <li
-                    className={
-                      /[A-Z]/.test(registerFormData.password)
-                        ? 'text-green-600'
-                        : ''
-                    }
-                  >
+                  <li className={/[A-Z]/.test(registerFormData.password) ? 'text-green-600' : ''}>
                     • Must contain at least one uppercase letter
                   </li>
-                  <li
-                    className={
-                      /\d/.test(registerFormData.password)
-                        ? 'text-green-600'
-                        : ''
-                    }
-                  >
+                  <li className={/\d/.test(registerFormData.password) ? 'text-green-600' : ''}>
                     • Must contain at least one number
                   </li>
                   <li
                     className={
                       registerFormData.password &&
                       registerFormData.confirmPassword &&
-                      registerFormData.password ===
-                        registerFormData.confirmPassword
+                      registerFormData.password === registerFormData.confirmPassword
                         ? 'text-green-600'
                         : ''
                     }
