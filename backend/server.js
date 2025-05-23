@@ -1,11 +1,28 @@
-require('dotenv').config({ path: './.env' });
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const http = require('http');
 const { Server } = require('socket.io');
-const path = require('path');
+
+// Load .env in development, rely on Render's variables in production
+if (process.env.NODE_ENV !== 'production') {
+  const dotenvResult = require('dotenv').config({ path: './.env' });
+  console.log('dotenv loaded:', dotenvResult);
+} else {
+  console.log('Running in production, using Render environment variables');
+}
+
+// Debug: Verify environment variables and paths
+console.log('mongoose:', require('mongoose'));
+console.log('MONGO_URL:', process.env.MONGO_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+if (!process.env.MONGO_URL) {
+  console.error('Error: MONGO_URL is not defined');
+  process.exit(1);
+}
 
 const boardRoutes = require('./Routes/boardRoutes');
 const taskRoutes = require('./Routes/taskRoutes');
@@ -30,20 +47,11 @@ const io = new Server(server, {
 });
 const PORT = process.env.PORT || 4000;
 
-// Debug environment variables
-console.log('MONGO_URL:', process.env.MONGO_URL);
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('PORT:', process.env.PORT);
-if (!process.env.MONGO_URL) {
-  console.error('Error: MONGO_URL is not defined');
-  process.exit(1);
-}
-
 // MongoDB connection
 mongoose
   .connect(process.env.MONGO_URL, {
-    serverSelectionTimeoutMS: 30000, // 30 seconds
-    connectTimeoutMS: 30000, // 30 seconds
+    serverSelectionTimeoutMS: 30000,
+    connectTimeoutMS: 30000,
   })
   .then(() => console.log('MongoDB connected..'))
   .catch((err) => {
@@ -73,10 +81,20 @@ app.use('/api/vendor', vendorRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/guest', guestRoutes);
 
+// Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '/frontend/dist')));
+  const staticPath = path.join(__dirname, '../client/dist');
+  console.log('Serving static files from:', staticPath);
+  app.use(express.static(staticPath));
   app.get('/{*splat}', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
+    const indexPath = path.resolve(__dirname, '..', 'client', 'dist', 'index.html');
+    console.log('Attempting to serve:', indexPath);
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('Error serving index.html:', err);
+        res.status(500).send('Server error');
+      }
+    });
   });
 }
 

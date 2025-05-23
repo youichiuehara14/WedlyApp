@@ -10,7 +10,8 @@
     "mongoose": "^8.14.3",
     "nodemailer": "^7.0.3",
     "nodemon": "^3.1.10",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "wedly-app": "file:.."
   },
   "name": "backend",
   "version": "1.0.0",
