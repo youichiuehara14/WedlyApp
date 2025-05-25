@@ -171,7 +171,7 @@ const updateTask = async (req, res) => {
     if (status && status.toLowerCase() === 'done') {
       await sendEmail(
         'project5upliftcodecamp@gmail.com',
-        🎉 Task "${updatedTask.title}" is completed,
+     Task "${updatedTask.title}" is completed,
         <p>Hello,</p><p>The task "<strong>${updatedTask.title}</strong>" has been marked as <strong>Done</strong>.</p>
       );
     }
