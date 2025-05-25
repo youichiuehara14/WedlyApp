@@ -16,6 +16,7 @@ import { useContext, useState } from 'react';
 import { Context } from '../Context';
 import toast from 'react-hot-toast';
 import ring from '../assets/icons/ring.png';
+import BASE_URL from '../config';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -43,7 +44,7 @@ const Navbar = () => {
   const handleLogout = () => {
     toggleMobileMenu();
     if (window.confirm('Are you sure you want to log out?')) {
-      fetch('http://localhost:4000/api/user/logout', {
+      fetch(`${BASE_URL}api/user/logout`, {
         method: 'POST',
         credentials: 'include',
       })
