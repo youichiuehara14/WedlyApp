@@ -31,11 +31,9 @@ const taskSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: true,
   },
   cost: {
     type: Number,
-    required: true,
   },
   checklists: [
     {
