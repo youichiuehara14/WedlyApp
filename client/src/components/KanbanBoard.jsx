@@ -201,7 +201,7 @@ const KanbanBoard = () => {
           status: newStatus,
           priority: taskData.priority || 'Medium',
           position: overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t._id === overId),
-          vendor: taskData.vendor,
+          ...(taskData.vendor && { vendor: taskData.vendor }),
         };
 
         await axios.put(`${BASE_URL}/api/task/update-task/${activeId}`, updatedTaskData, {
