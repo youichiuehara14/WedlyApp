@@ -131,39 +131,39 @@ const updateTask = async (req, res) => {
       vendor: vendorId,
     } = req.body;
 
-    // Fetch the vendor details to get category and cost
-    // const vendor = await Vendor.findById(vendorId);
-    // if (!vendor) {
-    //   return res.status(404).json({ message: 'Vendor not found' });
-    // }
+    const updateData = {
+      title,
+      description,
+      taskColor,
+      dueDate,
+      status,
+      priority,
+      position,
+      updatedAt: Date.now(),
+    };
 
-    const category = vendor.category;
-    const cost = vendor.cost;
+    if (vendorId) {
+      const vendor = await Vendor.findById(vendorId);
+      if (!vendor) {
+        return res.status(404).json({ message: 'Vendor not found' });
+      }
+      updateData.vendor = vendorId;
+      updateData.category = vendor.category;
+      updateData.cost = vendor.cost;
+    }
 
-    const updatedTask = await Task.findByIdAndUpdate(
-      taskId,
-      {
-        title,
-        description,
-        taskColor,
-        dueDate,
-        status,
-        priority,
-        position,
-        vendor: vendorId,
-        category,
-        cost,
-        updatedAt: Date.now(),
-      },
-      { new: true }
-    )
+    const updatedTask = await Task.findByIdAndUpdate(taskId, updateData, { new: true })
       .populate('vendor', 'name')
       .populate('board', 'title');
+
+    if (!updatedTask) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
 
     // Update the board's budget after task update
     await updateBoardBudget(updatedTask.board._id);
 
-    // ✅ Send email if task is moved to "Done"
+    // Send email if task is moved to "Done"
     if (status && status.toLowerCase() === 'done') {
       await sendEmail(
         'project5upliftcodecamp@gmail.com',
@@ -172,9 +172,6 @@ const updateTask = async (req, res) => {
       );
     }
 
-    if (!updatedTask) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
     res.status(200).json({
       message: 'Task updated successfully',
       task: updatedTask,
