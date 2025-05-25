@@ -9,6 +9,7 @@ import {
   AppWindow,
   MessageSquareMore,
   User,
+  Sparkles,
 } from 'lucide-react';
 import StartProjectButton from './StartProjectButton';
 import { useContext, useState } from 'react';
@@ -168,6 +169,12 @@ const Navbar = () => {
                 <MessageSquareMore strokeWidth={1} />
                 <NavLink to="/home/messages" onClick={toggleMobileMenu}>
                   Messages
+                </NavLink>
+              </li>
+              <li className="cursor-pointer font-medium flex gap-4 items-center">
+                <Sparkles strokeWidth={1} />
+                <NavLink to="/home/messages" onClick={toggleMobileMenu}>
+                  AI Suggestions
                 </NavLink>
               </li>
               <hr className="my-6 border-gray-300" />
