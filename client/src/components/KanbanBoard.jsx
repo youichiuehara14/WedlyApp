@@ -27,6 +27,7 @@ const KanbanBoard = () => {
   });
   const [activeTask, setActiveTask] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [updatingTasks, setUpdatingTasks] = useState(new Set());
 
   useEffect(() => {
     if (activeBoardObject) {
@@ -158,6 +159,9 @@ const KanbanBoard = () => {
       done: 'Done',
     };
 
+    const prevColumns = { ...columns };
+    const prevTasksPerBoard = { ...tasksPerBoard };
+
     if (fromColumnId === targetColumnId) {
       const oldIndex = columns[fromColumnId].findIndex((t) => t._id === activeId);
       const newIndex = overIsColumn
@@ -168,30 +172,53 @@ const KanbanBoard = () => {
         ...prev,
         [targetColumnId]: arrayMove(prev[targetColumnId], oldIndex, newIndex),
       }));
+
+      setTasksPerBoard((prev) => {
+        const newTasks = prev.tasks.map((task) =>
+          task._id === activeId ? { ...task, position: newIndex } : task
+        );
+        return { ...prev, tasks: newTasks };
+      });
+
+      try {
+        await axios.put(
+          `${BASE_URL}/api/task/update-task/${activeId}`,
+          { position: newIndex },
+          { withCredentials: true }
+        );
+      } catch (error) {
+        console.error('Failed to update task position:', error);
+        setColumns(prevColumns);
+        setTasksPerBoard(prevTasksPerBoard);
+        alert(
+          'Failed to update task position: ' + (error.response?.data?.message || error.message)
+        );
+      }
     } else {
       const newStatus = statusMap[targetColumnId];
-
-      const newColumns = {
-        ...columns,
-        [fromColumnId]: columns[fromColumnId].filter((t) => t._id !== activeId),
+      const newPosition = overIsColumn
+        ? 0
+        : columns[targetColumnId].findIndex((t) => t._id === overId);
+      setUpdatingTasks((prev) => new Set([...prev, activeId]));
+      setColumns((prev) => ({
+        ...prev,
+        [fromColumnId]: prev[fromColumnId].filter((t) => t._id !== activeId),
         [targetColumnId]: [
-          ...columns[targetColumnId].slice(
-            0,
-            overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t._id === overId)
-          ),
+          ...prev[targetColumnId].slice(0, newPosition),
           {
             ...taskData,
             status: newStatus,
-            position: overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t._id === overId),
+            position: newPosition,
           },
-          ...columns[targetColumnId].slice(
-            overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t._id === overId)
-          ),
+          ...prev[targetColumnId].slice(newPosition),
         ],
-      };
-
-      setColumns(newColumns);
-
+      }));
+      setTasksPerBoard((prev) => {
+        const newTasks = prev.tasks.map((task) =>
+          task._id === activeId ? { ...task, status: newStatus, position: newPosition } : task
+        );
+        return { ...prev, tasks: newTasks };
+      });
       try {
         const updatedTaskData = {
           title: taskData.title,
@@ -200,27 +227,24 @@ const KanbanBoard = () => {
           dueDate: taskData.dueDate || null,
           status: newStatus,
           priority: taskData.priority || 'Medium',
-          position: overIsColumn ? 0 : columns[targetColumnId].findIndex((t) => t._id === overId),
+          position: newPosition,
           ...(taskData.vendor && { vendor: taskData.vendor }),
         };
 
         await axios.put(`${BASE_URL}/api/task/update-task/${activeId}`, updatedTaskData, {
           withCredentials: true,
         });
-
-        setTasksPerBoard((prev) => {
-          const newTasks = prev.tasks.map((task) =>
-            task._id === activeId ? { ...task, ...updatedTaskData } : task
-          );
-          return { ...prev, tasks: newTasks };
-        });
       } catch (error) {
-        setColumns((prev) => ({
-          ...prev,
-          [fromColumnId]: [...prev[fromColumnId], { ...taskData, status: statusMap[fromColumnId] }],
-          [targetColumnId]: prev[targetColumnId].filter((t) => t._id !== activeId),
-        }));
+        console.error('Failed to update task:', error);
+        setColumns(prevColumns);
+        setTasksPerBoard(prevTasksPerBoard);
         alert('Failed to update task status: ' + (error.response?.data?.message || error.message));
+      } finally {
+        setUpdatingTasks((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(activeId);
+          return newSet;
+        });
       }
     }
   };
@@ -255,7 +279,11 @@ const KanbanBoard = () => {
               <div className="w-full sm:w-64 md:w-72 lg:w-80 flex-shrink-0">
                 <KanbanColumn
                   id={columnId}
-                  tasks={columns[columnId]}
+                  // NEW: Pass updatingTasks to show loading state in TaskCard
+                  tasks={columns[columnId].map((task) => ({
+                    ...task,
+                    isUpdating: updatingTasks.has(task._id),
+                  }))}
                   onTaskClick={(task) => setSelectedTask(task)}
                 />
               </div>
