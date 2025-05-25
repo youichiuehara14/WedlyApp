@@ -136,7 +136,7 @@ const KanbanBoard = () => {
     }
   };
 
-  const handleDragEnd = async ({ active, over }) => {
+  const handleDragEnd = async ({ active, over, delta }) => {
     setActiveTask(null);
     if (!over) return;
 
@@ -165,7 +165,9 @@ const KanbanBoard = () => {
     if (fromColumnId === targetColumnId) {
       const oldIndex = columns[fromColumnId].findIndex((t) => t._id === activeId);
       const newIndex = overIsColumn
-        ? 0
+        ? delta.y < 0
+          ? 0
+          : columns[targetColumnId].length
         : columns[targetColumnId].findIndex((t) => t._id === overId);
 
       setColumns((prev) => ({
@@ -196,9 +198,15 @@ const KanbanBoard = () => {
       }
     } else {
       const newStatus = statusMap[targetColumnId];
-      const newPosition = overIsColumn
-        ? 0
-        : columns[targetColumnId].findIndex((t) => t._id === overId);
+      let newPosition;
+      if (overIsColumn) {
+        const columnHeight = over.rect.height;
+        const dropY = active.rect.current.translated?.top - over.rect.top;
+        newPosition = dropY < columnHeight / 2 ? 0 : columns[targetColumnId].length;
+      } else {
+        newPosition = columns[targetColumnId].findIndex((t) => t._id === overId);
+      }
+
       setUpdatingTasks((prev) => new Set([...prev, activeId]));
       setColumns((prev) => ({
         ...prev,
@@ -219,6 +227,7 @@ const KanbanBoard = () => {
         );
         return { ...prev, tasks: newTasks };
       });
+
       try {
         const updatedTaskData = {
           title: taskData.title,
@@ -279,7 +288,6 @@ const KanbanBoard = () => {
               <div className="w-full sm:w-64 md:w-72 lg:w-80 flex-shrink-0">
                 <KanbanColumn
                   id={columnId}
-                  // NEW: Pass updatingTasks to show loading state in TaskCard
                   tasks={columns[columnId].map((task) => ({
                     ...task,
                     isUpdating: updatingTasks.has(task._id),
