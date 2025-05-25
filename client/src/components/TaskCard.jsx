@@ -3,7 +3,14 @@ import { getDragStyle } from '../utils/dragStyle.js';
 import { colorToHex } from '../utils/colorMap.js';
 
 const TaskCard = ({ task, id, onClick }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: id,
   });
 
@@ -16,10 +23,14 @@ const TaskCard = ({ task, id, onClick }) => {
   const timeDiff = dueDate - currentDate;
   const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
   const daysLeftText =
-    dueDate > currentDate ? `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left` : 'Overdue';
+    dueDate > currentDate
+      ? `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`
+      : 'Overdue';
 
   const completionPercentage = task.checklists?.length
-    ? (task.checklists.filter((item) => item.isCompleted).length / task.checklists.length) * 100
+    ? (task.checklists.filter((item) => item.isCompleted).length /
+        task.checklists.length) *
+      100
     : 0;
 
   // Determine background color based on priority
@@ -46,13 +57,19 @@ const TaskCard = ({ task, id, onClick }) => {
           className="w-4 sm:w-3 h-5 mb-2 absolute -top-6 "
           style={{ backgroundColor: hexColor }}
         ></div>
-        <p className={` text-[13px] w-15 text-center text-white mb-2 ml-auto ${priorityBgColor}`}>
+        <p
+          className={` text-[13px] w-15 text-center text-white mb-2 ml-auto ${priorityBgColor}`}
+        >
           {task.priority}
         </p>
 
         <div className="flex flex-col">
-          <p className="text-black font-semibold text-sm sm:text-base flex-1">{task.title}</p>
-          <p className="text-[13px] text-black font-semibold">{task.category}</p>
+          <p className="text-black font-semibold text-sm sm:text-base flex-1">
+            {task.title}
+          </p>
+          <p className="text-[13px] text-black font-semibold">
+            {task.category}
+          </p>
         </div>
         <div className="mt-2">
           <div className="text-xs text-black mb-1">
@@ -66,7 +83,18 @@ const TaskCard = ({ task, id, onClick }) => {
           </div>
         </div>
         <div className="flex items-center mt-2 justify-between  ">
-          <p className="text-black text-xs sm:text-sm ">Php {Number(task.cost).toLocaleString()}</p>
+          <p className="text-black text-xs sm:text-sm ">
+            Php{' '}
+            {isNaN(Number(task.cost)) ||
+            task.cost === null ||
+            task.cost === undefined
+              ? '0.00'
+              : Number(task.cost).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+          </p>
+
           <p
             className={`text-[11px] font-medium ${
               dueDate > currentDate

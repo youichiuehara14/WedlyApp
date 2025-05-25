@@ -11,6 +11,7 @@ import {
   ChevronsRight,
   UserRound,
   User,
+  Sparkles,
 } from 'lucide-react';
 import { useContext, useState } from 'react';
 import { Context } from '../Context';
@@ -87,7 +88,9 @@ const Sidebar = () => {
             {profileLetter}
           </div>
           {!collapsed && (
-            <span className="mt-2 text-sm font-semibold  text-white">{user?.firstName}</span>
+            <span className="mt-2 text-sm font-semibold  text-white">
+              {user?.firstName}
+            </span>
           )}
         </div>
       </div>
@@ -101,14 +104,40 @@ const Sidebar = () => {
             label="Overview"
             collapsed={collapsed}
           />
-          <SidebarItem to="/home/tasks" icon={SquareKanban} label="Tasks" collapsed={collapsed} />
-          <SidebarItem to="/home/vendor" icon={Store} label="Vendor" collapsed={collapsed} />
-          <SidebarItem to="/home/guest" icon={User} label="Guest" collapsed={collapsed} />
-          <SidebarItem to="/home/boards" icon={AppWindow} label="Boards" collapsed={collapsed} />
+          <SidebarItem
+            to="/home/tasks"
+            icon={SquareKanban}
+            label="Tasks"
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            to="/home/vendor"
+            icon={Store}
+            label="Vendor"
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            to="/home/guest"
+            icon={User}
+            label="Guest"
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            to="/home/boards"
+            icon={AppWindow}
+            label="Boards"
+            collapsed={collapsed}
+          />
           <SidebarItem
             to="/home/messages"
             icon={MessageSquareMore}
             label="Messages"
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            to="/home/ai"
+            icon={Sparkles}
+            label="AI Suggestions"
             collapsed={collapsed}
           />
         </ul>

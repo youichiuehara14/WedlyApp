@@ -9,6 +9,7 @@ import {
   AppWindow,
   MessageSquareMore,
   User,
+  Sparkles,
 } from 'lucide-react';
 import StartProjectButton from './StartProjectButton';
 import { useContext, useState } from 'react';
@@ -84,7 +85,10 @@ const Navbar = () => {
               aria-label="Go to Dashboard Home"
             >
               <img src={ring} alt="Wedly Logo" className="w-11" />
-              <span style={{ fontFamily: 'Parisienne' }} className="text-4xl text-white font-light">
+              <span
+                style={{ fontFamily: 'Parisienne' }}
+                className="text-4xl text-white font-light"
+              >
                 Wedly
               </span>
             </NavLink>
@@ -170,9 +174,15 @@ const Navbar = () => {
                   Messages
                 </NavLink>
               </li>
+              <li className="cursor-pointer font-medium flex gap-4 items-center">
+                <MessageSquareMore strokeWidth={1} />
+                <NavLink to="/home/messages" onClick={toggleMobileMenu}>
+                  AI Suggestions
+                </NavLink>
+              </li>
               <hr className="my-6 border-gray-300" />
               <li className="cursor-pointer font-medium flex gap-4 items-center">
-                <UserRoundCog strokeWidth={1} />
+                <Sparkles strokeWidth={1} />
                 <NavLink to="/home/account" onClick={toggleMobileMenu}>
                   Profile
                 </NavLink>

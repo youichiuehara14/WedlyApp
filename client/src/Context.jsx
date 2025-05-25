@@ -116,6 +116,8 @@ export const ContextProvider = ({ children }) => {
     }
   };
 
+  console.log(activeBoardObject, tasksPerBoard);
+
   return (
     <Context.Provider
       value={{
