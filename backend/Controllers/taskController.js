@@ -131,14 +131,18 @@ const updateTask = async (req, res) => {
       vendor: vendorId,
     } = req.body;
 
-    // Fetch the vendor details to get category and cost
-    const vendor = await Vendor.findById(vendorId);
-    if (!vendor) {
-      return res.status(404).json({ message: 'Vendor not found' });
-    }
+    let category = null;
+    let cost = null;
 
-    const category = vendor.category;
-    const cost = vendor.cost;
+    // If vendorId is provided, fetch vendor details
+    if (vendorId && vendorId.trim() !== '') {
+      const vendor = await Vendor.findById(vendorId);
+      if (!vendor) {
+        return res.status(404).json({ message: 'Vendor not found' });
+      }
+      category = vendor.category;
+      cost = vendor.cost;
+    }
 
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
@@ -150,9 +154,9 @@ const updateTask = async (req, res) => {
         status,
         priority,
         position,
-        vendor: vendorId,
-        category,
-        cost,
+        vendor: vendorId || undefined, // Only update vendor if provided
+        ...(category && { category }),
+        ...(cost && { cost }),
         updatedAt: Date.now(),
       },
       { new: true }
@@ -167,8 +171,8 @@ const updateTask = async (req, res) => {
     if (status && status.toLowerCase() === 'done') {
       await sendEmail(
         'project5upliftcodecamp@gmail.com',
-        `🎉 Task "${updatedTask.title}" is completed`,
-        `<p>Hello,</p><p>The task "<strong>${updatedTask.title}</strong>" has been marked as <strong>Done</strong>.</p>`
+        🎉 Task "${updatedTask.title}" is completed,
+        <p>Hello,</p><p>The task "<strong>${updatedTask.title}</strong>" has been marked as <strong>Done</strong>.</p>
       );
     }
 
