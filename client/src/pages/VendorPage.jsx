@@ -338,7 +338,7 @@ export default function VendorPage() {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDelete(i)}
+                          onClick={() => handleDelete(v)}
                           className="text-black cursor-pointer text-xs sm:text-lg hover:underline "
                         >
                           Delete
