@@ -15,7 +15,7 @@ export const ContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const [guestsObjects, setGuestsObjects] = useState([]);
-  const socket = io(BASE_URL, {
+  const socket = io(BASE_URL || 'https://wedly-app.onrender.com', {
     withCredentials: true,
     transports: ['websocket', 'polling'],
   });
