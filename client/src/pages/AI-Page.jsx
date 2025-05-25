@@ -7,9 +7,9 @@ const AIPage = () => {
   const [aiResponse, setAiResponse] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const genAI = new GoogleGenerativeAI(
-    'AIzaSyBzZpHJrVSwicXJHTNMHoQ6n4YmQYd7s28'
-  );
+  const apiKey = import.meta.env.VITE_AI_API_KEY;
+
+  const genAI = new GoogleGenerativeAI(apiKey);
 
   const handleSend = async () => {
     if (!activeBoardObject || Object.keys(activeBoardObject).length === 0) {
