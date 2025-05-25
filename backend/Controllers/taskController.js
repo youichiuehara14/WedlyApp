@@ -132,10 +132,10 @@ const updateTask = async (req, res) => {
     } = req.body;
 
     // Fetch the vendor details to get category and cost
-    const vendor = await Vendor.findById(vendorId);
-    if (!vendor) {
-      return res.status(404).json({ message: 'Vendor not found' });
-    }
+    // const vendor = await Vendor.findById(vendorId);
+    // if (!vendor) {
+    //   return res.status(404).json({ message: 'Vendor not found' });
+    // }
 
     const category = vendor.category;
     const cost = vendor.cost;
