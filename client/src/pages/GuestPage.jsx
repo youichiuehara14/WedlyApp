@@ -127,8 +127,7 @@ export default function GuestPage() {
     }
   };
 
-  const handleDelete = async (index) => {
-    const guest = guestsObjects[index];
+  const handleDelete = async (guest) => {
     if (!guest) return;
     if (window.confirm('Delete this guest?')) {
       try {
@@ -136,9 +135,8 @@ export default function GuestPage() {
           withCredentials: true,
         });
         toast.success('Guest deleted!');
-        setGuestsObjects((prev) => prev.filter((_, i) => i !== index));
+        setGuestsObjects((prev) => prev.filter((g) => g._id !== guest._id));
       } catch (err) {
-        console.error('Delete guest error:', err);
         toast.error(err.response?.data?.message || 'Failed to delete guest');
       }
     }
@@ -300,7 +298,7 @@ export default function GuestPage() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(i)}
+                        onClick={() => handleDelete(v)}
                         className="text-black cursor-pointer hover:underline text-xs md:text-lg"
                       >
                         Delete
