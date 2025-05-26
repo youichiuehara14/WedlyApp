@@ -13,6 +13,7 @@ import {
   ShieldUser,
 } from 'lucide-react';
 import NavbarLandingPage from '../components/NavbarLandingPage';
+import DashboardImg from '../assets/DashboardImg.jpg';
 
 export default function WeddingPlannerLandingPage() {
   const [animatedSections, setAnimatedSections] = useState(new Set());
@@ -60,9 +61,8 @@ export default function WeddingPlannerLandingPage() {
           backgroundImage: `url(${wedpic})`,
           backgroundSize: 'cover',
           backgroundPosition: 'bottom',
-          height: '400px',
         }}
-        className="min-h-screen font-sans pt-16"
+        className="h-180 absolute w-full font-sans pt-16"
       >
         {' '}
         {/*bg-gradient-to-b from-stone-700 to-white*/}
@@ -103,11 +103,11 @@ export default function WeddingPlannerLandingPage() {
                 </div>
               </div>
               <div className="relative">
-                <div className="bg-pink-100 rounded-xl p-2 shadow-lg">
+                <div className="p-2 shadow-lg hidden md:inline-block">
                   <img
-                    src="/api/placeholder/600/400"
+                    src={DashboardImg}
                     alt="Wedding planning on a tablet"
-                    className="rounded-lg w-full h-auto"
+                    className="rounded-lg w-full h-auto "
                   />
                 </div>
                 <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-lg hidden md:block">
